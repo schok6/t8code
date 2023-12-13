@@ -126,7 +126,7 @@ main (int argc, char **argv)
   /* The prefix for our output files. */
   const char *prefix = "t8_step2_uniform_forest";
   /* The uniform refinement level of the forest. */
-  const int level = 3;
+  const int level = 4;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
 
@@ -163,6 +163,8 @@ main (int argc, char **argv)
   t8_global_productionf (" [step2] Refinement level:\t\t\t%i\n", level);
   t8_global_productionf (" [step2] Local number of elements:\t\t%i\n", local_num_elements);
   t8_global_productionf (" [step2] Global number of elements:\t%li\n", global_num_elements);
+  //t8_productionf (" [step2] Local number of elements:\t\t%i\n", local_num_elements);
+  //t8_productionf (" [step2] Global number of elements:\t%li\n", global_num_elements);
 
   /* Write forest to vtu files. */
   t8_step2_write_forest_vtk (forest, prefix);
