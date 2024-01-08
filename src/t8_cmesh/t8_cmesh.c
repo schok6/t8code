@@ -315,6 +315,8 @@ t8_cmesh_ltreeid_to_ghostid (const t8_cmesh_t cmesh, const t8_locidx_t ltreeid)
 
 /* TODO: should get a gloidx?
  *       place after commit */
+/* Returns NULL if tree does not exit
+*/
 t8_ctree_t
 t8_cmesh_get_tree (t8_cmesh_t cmesh, t8_locidx_t ltree_id)
 {

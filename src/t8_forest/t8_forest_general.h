@@ -471,6 +471,7 @@ t8_locidx_t
 t8_forest_cmesh_ltreeid_to_ltreeid (t8_forest_t forest, t8_locidx_t lctreeid);
 
 /** Given the local id of a tree in a forest, return the coarse tree of the cmesh that corresponds to this tree.
+ * Return NULL if tree does not exist.
  * \param [in] forest     The forest.
  * \param [in] ltreeid    The local id of a tree in the forest.
  * \return                The coarse tree that matches the forest tree with local id \a ltreeid.

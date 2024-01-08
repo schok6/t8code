@@ -135,6 +135,7 @@ t8_forest_copy_trees (t8_forest_t forest, t8_forest_t from, int copy_elements);
 /** Given the local id of a tree in a forest, return the coarse tree of the
  * cmesh that corresponds to this tree, also return the neighbor information of
  * the tree.
+ * Returns NULL if tree does not exist.
  * \param [in]  forest     The forest.
  * \param [in]  ltreeid    The local id of a tree in the forest.
  * \param [out] face_neigh If not NULL a pointer to the trees face_neighbor

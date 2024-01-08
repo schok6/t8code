@@ -284,6 +284,7 @@ t8_cmesh_trees_get_part_data (t8_cmesh_trees_t trees, int proc, t8_locidx_t *fir
 /* TODO: This function returns NULL if the tree is not present.
  *       So far no error checking is done here. */
 /** Return a pointer to a specific tree in a trees struct.
+ * Returns NULL if tree does not exist.
  * \param [in]      trees The tress structure where the tree is to be looked up.
  * \param [in]      ltree  The local id of the tree.
  * \return                A pointer to the tree with local id \a tree.
@@ -293,6 +294,7 @@ t8_cmesh_trees_get_tree (t8_cmesh_trees_t trees, t8_locidx_t ltree);
 
 /** Return a pointer to a specific tree in a trees struct plus pointers to
  * its face_neighbor and tree_to_face arrays.
+ * Returns NULL if tree does not exist.
  * \param [in]      trees The trees structure where the tree is to be looked up.
  * \param [in]      ltree_id  The local id of the tree.
  * \param [out]     face_neigh If not NULL a pointer to the trees face_neighbor
@@ -344,6 +346,7 @@ t8_cmesh_trees_get_ghost_face_neighbor_ext (const t8_cghost_t ghost, const int f
 /* TODO: This function returns NULL if the ghost is not present.
  *       So far no error checking is done here. */
 /** Return a pointer to a specific ghost in a trees struct.
+ * Returns NULL if tree does not exist.
  * \param [in]      trees The tress structure where the tree is to be looked up.
  * \param [in]      lghost The local id of the ghost.
  * \return                A pointer to the ghost with local id \a ghost.

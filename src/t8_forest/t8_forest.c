@@ -1142,13 +1142,17 @@ t8_forest_get_coarse_tree_ext (t8_forest_t forest, t8_locidx_t ltreeid, t8_locid
   /* Compute the coarse tree's local id */
   lctreeid = t8_forest_ltreeid_to_cmesh_ltreeid (forest, ltreeid);
 
-  return t8_cmesh_trees_get_tree_ext (forest->cmesh->trees, lctreeid, face_neigh, ttf);
+  if (t8_cmesh_trees_get_tree_ext (forest->cmesh->trees, lctreeid, face_neigh, ttf) != NULL){
+    return t8_cmesh_trees_get_tree_ext (forest->cmesh->trees, lctreeid, face_neigh, ttf);
+  }
 }
 
 t8_ctree_t
 t8_forest_get_coarse_tree (t8_forest_t forest, t8_locidx_t ltreeid)
 {
-  return t8_forest_get_coarse_tree_ext (forest, ltreeid, NULL, NULL);
+  if (t8_forest_get_coarse_tree_ext (forest, ltreeid, NULL, NULL) != NULL){
+    return t8_forest_get_coarse_tree_ext (forest, ltreeid, NULL, NULL);
+  }
 }
 
 void

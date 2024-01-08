@@ -407,7 +407,8 @@ t8_cmesh_trees_ghost_attribute_size (t8_cghost_t ghost)
 }
 
 /* Return the number of allocated bytes for a part's
- * first_tree array */
+ * first_tree array
+ * Returns NULL if tree and ghost do not exist */
 static size_t
 t8_cmesh_trees_get_part_alloc (t8_cmesh_trees_t trees, t8_part_tree_t part)
 {
@@ -418,14 +419,18 @@ t8_cmesh_trees_get_part_alloc (t8_cmesh_trees_t trees, t8_part_tree_t part)
 
   byte_alloc = part->num_trees * sizeof (t8_ctree_struct_t) + part->num_ghosts * sizeof (t8_cghost_struct_t);
   for (ltree = 0; ltree < part->num_trees; ltree++) {
-    tree = t8_cmesh_trees_get_tree (trees, ltree + part->first_tree_id);
-    byte_alloc += t8_cmesh_trees_attribute_size (tree);
-    byte_alloc += tree->num_attributes * sizeof (t8_attribute_info_struct_t);
-    byte_alloc += t8_cmesh_trees_neighbor_bytes (tree);
+    if (t8_cmesh_trees_get_tree (trees, ltree + part->first_tree_id) != NULL){
+      tree = t8_cmesh_trees_get_tree (trees, ltree + part->first_tree_id);
+      byte_alloc += t8_cmesh_trees_attribute_size (tree);
+      byte_alloc += tree->num_attributes * sizeof (t8_attribute_info_struct_t);
+      byte_alloc += t8_cmesh_trees_neighbor_bytes (tree);
+    }
   }
   for (lghost = 0; lghost < part->num_ghosts; lghost++) {
-    ghost = t8_cmesh_trees_get_ghost (trees, lghost + part->first_ghost_id);
-    byte_alloc += t8_cmesh_trees_gneighbor_bytes (ghost);
+    if (t8_cmesh_trees_get_ghost (trees, lghost + part->first_ghost_id) =! NULL){
+      ghost = t8_cmesh_trees_get_ghost (trees, lghost + part->first_ghost_id);
+      byte_alloc += t8_cmesh_trees_gneighbor_bytes (ghost);
+    }
   }
   return byte_alloc;
 }
@@ -473,7 +478,9 @@ t8_ctree_t
 t8_cmesh_trees_get_tree_ext (t8_cmesh_trees_t trees, t8_locidx_t ltree_id, t8_locidx_t **face_neigh, int8_t **ttf)
 {
   t8_ctree_t tree;
-  tree = t8_cmesh_trees_get_tree (trees, ltree_id);
+  if (t8_cmesh_trees_get_tree (trees, ltree_id) != NULL){
+    tree = t8_cmesh_trees_get_tree (trees, ltree_id);
+  }
   if (face_neigh != NULL) {
     *face_neigh = (t8_locidx_t *) T8_TREE_FACE (tree);
   }
