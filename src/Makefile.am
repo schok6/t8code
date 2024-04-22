@@ -94,11 +94,7 @@ libt8_installed_headers_default_hex =
 libt8_installed_headers_default_tet =
 libt8_installed_headers_default_prism =
 libt8_installed_headers_default_pyramid =
-<<<<<<< HEAD
-=======
-libt8_installed_headers_schemes_standalone =
 libt8_installed_headers_schemes_2_5dimension =
->>>>>>> cc61026c5... structure for 2_5dimensional scheme
 libt8_internal_headers = \
   src/t8_cmesh/t8_cmesh_trees.h src/t8_cmesh/t8_cmesh_partition.h \
   src/t8_cmesh/t8_cmesh_copy.h \
@@ -196,10 +192,5 @@ dist_defaulthexinclude_HEADERS = $(libt8_installed_headers_default_hex)
 dist_defaulttetinclude_HEADERS = $(libt8_installed_headers_default_tet)
 dist_defaultprisminclude_HEADERS = $(libt8_installed_headers_default_prism)
 dist_defaultpyramidinclude_HEADERS = $(libt8_installed_headers_default_pyramid)
-<<<<<<< HEAD
-=======
-dist_schemesstandaloneinclude_HEADERS = $(libt8_installed_headers_schemes_standalone)
 dist_schemes2_5dimensioninclude_HEADERS = $(libt8_installed_headers_schemes_2_5dimension)
->>>>>>> cc61026c5... structure for 2_5dimensional scheme
-
 AM_CPPFLAGS += -I@top_srcdir@/src @T8_SC_CPPFLAGS@ @T8_P4EST_CPPFLAGS@
