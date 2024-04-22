@@ -17,6 +17,7 @@
 
   You should have received a copy of the GNU General Public License
   along with t8code; if not, write to the Free Software Foundation, Inc.,
+#include <t8_element.h>
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
@@ -24,12 +25,11 @@
 #define T8_2_5DIMENSION_ELEMENT_CXX_HXX
 
 #include <t8_element.h>
-#include <t8_bielement_cxx.hxx>
+#include <t8_element_cxx.hxx>
 #include <t8_eclass.h>
-#include <sc.h>
+//#include <sc.h>
 #include <sc_functions.h>
-#include <t8_schemes/t8_standalone/t8_sele_cxx.hxx>
-#include <t8_schemes/t8_standalone/t8_sele_bits_cxx.hxx>
+//#include <t8_element_c_interface.h>
 //#include <t8_schemes/t8_default/t8_default_common/t8_default_common_cxx.hxx>
 
 //#include <t8_schemes/t8_default/t8_default_common_cxx.hxx>
@@ -39,14 +39,15 @@
  * refinement in x,y and z or x and y,z.
 */
 
-template <t8_eclass_t eclass_T1, t8_eclass_t eclass_T2>
-struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
+struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 {
  public:
+  t8_eclass_scheme_c *scheme1;
+  t8_eclass_scheme_c *scheme2;
   /** The table for a particular implementation of an element class. */
 
   /** Constructor. */
-  t8_2_5dimension_scheme_c (void);
+  t8_2_5dimension_scheme_c (t8_eclass_scheme_c *scheme1, t8_eclass_scheme_c *scheme2);
 
   ~t8_2_5dimension_scheme_c ();
 
@@ -98,22 +99,31 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
   virtual int
   t8_element_compare (const t8_element_t *elem1, const t8_element_t *elem2) const;
 
-  /** Compute the parent(s) of a given element \b elem and store it in \b parent(s).
-   *  \b parent needs to be an existing element. No memory is allocated by this function.
-   *  \b elem and \b parent_i can point to the same element, then the entries of
-   *  \b elem are overwritten by the ones of its parent.
-   * \param [in] elem   The element whose parent will be computed.
-   * \param [in,out] parent_i This element's entries will be overwritten by those
-   *                    of \b elem's parent in \a eclass_Ti.
-   *                    The storage for this element must exist
-   *                    and match the element class of the parent.
-   *                    For a pyramid, for example, it may be either a
-   *                    tetrahedron or a pyramid depending on \b elem's childid.
-   * Note: i being the index+1 of the array -> just one parent for the default scheme and 
-   *        2 parents for 2_5dimensions
-   */
-  virtual void
-  t8_element_parent_array (const t8_element_t *elem, t8_element_t *parent[]) const;
+  /** Check if two elements are equal.
+  * \param [in] ts     Implementation of a class scheme.
+  * \param [in] elem1  The first element.
+  * \param [in] elem2  The second element.
+  * \return            1 if the elements are equal, 0 if they are not equal
+  */
+  virtual int
+  t8_element_equal (const t8_element_t *elem1, const t8_element_t *elem2) const;
+
+  // /** Compute the parent(s) of a given element \b elem and store it in \b parent(s).
+  //  *  \b parent needs to be an existing element. No memory is allocated by this function.
+  //  *  \b elem and \b parent_i can point to the same element, then the entries of
+  //  *  \b elem are overwritten by the ones of its parent.
+  //  * \param [in] elem   The element whose parent will be computed.
+  //  * \param [in,out] parent_i This element's entries will be overwritten by those
+  //  *                    of \b elem's parent in \a eclass_Ti.
+  //  *                    The storage for this element must exist
+  //  *                    and match the element class of the parent.
+  //  *                    For a pyramid, for example, it may be either a
+  //  *                    tetrahedron or a pyramid depending on \b elem's childid.
+  //  * Note: i being the index+1 of the array -> just one parent for the default scheme and 
+  //  *        2 parents for 2_5dimensions
+  //  */
+  // virtual void
+  // t8_element_parent_array (const t8_element_t *elem, t8_element_t *parent[]) const;
 
   /** Compute the parent of a given element \b elem and store it in \b parent.
    *  \b parent needs to be an existing element. No memory is allocated by this function.
@@ -130,22 +140,22 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
   virtual void
   t8_element_parent (const t8_element_t *elem, t8_element_t *parent) const;
   
-  /** Compute the parents of a given element \b elem and store it in \b parent1 and \b parent2.
-   *  \b parent1 and \b parent2 need to be existing elements. No memory is allocated by this function.
-   *  \b elem and \b parent1 or \b parent2 can point to the same element, then the entries of
-   *  \b elem are overwritten by the ones of its parents.
-   * \param [in] elem   The element whose parents will be computed.
-   * \param [in,out] parent1 This element's entries will be overwritten by those
-   *                    of \b elem's parent in \a eclass_T1.
-   * \param [in,out] parent2 This element's entries will be overwritten by those
-   *                    of \b elem's parent in \a eclass_T2.
-   *                    The storage for this element must exist
-   *                    and match the element class of the parent.
-   *                    For a pyramid, for example, it may be either a
-   *                    tetrahedron or a pyramid depending on \b elem's childid.
-   */
-  virtual void
-  t8_element_parent_2_5 (const t8_element_t *elem, t8_element_t *parent1, t8_element_t *parent2) const;
+  // /** Compute the parents of a given element \b elem and store it in \b parent1 and \b parent2.
+  //  *  \b parent1 and \b parent2 need to be existing elements. No memory is allocated by this function.
+  //  *  \b elem and \b parent1 or \b parent2 can point to the same element, then the entries of
+  //  *  \b elem are overwritten by the ones of its parents.
+  //  * \param [in] elem   The element whose parents will be computed.
+  //  * \param [in,out] parent1 This element's entries will be overwritten by those
+  //  *                    of \b elem's parent in \a eclass_T1.
+  //  * \param [in,out] parent2 This element's entries will be overwritten by those
+  //  *                    of \b elem's parent in \a eclass_T2.
+  //  *                    The storage for this element must exist
+  //  *                    and match the element class of the parent.
+  //  *                    For a pyramid, for example, it may be either a
+  //  *                    tetrahedron or a pyramid depending on \b elem's childid.
+  //  */
+  // virtual void
+  // t8_element_parent_2_5 (const t8_element_t *elem, t8_element_t *parent1, t8_element_t *parent2) const;
 
   /** Compute the number of siblings of an element. That is the number of 
    * Children of its parent.
@@ -295,7 +305,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
    * \note level 0 elements do not form a family.
    */
   virtual int
-  t8_element_is_family (t8_element_t **fam) const;
+  t8_element_is_family (t8_element_t *const *fam) const;
 
   /** Compute the nearest common ancestor of two elements. That is,
    * the element with highest level that still has both given elements as
@@ -551,13 +561,12 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
   virtual void
   t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const;
 
-  /** Construct the successor in a uniform refinement of a given element.
+    /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
    * \param [in,out] elem2  The element whose entries will be set.
-   * \param [in] level    The level of the uniform refinement to consider.
    */
   virtual void
-  t8_element_successor (const t8_element_t *t, t8_element_t *s, int level) const;
+  t8_element_successor (const t8_element_t *t, t8_element_t *s) const;
 
   /* TODO: This function should be removed, since root length is not a general concept that exists for all possible elements. */
   /** Compute the root length of a given element, that is the length of
@@ -602,7 +611,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
    *  Thus, if \a t's level is 0, and \a level = 3, the return value is 2^3 = 8.
    */
   virtual t8_gloidx_t
-  t8_element_count_leafs (const t8_element_t *t, int level) const;
+  t8_element_count_leaves (const t8_element_t *t, int level) const;
 
   /** Count how many leaf descendants of a given uniform level the root element will produce.
    * \param [in] level A refinement level.
@@ -613,7 +622,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
    * \ref t8_element_count_leafs.
    */
   virtual t8_gloidx_t
-  t8_element_count_leafs_from_root (int level) const;
+  t8_element_count_leaves_from_root (int level) const;
 
   /** This function has no defined effect but each implementation is free to
    *  provide its own meaning of it. Thus this function can be used to compute or
@@ -658,6 +667,15 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
  */
   virtual void
   t8_element_debug_print (const t8_element_t *elem) const;
+
+  /**
+ * \brief Fill a string with readable information about the element
+ * 
+ * \param[in] elem The element to translate into human-readable information
+ * \param[in, out] debug_string The string to fill. 
+ */
+  virtual void
+  t8_element_to_string (const t8_element_t *elem, char *debug_string, const int string_size) const;
 #endif
 
   /** Allocate memory for an array of elements of a given class and initialize them.
@@ -686,21 +704,29 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
    * \param [in] length   The number of elements to be initialized.
    * \param [in,out] elems On input an array of \b length many allocated
    *                       elements.
-   * \param [in] called_new True if the elements in \a elem were created by a call
-   *                       to \ref t8_element_new. False if no element in \a elem
-   *                       was created in this way. The case that only some elements
-   *                       were created by \ref t8_element_new should never occur.
    * \note In debugging mode, an element that was passed to \ref t8_element_init
    * must pass \ref t8_element_is_valid.
    * \note If an element was created by \ref t8_element_new then \ref t8_element_init
-   * may not be called for it. Thus, \ref t8_element_new should initialize an element
-   * in the same way as a call to \ref t8_element_init would.
-   * Thus, if \a called_new is true this function should usually do nothing.
+   * may not be called for it. Thus, \ref t8_element_init should initialize an element
+   * in the same way as a call to \ref t8_element_new would.
+   * \note Every call to \ref t8_element_init must be matched by a call to \ref t8_element_deinit
+   * \see t8_element_deinit
    * \see t8_element_new
    * \see t8_element_is_valid
    */
   virtual void
-  t8_element_init (int length, t8_element_t *elem, int called_new) const;
+  t8_element_init (int length, t8_element_t *elem) const;
+
+  /** Deinitialize an array of allocated elements.
+   * \param [in] length   The number of elements to be deinitialized.
+   * \param [in,out] elems On input an array of \b length many allocated
+   *                       and initialized elements, on output an array of
+   *                       \b length many allocated, but not initialized elements.
+   * \note Call this function if you called t8_element_init on the element pointers.
+   * \see t8_element_init
+   */
+  virtual void
+  t8_element_deinit (int length, t8_element_t *elem) const;
 
   /** Deallocate an array of elements.
    * \param [in] length   The number of elements in the array.
@@ -711,8 +737,44 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_comb_c
    */
   virtual void
   t8_element_destroy (int length, t8_element_t **elem) const;
-};
 
-#include "t8_2_5dimension_element_cxx.txx"
+  /** create the root element
+   * \param [in,out] elem The element that is filled with the root
+   */
+  virtual void
+  t8_element_root (t8_element_t *elem) const;
+
+  /** Pack multiple elements into contiguous memory, so they can be sent via MPI.
+   * \param [in] elements Array of elements that are to be packed
+   * \param [in] count Number of elements to pack
+   * \param [in,out] send_buffer Buffer in which to pack the elements
+   * \param [in] buffer_size size of the buffer (in order to check that we don't access out of range)
+   * \param [in, out] position the position of the first byte that is not already packed
+   * \param [in] comm MPI Communicator
+  */
+  virtual void
+  t8_element_MPI_Pack (t8_element_t **const elements, const unsigned int count, void *send_buffer, int buffer_size,
+                       int *position, sc_MPI_Comm comm) const;
+
+  /** Determine an upper bound for the size of the packed message of \b count elements
+   * \param [in] count Number of elements to pack
+   * \param [in] comm MPI Communicator
+   * \param [out] pack_size upper bound on the message size
+  */
+  virtual void
+  t8_element_MPI_Pack_size (const unsigned int count, sc_MPI_Comm comm, int *pack_size) const;
+
+  /** Unpack multiple elements from contiguous memory that was received via MPI.
+   * \param [in] recvbuf Buffer from which to unpack the elements
+   * \param [in] buffer_size size of the buffer (in order to check that we don't access out of range)
+   * \param [in, out] position the position of the first byte that is not already packed
+   * \param [in] elements Array of initialised elements that is to be filled from the message
+   * \param [in] count Number of elements to unpack
+   * \param [in] comm MPI Communicator
+  */
+  virtual void
+  t8_element_MPI_Unpack (void *recvbuf, const int buffer_size, int *position, t8_element_t **elements,
+                         const unsigned int count, sc_MPI_Comm comm) const;
+};
 
 #endif /* !T8_2_5DIMENSION_ELEMENT_CXX_HXX */ 
