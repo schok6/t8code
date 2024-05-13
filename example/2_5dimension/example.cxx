@@ -31,42 +31,42 @@
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension_cxx.hxx>
 
 
-int
-t8_adapt_callback (t8_forest_t forest,
-                         t8_forest_t forest_from,
-                         t8_locidx_t which_tree,
-                         t8_locidx_t lelement_id,
-                         t8_eclass_scheme_c *ts,
-                         const int is_family,
-                         const int num_elements, t8_element_t *elements[])
-{
-  double coords[3];
-  t8_element_t *element= elements[0];
-//  ts->t8_element_vertex_reference_coords(element, 0, coords);
-//  t8_forest_element_centroid(forest_from, which_tree, element, coords);
-  for(int ivertex = 0; ivertex < ts->t8_element_num_corners(element); ivertex++){
-    t8_forest_element_coordinate(forest_from, which_tree, element, ivertex, coords);
-    if (0.49<coords[1]&&coords[1]<0.51){
-      return 1;
-    }
-  }
-  return 0;
-}
+// int
+// t8_adapt_callback (t8_forest_t forest,
+//                          t8_forest_t forest_from,
+//                          t8_locidx_t which_tree,
+//                          t8_locidx_t lelement_id,
+//                          t8_eclass_scheme_c *ts,
+//                          const int is_family,
+//                          const int num_elements, t8_element_t *elements[])
+// {
+//   double coords[3];
+//   t8_element_t *element= elements[0];
+// //  ts->t8_element_vertex_reference_coords(element, 0, coords);
+// //  t8_forest_element_centroid(forest_from, which_tree, element, coords);
+//   for(int ivertex = 0; ivertex < ts->t8_element_num_corners(element); ivertex++){
+//     t8_forest_element_coordinate(forest_from, which_tree, element, ivertex, coords);
+//     if (0.49<coords[1]&&coords[1]<0.51){
+//       return 1;
+//     }
+//   }
+//   return 0;
+// }
 
-t8_forest_t
-t8_forest_adapt_partition_ghost (t8_forest_t forest_from,
-                     t8_forest_adapt_t adapt_fn,
-                     int recursive, int do_partition, int do_face_ghost)
-{
-  t8_forest_t         forest;
+// t8_forest_t
+// t8_forest_adapt_partition_ghost (t8_forest_t forest_from,
+//                      t8_forest_adapt_t adapt_fn,
+//                      int recursive, int do_partition, int do_face_ghost)
+// {
+//   t8_forest_t         forest;
 
-  t8_forest_init (&forest);
-  t8_forest_set_adapt (forest, forest_from, adapt_fn, recursive);
-  t8_forest_set_ghost (forest, do_face_ghost, T8_GHOST_FACES);
-  t8_forest_set_partition(forest,forest_from,0);
-  t8_forest_commit (forest);
-  return forest;
-}
+//   t8_forest_init (&forest);
+//   t8_forest_set_adapt (forest, forest_from, adapt_fn, recursive);
+//   t8_forest_set_ghost (forest, do_face_ghost, T8_GHOST_FACES);
+//   t8_forest_set_partition(forest,forest_from,0);
+//   t8_forest_commit (forest);
+//   return forest;
+// }
 
 int
 main (int argc, char **argv)
@@ -76,7 +76,11 @@ main (int argc, char **argv)
   sc_MPI_Comm         comm;
   t8_cmesh_t          cmesh;
   t8_forest_t         forest;
-  t8_scheme_comb_cxx_t    *scheme = t8_scheme_new_2_5dimension_cxx ();
+  //t8_scheme_cxx_t     *scheme_default = t8_scheme_new_default_cxx ();
+  t8_scheme_comb_cxx_t    *scheme = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_quad_c());
+  t8_scheme_comb_cxx_t    *scheme1 = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_pyramid_c());
+  t8_scheme_comb_cxx_t    *scheme2 = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_tri_c());
+
 
 //   const char         *prefix_uniform = "uniform_forest";
 //   const char         *prefix_adapt1 = "adapted_forest";

@@ -30,6 +30,7 @@
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line_cxx.hxx>
 #include <t8_schemes/t8_default/t8_default_quad/t8_default_quad_cxx.hxx>
 #include <t8_schemes/t8_default/t8_default_tri/t8_default_tri_cxx.hxx>
+#include <t8_schemes/t8_default/t8_default_pyramid/t8_default_pyramid_cxx.hxx>
 
 /** Return the 2_5dimension element implementation of t8code. */
 t8_scheme_comb_cxx_t *

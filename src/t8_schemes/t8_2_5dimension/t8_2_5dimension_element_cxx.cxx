@@ -28,11 +28,8 @@ t8_2_5dimension_scheme_c::t8_2_5dimension_scheme_c (t8_eclass_scheme_c *scheme1,
   this->scheme2 = scheme1;
   t8_eclass_t eclass1 = scheme1->eclass;
   t8_eclass_t eclass2 = scheme2->eclass;
-  // t8_global_productionf("eclass1:\t%i\n", eclass1);
-  // t8_global_productionf("eclass2:\t%i\n", eclass2);
   t8_global_productionf("eclass1:\t%i\n", eclass1);
   t8_global_productionf("eclass2:\t%i\n", eclass2);
-  //if constexpr 
   if ((eclass1 == T8_ECLASS_LINE && (eclass2 == T8_ECLASS_QUAD || eclass2 == T8_ECLASS_TRIANGLE))
   || (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE))) {
     element_size = sizeof (scheme1->t8_element_size()) * sizeof (scheme2->t8_element_size());
@@ -40,10 +37,6 @@ t8_2_5dimension_scheme_c::t8_2_5dimension_scheme_c (t8_eclass_scheme_c *scheme1,
     return;
   }
   SC_ABORT ("3 dimensions are needed in order to apply the scheme for 2_5 dimension.\n");
-  //Why else here needed? -> needed without return in if case
-  // else{
-  //   SC_ABORT ("3 dimensions are needed in order to apply the scheme for 2_5 dimension.\n");
-  // }
 }
 
 t8_2_5dimension_scheme_c::~t8_2_5dimension_scheme_c ()
@@ -61,17 +54,15 @@ t8_2_5dimension_scheme_c::t8_element_refines_irregular (void) const
 int
 t8_2_5dimension_scheme_c::t8_element_maxlevel (void) const
 {
-  // int maxlevels[] = {T8_ELEMENT_MAXLEVEL[eclass_T1],T8_ELEMENT_MAXLEVEL[eclass_T2]};
-  // return *maxlevels;
-  //langt ein maxlevel?
-  return SC_MAX(scheme1->t8_element_maxlevel(),scheme2->t8_element_maxlevel());
+  //langt ein maxlevel? SC_MIN oder SC_MAX?
+  return SC_MIN(scheme1->t8_element_maxlevel(),scheme2->t8_element_maxlevel());
 }
 
 t8_eclass_t
 t8_2_5dimension_scheme_c::t8_element_child_eclass (int childid) const
 {
   SC_ABORT ("This function should not be needed with the current approach to eclass vs shape.\n");
-  return T8_ECLASS_ZERO; /* suppresses compiler warning */
+  //return T8_ECLASS_ZERO; /* suppresses compiler warning */
 }
 
 
@@ -79,7 +70,7 @@ int
 t8_2_5dimension_scheme_c::t8_element_level (const t8_element_t *elem) const
 {
   SC_ABORT ("Waiting for scheme interface.\n");
-  return T8_ECLASS_ZERO;
+  //return T8_ECLASS_ZERO;
   // T8_ASSERT (t8_element_is_valid (elem));
   // int levels[] = {((const t8_standalone_element_t<eclass_T1> *) elem)->level, ((const t8_standalone_element_t<eclass_T2> *) elem)->level};
   // return *levels;
@@ -90,24 +81,12 @@ t8_2_5dimension_scheme_c::t8_element_copy (const t8_element_t *source, t8_elemen
 {
   scheme1->t8_element_copy (source, dest);
   scheme2->t8_element_copy (source, dest);
-  // T8_ASSEdRT (t8_element_is_valid (source));
-  // t8_sele_copy<eclass_T1> ((const t8_standalone_element_t<eclass_T1> *) source,
-  //                         (t8_standalone_element_t<eclass_T1> *) dest);
-  // t8_sele_copy<eclass_T2> ((const t8_standalone_element_t<eclass_T2> *) source,
-  //                         (t8_standalone_element_t<eclass_T2> *) dest);
-  // T8_ASSERT (t8_element_is_valid (dest));
 }
 
 int
 t8_2_5dimension_scheme_c::t8_element_compare (const t8_element_t *elem1, const t8_element_t *elem2) const
 {
   return scheme1->t8_element_compare (elem1, elem2) &&  scheme2->t8_element_compare (elem1, elem2);
-  // T8_ASSERT (t8_element_is_valid (elem1));
-  // T8_ASSERT (t8_element_is_valid (elem2));
-  // return t8_sele_compare<eclass_T1> ((const t8_standalone_element_t<eclass_T1> *) elem1,
-  //                                   (const t8_standalone_element_t<eclass_T1> *) elem2) &&
-  //        t8_sele_compare<eclass_T2> ((const t8_standalone_element_t<eclass_T2> *) elem1,
-  //                                   (const t8_standalone_element_t<eclass_T2> *) elem2);
 }
 
 int
@@ -116,65 +95,18 @@ t8_2_5dimension_scheme_c::t8_element_equal (const t8_element_t *elem1, const t8_
   SC_ABORT ("Not implemented for standalone.\n");
   return T8_ECLASS_ZERO;
 }
-//allgemeines parent erstellen? - array oder 2 funktionen wie gerade?
-
-// void
-// t8_2_5dimension_scheme_c::t8_element_parent_array (const t8_element_t *elem, t8_element_t *parent[]) const
-// {
-//   SC_ABORT ("Waiting for scheme interface.\n");
-//   // T8_ASSERT (t8_element_is_valid (elem));
-//   // // if (sizeof(*parent) == 1){
-//   // //     T8_ASSERT (t8_element_is_valid (elem));
-//   // //     t8_sele_parent<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem,
-//   // //                           (t8_standalone_element_t<eclass_T> *) parent[0]);
-//   // //     T8_ASSERT (t8_element_is_valid (parent[0]));
-//   // // }
-//   // // else if (sizeof(*parent) == 2){
-//   //   t8_sele_parent<eclass_T1> ((const t8_standalone_element_t<eclass_T1> *) elem,
-//   //                           (t8_standalone_element_t<eclass_T1> *) parent[0]);
-//   //   t8_sele_parent<eclass_T2> ((const t8_standalone_element_t<eclass_T2> *) elem,
-//   //                           (t8_standalone_element_t<eclass_T2> *) parent[1]);
-//   //   T8_ASSERT (t8_element_is_valid (parent[0]));
-//   //   T8_ASSERT (t8_element_is_valid (parent[1]));
-//   // }
-  
-//   // t8_eclass_t eclasses[] = {eclass_T1, eclass_T2};
-//   // for (size_t i = 0; i < sizeof(*parent); i++)
-//   // {
-//   //   //ERROR with const expression!!!!!!!!
-//   //   const t8_eclass_t eclass = eclasses[i];
-//   //   t8_sele_parent<eclass> ((const t8_standalone_element_t<eclass> *) elem,
-//   //                             (t8_standalone_element_t<eclass> *) parent[i]);
-//   //   // t8_sele_parent<eclass_T1> ((const t8_standalone_element_t<eclass_T1> *) elem,
-//   //   //                         (t8_standalone_element_t<eclass_T1> *) parent[i]);
-
-//   //   T8_ASSERT (t8_element_is_valid (parent[i]));
-//   // }
-// }
 
 void
 t8_2_5dimension_scheme_c::t8_element_parent (const t8_element_t *elem, t8_element_t *parent) const
 {
-  SC_ABORT ("Just needed as we inherite from t8_eclass_scheme. Question: Useful to be implemented? Maybe such that it works in general setting? \n");
+  SC_ABORT ("Waiting for scheme interface.\n");
 }
 
-// void
-// t8_2_5dimension_scheme_c::t8_element_parent_2_5 (const t8_element_t *elem, t8_element_t *parent1, t8_element_t *parent2) const
-// {
-//   SC_ABORT ("Waiting for scheme interface.\n");
-//   // T8_ASSERT (t8_element_is_valid (elem));
-//   // t8_sele_parent<eclass_T1> ((const t8_standalone_element_t<eclass_T1> *) elem,
-//   //                           (t8_standalone_element_t<eclass_T1> *) parent1);
-//   // t8_sele_parent<eclass_T2> ((const t8_standalone_element_t<eclass_T2> *) elem,
-//   //                           (t8_standalone_element_t<eclass_T2> *) parent2);
-//   // T8_ASSERT (t8_element_is_valid (parent1));
-//   // T8_ASSERT (t8_element_is_valid (parent2));
-// }
 
 int
 t8_2_5dimension_scheme_c::t8_element_num_siblings (const t8_element_t *elem) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
   return T8_ECLASS_ZERO;
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   return t8_sele_num_siblings<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem);
@@ -183,7 +115,7 @@ t8_2_5dimension_scheme_c::t8_element_num_siblings (const t8_element_t *elem) con
 void
 t8_2_5dimension_scheme_c::t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const
 {
-  SC_ABORT ("This function is not implemented yet.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
 }
 
 int
@@ -257,7 +189,7 @@ t8_2_5dimension_scheme_c::t8_element_get_corner_face (const t8_element_t *elemen
 void
 t8_2_5dimension_scheme_c::t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   T8_ASSERT (0 <= childid);
 //   T8_ASSERT (childid < t8_sele_num_children<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem));
@@ -270,7 +202,7 @@ t8_2_5dimension_scheme_c::t8_element_child (const t8_element_t *elem, int childi
 void
 t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[]) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   t8_sele_children<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem,
 //                               (t8_standalone_element_t<eclass_T> **) c);
@@ -285,7 +217,7 @@ t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int len
 int
 t8_2_5dimension_scheme_c::t8_element_child_id (const t8_element_t *elem) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
   return T8_ECLASS_ZERO; 
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   return t8_sele_child_id<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem);
@@ -295,7 +227,7 @@ t8_2_5dimension_scheme_c::t8_element_child_id (const t8_element_t *elem) const
 int
 t8_2_5dimension_scheme_c::t8_element_ancestor_id (const t8_element_t *elem, int level) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
   return T8_ECLASS_ZERO; 
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   T8_ASSERT (0 <= level && level <= T8_ELEMENT_MAXLEVEL[eclass_T]);
@@ -322,7 +254,7 @@ void
 t8_2_5dimension_scheme_c::t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2,
                                                   t8_element_t *nca) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
 //   T8_ASSERT (t8_element_is_valid (elem1));
 //   T8_ASSERT (t8_element_is_valid (elem2));
 
@@ -355,7 +287,7 @@ t8_2_5dimension_scheme_c::t8_element_children_at_face (const t8_element_t *elem,
 int
 t8_2_5dimension_scheme_c::t8_element_face_child_face (const t8_element_t *elem, int face, int face_child) const
 {
-  SC_ABORT ("This function is not implemented yet.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
   return T8_ECLASS_ZERO; 
   // return t8_sele_face_child_face<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem, face, face_child);
 }
@@ -364,7 +296,7 @@ t8_2_5dimension_scheme_c::t8_element_face_child_face (const t8_element_t *elem, 
 int
 t8_2_5dimension_scheme_c::t8_element_face_parent_face (const t8_element_t *elem, int face) const
 {
-  SC_ABORT ("This function is not implemented yet.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
   return T8_ECLASS_ZERO; 
   // return t8_sele_face_parent_face<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem, face);
 }
@@ -394,7 +326,7 @@ t8_2_5dimension_scheme_c::t8_element_extrude_face (const t8_element_t *face,
                                                            const t8_eclass_scheme_c *face_scheme, t8_element_t *elem,
                                                            int root_face) const
 {
-  SC_ABORT ("This function is not implemented yet.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
   return T8_ECLASS_ZERO; 
   //  T8_ASSERT(t8_eclass_scheme is correct)
   // t8_eclass_t face_eclass = T8_ECLASS_ZERO;
@@ -476,7 +408,7 @@ void
 t8_2_5dimension_scheme_c::t8_element_first_descendant_face (const t8_element_t *elem, int face,
                                                                     t8_element_t *first_desc, int level) const
 {
-  SC_ABORT ("This function is not implemented yet.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
   // t8_sele_first_descendant_face ((const t8_standalone_element_t<eclass_T> *) elem, face,
   //                                (t8_standalone_element_t<eclass_T> *) first_desc, level);
 }
@@ -486,7 +418,7 @@ void
 t8_2_5dimension_scheme_c::t8_element_last_descendant_face (const t8_element_t *elem, int face,
                                                                    t8_element_t *last_desc, int level) const
 {
-  SC_ABORT ("This function is not implemented yet.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
   // t8_sele_last_descendant_face ((const t8_standalone_element_t<eclass_T> *) elem, face,
   //                               (t8_standalone_element_t<eclass_T> *) last_desc, level);
 }
@@ -533,7 +465,7 @@ t8_2_5dimension_scheme_c::t8_element_shape (const t8_element_t *elem) const
 void
 t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   t8_sele_init_linear_id<eclass_T> ((t8_standalone_element_t<eclass_T> *) elem, level, id);
 }
@@ -542,7 +474,7 @@ t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, int leve
 t8_linearidx_t
 t8_2_5dimension_scheme_c::t8_element_get_linear_id (const t8_element_t *elem, int level) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
   return T8_ECLASS_ZERO; 
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   return t8_sele_linear_id<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem, level);
@@ -553,7 +485,7 @@ void
 t8_2_5dimension_scheme_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc,
                                                                int level) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   t8_sele_first_descendant<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem,
 //                                       (t8_standalone_element_t<eclass_T> *) desc, level);
@@ -565,7 +497,7 @@ void
 t8_2_5dimension_scheme_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc,
                                                               int level) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface..\n");
 //   T8_ASSERT (t8_element_is_valid (elem));
 //   t8_sele_last_descendant<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem,
 //                                      (t8_standalone_element_t<eclass_T> *) desc, level);
@@ -576,7 +508,7 @@ t8_2_5dimension_scheme_c::t8_element_last_descendant (const t8_element_t *elem, 
 void
 t8_2_5dimension_scheme_c::t8_element_successor (const t8_element_t *t, t8_element_t *s) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
 //   T8_ASSERT (t8_element_is_valid (t));
 //   t8_sele_successor<eclass_T> ((const t8_standalone_element_t<eclass_T> *) t, (t8_standalone_element_t<eclass_T> *) s,
 //                                level);
@@ -615,7 +547,7 @@ t8_2_5dimension_scheme_c::t8_element_reference_coords (const t8_element_t *elem,
 t8_gloidx_t
 t8_2_5dimension_scheme_c::t8_element_count_leaves (const t8_element_t *elem, int level) const
 {
-  SC_ABORT ("Next.\n");
+  SC_ABORT ("Waiting for scheme interface.\n");
   //return 100000000;
   //return;
 //   return t8_sele_num_descendants_at_leveldiff<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem,
@@ -627,7 +559,7 @@ t8_gloidx_t
 t8_2_5dimension_scheme_c::t8_element_count_leaves_from_root (int level) const
 {
   SC_ABORT ("Waiting for scheme interface.\n");
-  return 100000000;
+  //return 100000000;
   // T8_ASSERT (level >= 0);
   // // t8_linearidx_t two_to_l = 1LL << level;
   // // t8_linearidx_t eight_to_l = 1LL << (3 * level);
