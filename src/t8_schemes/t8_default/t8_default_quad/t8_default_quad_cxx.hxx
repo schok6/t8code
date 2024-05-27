@@ -132,7 +132,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \return             The level of \b elem.
    */
   virtual int
-  t8_element_level (const t8_element_t *elem) const;
+  t8_element_level (const t8_element_t *elem, int dir = 0) const;
 
   /** Return the maximum allowed level for this element class.
    * \return                      The maximum allowed level for elements of this class.
@@ -182,7 +182,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   virtual void
-  t8_element_parent (const t8_element_t *elem, t8_element_t *parent) const;
+  t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const;
 
   /** Compute a specific sibling of a given quad element \b elem and store it in \b sibling.
    *  \b sibling needs to be an existing element. No memory is allocated by this function.
@@ -196,7 +196,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    *                    and match the element class of the sibling.
    */
   virtual void
-  t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const;
+  t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling, int dir = 0) const;
 
   /** Compute the number of faces of a given element.
    * \param [in] elem The element.
@@ -254,7 +254,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * It is valid to call this function with elem = child.
      */
   virtual void
-  t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child) const;
+  t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir = 0) const;
 
   /** Construct all children of a given element.
    * \param [in] elem     This must be a valid element, bigger than maxlevel.
@@ -267,14 +267,14 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \see t8_element_num_children
      */
   virtual void
-  t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[]) const;
+  t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir = 0) const;
 
   /** Compute the child id of an element.
    * \param [in] elem     This must be a valid element.
    * \return              The child id of elem.
    */
   virtual int
-  t8_element_child_id (const t8_element_t *elem) const;
+  t8_element_child_id (const t8_element_t *elem, int dir = 0) const;
 
   /** Compute the ancestor id of an element, that is the child id
    * at a given level.
@@ -283,7 +283,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \return              The child_id of \a elem in regard to its \a level ancestor.
    */
   virtual int
-  t8_element_ancestor_id (const t8_element_t *elem, int level) const;
+  t8_element_ancestor_id (const t8_element_t *elem, int level, int dir = 0) const;
 
   /** Query whether a given set of elements is a family or not.
    * \param [in] fam      An array of as many elements as an element of class
@@ -305,7 +305,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    *                      \b elem1 and \b elem2.
    */
   virtual void
-  t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const;
+  t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir = 0) const;
 
   /** Compute the shape of the face of an element.
    * \param [in] elem     The element.
@@ -354,7 +354,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    *                      that coincides with \a face_child.
    */
   virtual int
-  t8_element_face_child_face (const t8_element_t *elem, int face, int face_child) const;
+  t8_element_face_child_face (const t8_element_t *elem, int face, int face_child, int dir = 0) const;
 
   /** Given a face of an element return the face number
      * of the parent of the element that matches the element's face. Or return -1 if
@@ -367,7 +367,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
      * \note For the root element this function always returns \a face.
      */
   virtual int
-  t8_element_face_parent_face (const t8_element_t *elem, int face) const;
+  t8_element_face_parent_face (const t8_element_t *elem, int face, int dir = 0) const;
 
   /** Given an element and a face of this element. If the face lies on the
    *  tree boundary, return the face number of the tree face.
@@ -421,7 +421,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    */
   virtual int
   t8_element_extrude_face (const t8_element_t *face, const t8_eclass_scheme_c *face_scheme, t8_element_t *elem,
-                           int root_face) const;
+                           int root_face, int dir = 0) const;
 
   /** Construct the first descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -432,7 +432,8 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \param [in] level     The level, at which the first descendant is constructed
    */
   virtual void
-  t8_element_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level) const;
+  t8_element_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level,
+                                    int dir = 0) const;
 
   /** Construct the last descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -443,7 +444,8 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \param [in] level     The level, at which the last descendant is constructed
    */
   virtual void
-  t8_element_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level) const;
+  t8_element_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level,
+                                   int dir = 0) const;
 
   /** Construct the boundary element at a specific face.
    * \param [in] elem     The input element.
@@ -492,7 +494,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id) const;
+  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir = 0) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
@@ -501,7 +503,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, int level) const;
+  t8_element_get_linear_id (const t8_element_t *elem, int level, int dir = 0) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -510,7 +512,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const;
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -519,7 +521,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const;
+  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
 
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
@@ -527,7 +529,7 @@ struct t8_default_scheme_quad_c: public t8_default_scheme_common_c
    * \param [in] level    The level of the uniform refinement to consider.
    */
   virtual void
-  t8_element_successor (const t8_element_t *elem, t8_element_t *succ) const;
+  t8_element_successor (const t8_element_t *elem, t8_element_t *succ, int dir = 0) const;
 
   /** Get the integer coordinates of the anchor node of an element.
    * The default scheme implements the Morton type SFCs. In these SFCs the

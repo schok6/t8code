@@ -66,7 +66,7 @@ class t8_default_scheme_common_c: public t8_eclass_scheme_c {
    * children.
    */
   virtual t8_gloidx_t
-  t8_element_count_leaves (const t8_element_t *t, int level) const;
+  t8_element_count_leaves (const t8_element_t *t, int level, int dir = 0) const;
 
   /** Compute the number of siblings of an element. That is the number of 
    * Children of its parent.
@@ -75,7 +75,7 @@ class t8_default_scheme_common_c: public t8_eclass_scheme_c {
    * Note that this number is >= 1, since we count the element itself as a sibling.
    */
   virtual int
-  t8_element_num_siblings (const t8_element_t *elem) const;
+  t8_element_num_siblings (const t8_element_t *elem, int dir = 0) const;
 
   /** Count how many leaf descendants of a given uniform level the root element will produce.
    * \param [in] level A refinement level.
@@ -83,7 +83,7 @@ class t8_default_scheme_common_c: public t8_eclass_scheme_c {
    *      is the root (level 0) element.
    */
   virtual t8_gloidx_t
-  t8_element_count_leaves_from_root (int level) const;
+  t8_element_count_leaves_from_root (int level, int dir = 0) const;
 
   /** Compute the integer coordinates of a given element vertex.
    * The default scheme implements the Morton type SFCs. In these SFCs the

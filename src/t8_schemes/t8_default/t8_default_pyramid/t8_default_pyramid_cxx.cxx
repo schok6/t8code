@@ -76,7 +76,7 @@ t8_default_scheme_pyramid_c::t8_element_max_num_faces (const t8_element_t *elem)
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_ancestor_id (const t8_element_t *elem, int level) const
+t8_default_scheme_pyramid_c::t8_element_ancestor_id (const t8_element_t *elem, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= level && level <= T8_DPYRAMID_MAXLEVEL);
@@ -98,7 +98,7 @@ t8_default_scheme_pyramid_c::t8_element_num_corners (const t8_element_t *elem) c
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_num_siblings (const t8_element_t *elem) const
+t8_default_scheme_pyramid_c::t8_element_num_siblings (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dpyramid_num_siblings ((const t8_dpyramid_t *) elem);
@@ -134,7 +134,7 @@ t8_default_scheme_pyramid_c::t8_element_copy (const t8_element_t *source, t8_ele
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child) const
+t8_default_scheme_pyramid_c::t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= childid && childid < t8_dpyramid_num_children ((const t8_dpyramid_t *) elem));
@@ -143,7 +143,7 @@ t8_default_scheme_pyramid_c::t8_element_child (const t8_element_t *elem, int chi
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[]) const
+t8_default_scheme_pyramid_c::t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_children ((const t8_dpyramid_t *) elem, (t8_dpyramid_t **) c);
@@ -169,7 +169,7 @@ t8_default_scheme_pyramid_c::t8_element_children_at_face (const t8_element_t *el
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_face_child_face (const t8_element_t *elem, int face, int face_child) const
+t8_default_scheme_pyramid_c::t8_element_face_child_face (const t8_element_t *elem, int face, int face_child, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dpyramid_face_child_face ((const t8_dpyramid_t *) elem, face, face_child);
@@ -183,7 +183,7 @@ t8_default_scheme_pyramid_c::t8_element_face_shape (const t8_element_t *elem, in
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_child_id (const t8_element_t *p) const
+t8_default_scheme_pyramid_c::t8_element_child_id (const t8_element_t *p, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (p));
   return t8_dpyramid_child_id ((const t8_dpyramid_t *) p);
@@ -198,14 +198,15 @@ t8_default_scheme_pyramid_c::t8_element_face_neighbor_inside (const t8_element_t
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_face_parent_face (const t8_element_t *elem, int face) const
+t8_default_scheme_pyramid_c::t8_element_face_parent_face (const t8_element_t *elem, int face, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dpyramid_face_parent_face ((const t8_dpyramid_t *) elem, face);
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const
+t8_default_scheme_pyramid_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level,
+                                                          int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_first_descendant ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) desc, level);
@@ -214,7 +215,7 @@ t8_default_scheme_pyramid_c::t8_element_first_descendant (const t8_element_t *el
 
 void
 t8_default_scheme_pyramid_c::t8_element_first_descendant_face (const t8_element_t *elem, int face,
-                                                               t8_element_t *first_desc, int level) const
+                                                               t8_element_t *first_desc, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_first_descendant_face ((const t8_dpyramid_t *) elem, face, (t8_dpyramid_t *) first_desc, level);
@@ -229,14 +230,14 @@ t8_default_scheme_pyramid_c::t8_element_get_face_corner (const t8_element_t *ele
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_level (const t8_element_t *elem) const
+t8_default_scheme_pyramid_c::t8_element_level (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dpyramid_get_level ((const t8_dpyramid_t *) elem);
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id) const
+t8_default_scheme_pyramid_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
 {
   t8_dpyramid_init_linear_id ((t8_dpyramid_t *) elem, level, id);
   T8_ASSERT (t8_element_is_valid (elem));
@@ -272,7 +273,7 @@ t8_default_scheme_pyramid_c::t8_element_boundary_face (const t8_element_t *elem,
 
 int
 t8_default_scheme_pyramid_c::t8_element_extrude_face (const t8_element_t *face, const t8_eclass_scheme_c *face_scheme,
-                                                      t8_element_t *elem, int root_face) const
+                                                      t8_element_t *elem, int root_face, int dir) const
 {
   T8_ASSERT (face_scheme->t8_element_is_valid (face));
   return t8_dpyramid_extrude_face (face, (t8_dpyramid_t *) elem, root_face);
@@ -301,14 +302,14 @@ t8_default_scheme_pyramid_c::t8_element_num_face_children (const t8_element_t *e
 }
 
 t8_linearidx_t
-t8_default_scheme_pyramid_c::t8_element_get_linear_id (const t8_element_t *elem, int level) const
+t8_default_scheme_pyramid_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dpyramid_linear_id ((const t8_dpyramid_t *) elem, level);
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const
+t8_default_scheme_pyramid_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_last_descendant ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) desc, level);
@@ -317,7 +318,7 @@ t8_default_scheme_pyramid_c::t8_element_last_descendant (const t8_element_t *ele
 
 void
 t8_default_scheme_pyramid_c::t8_element_last_descendant_face (const t8_element_t *elem, int face,
-                                                              t8_element_t *last_desc, int level) const
+                                                              t8_element_t *last_desc, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_last_descendant_face ((const t8_dpyramid_t *) elem, face, (t8_dpyramid_t *) last_desc, level);
@@ -325,7 +326,7 @@ t8_default_scheme_pyramid_c::t8_element_last_descendant_face (const t8_element_t
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_parent (const t8_element_t *elem, t8_element_t *parent) const
+t8_default_scheme_pyramid_c::t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_parent ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) parent);
@@ -333,7 +334,7 @@ t8_default_scheme_pyramid_c::t8_element_parent (const t8_element_t *elem, t8_ele
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_successor (const t8_element_t *elem, t8_element_t *s) const
+t8_default_scheme_pyramid_c::t8_element_successor (const t8_element_t *elem, t8_element_t *s, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_successor ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) s, t8_element_level (elem));
@@ -360,7 +361,7 @@ t8_default_scheme_pyramid_c::t8_element_vertex_integer_coords (const t8_element_
 
 void
 t8_default_scheme_pyramid_c::t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2,
-                                             t8_element_t *nca) const
+                                             t8_element_t *nca, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem1));
   T8_ASSERT (t8_element_is_valid (elem2));

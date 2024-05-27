@@ -118,7 +118,7 @@ count_leaves_from_level (int element_level, int refinement_level, int dimension)
 }
 
 t8_gloidx_t
-t8_default_scheme_common_c::t8_element_count_leaves (const t8_element_t *t, int level) const
+t8_default_scheme_common_c::t8_element_count_leaves (const t8_element_t *t, int level, int dir) const
 {
 
   int element_level = t8_element_level (t);
@@ -136,7 +136,7 @@ t8_default_scheme_common_c::t8_element_count_leaves (const t8_element_t *t, int 
  * The number of children is 2^dim for each element, except for pyramids.
  * TODO: For pyramids we will have to implement a standalone version in the pyramid scheme. */
 int
-t8_default_scheme_common_c::t8_element_num_siblings (const t8_element_t *elem) const
+t8_default_scheme_common_c::t8_element_num_siblings (const t8_element_t *elem, int dir) const
 {
   const int dim = t8_eclass_to_dimension[eclass];
   T8_ASSERT (eclass != T8_ECLASS_PYRAMID);
@@ -144,7 +144,7 @@ t8_default_scheme_common_c::t8_element_num_siblings (const t8_element_t *elem) c
 }
 
 t8_gloidx_t
-t8_default_scheme_common_c::t8_element_count_leaves_from_root (int level) const
+t8_default_scheme_common_c::t8_element_count_leaves_from_root (int level, int dir) const
 {
   if (eclass == T8_ECLASS_PYRAMID) {
     return 2 * sc_intpow64u (8, level) - sc_intpow64u (6, level);

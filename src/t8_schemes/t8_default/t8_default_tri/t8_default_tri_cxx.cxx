@@ -37,7 +37,7 @@ t8_default_scheme_tri_c::t8_element_maxlevel (void) const
 }
 
 int
-t8_default_scheme_tri_c::t8_element_level (const t8_element_t *elem) const
+t8_default_scheme_tri_c::t8_element_level (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dtri_get_level ((t8_dtri_t *) elem);
@@ -67,7 +67,7 @@ t8_default_scheme_tri_c::t8_element_equal (const t8_element_t *elem1, const t8_e
 }
 
 void
-t8_default_scheme_tri_c::t8_element_parent (const t8_element_t *elem, t8_element_t *parent) const
+t8_default_scheme_tri_c::t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const
 {
   const t8_dtri_t *t = (const t8_dtri_t *) elem;
   t8_dtri_t *p = (t8_dtri_t *) parent;
@@ -78,7 +78,7 @@ t8_default_scheme_tri_c::t8_element_parent (const t8_element_t *elem, t8_element
 }
 
 void
-t8_default_scheme_tri_c::t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const
+t8_default_scheme_tri_c::t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling, int dir) const
 {
   const t8_dtri_t *t = (const t8_dtri_t *) elem;
   t8_dtri_t *s = (t8_dtri_t *) sibling;
@@ -133,7 +133,7 @@ t8_default_scheme_tri_c::t8_element_get_corner_face (const t8_element_t *element
 }
 
 void
-t8_default_scheme_tri_c::t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child) const
+t8_default_scheme_tri_c::t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir) const
 {
   const t8_dtri_t *t = (const t8_dtri_t *) elem;
   t8_dtri_t *c = (t8_dtri_t *) child;
@@ -144,7 +144,7 @@ t8_default_scheme_tri_c::t8_element_child (const t8_element_t *elem, int childid
 }
 
 void
-t8_default_scheme_tri_c::t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[]) const
+t8_default_scheme_tri_c::t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
 #ifdef T8_ENABLE_DEBUG
@@ -161,14 +161,14 @@ t8_default_scheme_tri_c::t8_element_children (const t8_element_t *elem, int leng
 }
 
 int
-t8_default_scheme_tri_c::t8_element_child_id (const t8_element_t *elem) const
+t8_default_scheme_tri_c::t8_element_child_id (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dtri_child_id ((t8_dtri_t *) elem);
 }
 
 int
-t8_default_scheme_tri_c::t8_element_ancestor_id (const t8_element_t *elem, int level) const
+t8_default_scheme_tri_c::t8_element_ancestor_id (const t8_element_t *elem, int level, int dir) const
 {
   return t8_dtri_ancestor_id ((t8_dtri_t *) elem, level);
 }
@@ -188,7 +188,8 @@ t8_default_scheme_tri_c::t8_element_is_family (t8_element_t *const *fam) const
 }
 
 void
-t8_default_scheme_tri_c::t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const
+t8_default_scheme_tri_c::t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca,
+                                         int dir) const
 {
   const t8_dtri_t *t1 = (const t8_dtri_t *) elem1;
   const t8_dtri_t *t2 = (const t8_dtri_t *) elem2;
@@ -229,7 +230,7 @@ t8_default_scheme_tri_c::t8_element_children_at_face (const t8_element_t *elem, 
 }
 
 int
-t8_default_scheme_tri_c::t8_element_face_child_face (const t8_element_t *elem, int face, int face_child) const
+t8_default_scheme_tri_c::t8_element_face_child_face (const t8_element_t *elem, int face, int face_child, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= face && face < T8_DTRI_FACES);
@@ -238,7 +239,7 @@ t8_default_scheme_tri_c::t8_element_face_child_face (const t8_element_t *elem, i
 }
 
 int
-t8_default_scheme_tri_c::t8_element_face_parent_face (const t8_element_t *elem, int face) const
+t8_default_scheme_tri_c::t8_element_face_parent_face (const t8_element_t *elem, int face, int dir) const
 {
   T8_ASSERT (0 <= face && face < T8_DTRI_FACES);
 
@@ -269,7 +270,7 @@ t8_default_scheme_tri_c::t8_element_transform_face (const t8_element_t *elem1, t
  * for tets. */
 int
 t8_default_scheme_tri_c::t8_element_extrude_face (const t8_element_t *face, const t8_eclass_scheme_c *face_scheme,
-                                                  t8_element_t *elem, int root_face) const
+                                                  t8_element_t *elem, int root_face, int dir) const
 {
   const t8_dline_t *l = (const t8_dline_t *) face;
   t8_dtri_t *t = (t8_dtri_t *) elem;
@@ -319,7 +320,7 @@ t8_default_scheme_tri_c::t8_element_extrude_face (const t8_element_t *face, cons
 
 void
 t8_default_scheme_tri_c::t8_element_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc,
-                                                           int level) const
+                                                           int level, int dir) const
 {
   int corner;
   T8_ASSERT (0 <= face && face < T8_DTRI_FACES);
@@ -333,7 +334,7 @@ t8_default_scheme_tri_c::t8_element_first_descendant_face (const t8_element_t *e
 
 void
 t8_default_scheme_tri_c::t8_element_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc,
-                                                          int level) const
+                                                          int level, int dir) const
 {
   int corner;
   T8_ASSERT (0 <= face && face < T8_DTRI_FACES);
@@ -410,7 +411,7 @@ t8_default_scheme_tri_c::t8_element_face_neighbor_inside (const t8_element_t *el
 }
 
 void
-t8_default_scheme_tri_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id) const
+t8_default_scheme_tri_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
@@ -420,7 +421,7 @@ t8_default_scheme_tri_c::t8_element_set_linear_id (t8_element_t *elem, int level
 }
 
 t8_linearidx_t
-t8_default_scheme_tri_c::t8_element_get_linear_id (const t8_element_t *elem, int level) const
+t8_default_scheme_tri_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
@@ -429,7 +430,7 @@ t8_default_scheme_tri_c::t8_element_get_linear_id (const t8_element_t *elem, int
 }
 
 void
-t8_default_scheme_tri_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const
+t8_default_scheme_tri_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
@@ -438,7 +439,7 @@ t8_default_scheme_tri_c::t8_element_first_descendant (const t8_element_t *elem, 
 }
 
 void
-t8_default_scheme_tri_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const
+t8_default_scheme_tri_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
@@ -447,7 +448,7 @@ t8_default_scheme_tri_c::t8_element_last_descendant (const t8_element_t *elem, t
 }
 
 void
-t8_default_scheme_tri_c::t8_element_successor (const t8_element_t *elem1, t8_element_t *elem2) const
+t8_default_scheme_tri_c::t8_element_successor (const t8_element_t *elem1, t8_element_t *elem2, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem1));
   T8_ASSERT (t8_element_is_valid (elem2));
