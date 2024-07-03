@@ -30,9 +30,7 @@
 //#include <sc.h>
 #include <sc_functions.h>
 //#include <t8_element_c_interface.h>
-//#include <t8_schemes/t8_default/t8_default_common/t8_default_common_cxx.hxx>
 
-//#include <t8_schemes/t8_default/t8_default_common_cxx.hxx>
 //#include <t8_schemes/t8_standalone/t8_standalone_cxx.hxx>
 
 /** Provide an implementation for 2 schemes and
@@ -114,6 +112,19 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    */
   virtual void
   t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const;
+  
+
+  /**
+   * TODO: Declaration
+  */
+  int32_t
+  t8_element_get_coord (const t8_element_t *elem, int dir_coord) const;
+
+  /**
+   * TODO: Declaration
+  */
+  virtual int8_t
+  t8_element_get_level(const t8_element_t *elem, int dir) const;
 
   /** Compute the number of siblings of an element. That is the number of 
    * Children of its parent.
@@ -165,7 +176,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \return            The number of children of \a elem if it is to be refined.
    */
   virtual int
-  t8_element_num_children (const t8_element_t *elem) const;
+  t8_element_num_children (const t8_element_t *elem, int dir = 0) const;
 
   /** Return the number of children of an element's face when the element is refined.
    * \param [in] elem   The element whose face is considered.
@@ -501,6 +512,17 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   virtual t8_linearidx_t
   t8_element_get_linear_id (const t8_element_t *elem, int level, int dir = 0) const;
 
+  /** Compute the linear id of a given element in a hypothetical uniform
+  * refinement of given level for eclass1 and eclass2.
+  * \param [in] elem     The element whose id we compute.
+  * \param [in] level1   The level of eclass1 of the uniform refinement to consider.
+  * \param [in] level2   The level of eclass2 of the uniform refinement to consider.
+  * \return              The linear id of the element.
+  * 
+  */
+  int
+  t8_2_5D_get_linear_id (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const; 
+
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
    * \param [out] desc    The first element in a uniform refinement of \a elem
@@ -525,15 +547,6 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    */
   virtual void
   t8_element_successor (const t8_element_t *t, t8_element_t *s, int dir = 0) const;
-
-  /* TODO: This function should be removed, since root length is not a general concept that exists for all possible elements. */
-  /** Compute the root length of a given element, that is the length of
-   * its level 0 ancestor.
-   * \param [in] elem     The element whose root length should be computed.
-   * \return              The root length of \a elem
-   */
-  virtual int
-  t8_element_root_len (const t8_element_t *elem) const;
 
   /** Compute the coordinates of a given element vertex inside a reference tree
    *  that is embedded into [0,1]^d (d = dimension).
@@ -734,5 +747,105 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   t8_element_MPI_Unpack (void *recvbuf, const int buffer_size, int *position, t8_element_t **elements,
                          const unsigned int count, sc_MPI_Comm comm) const;
 };
+
+// typedef int32_t t8_2_5D_coord_t;
+// typedef int32_t t8_1_5D_coord_t;
+// typedef int8_t t8_2_5D_type_t;
+// typedef int8_t t8_1_5D_type_t;
+
+typedef struct t8_2_5D
+{
+t8_element_t *elem1;
+t8_element_t *elem2;
+} t8_2_5D_t;
+
+
+// typedef struct t8_2_5D
+// {
+//   int8_t level1;
+//   int8_t level2;
+//   t8_2_5D_type_t type;
+//   t8_2_5D_coord_t x;
+//   t8_2_5D_coord_t y;
+//   t8_2_5D_coord_t z;
+// } t8_2_5D_t;
+
+// typedef struct t8_2_5D
+// {
+//   //t8_eclass_t eclass1 = scheme1->eclass;
+//     //switch (eclass1) {
+//     switch (scheme1) {
+//       case new t8_default_scheme_quad_c():
+//       {
+//         t8_dquad_t *el1;
+//         //return el1;
+//       }
+//       case new t8_default_scheme_tri_c():
+//       {
+//         t8_dtri_t *el1;
+//         //return el1;
+//       }
+//       case new t8_default_scheme_line_c():
+//       {
+//         t8_dline_t *el1;
+//         //return el1;
+//       }
+//       default:
+//         SC_ABORT ("Only schemes with eclass QUAD or TRIANGLE are allowed for scheme1 so far.\n");
+//         break;
+//     }
+//     // t8_eclass_t eclass2 = scheme2->eclass;
+//     // switch (eclass2) {
+//     //   case T8_ECLASS_QUAD:
+//     //   {
+//     //     t8_dquad_t *el2;
+//     //     //return el2;
+//     //   }
+//     //   case T8_ECLASS_TRIANGLE:
+//     //   {
+//     //     t8_dtri_t *el2;
+//     //     //return el2;
+//     //   }
+//     //   case T8_ECLASS_LINE:
+//     //   {
+//     //     t8_dline_t *el2;
+//     //     //return el2;
+//     //   }
+//     //   default:
+//     //     SC_ABORT ("Only schemes with eclass QUAD or TRIANGLE are allowed for scheme1 so far.\n");
+//     //     break;
+//     // }
+// } t8_2_5D_t;
+
+// //for testing
+
+// typedef struct t8_1_5D
+// {
+//   int8_t level1;
+//   int8_t level2;
+//   t8_1_5D_type_t type;
+//   t8_1_5D_coord_t x;
+//   t8_1_5D_coord_t y;
+// } t8_1_5D_t;
+
+// typedef struct t8_dline
+// {
+//   int8_t level;
+//   t8_dline_coord_t x;
+// } t8_dline_t;
+
+// typedef struct t8_dquad
+// {
+//   int8_t level;
+//   t8_dquad_coord_t x; /**< The x integer coordinate of the anchor node. */
+//   t8_dquad_coord_t y; /**< The y integer coordinate of the anchor node. */
+// } t8_dquad_t;
+
+// typedef struct t8_dtri
+// {
+//   int8_t level;
+//   t8_dtri_type_t type;
+//   t8_dtri_coord_t x, y;
+// } t8_dtri_t;
 
 #endif /* !T8_2_5DIMENSION_ELEMENT_CXX_HXX */ 

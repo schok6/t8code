@@ -20,24 +20,10 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef T8_2_5DIMENSION_CXX_HXX
-#define T8_2_5DIMENSION_CXX_HXX
+#include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 
-#include <new>
-#include <t8_refcount.h>
-#include <t8_eclass.h>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_line/t8_default_line_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_quad/t8_default_quad_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_tri/t8_default_tri_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_pyramid/t8_default_pyramid_cxx.hxx>
-
-/** Return the 2_5dimension element implementation of t8code. */
-t8_scheme_comb_cxx_t *
-/**TODO:
-*doppelter Pointer (array ist bereits Pointer) auf array von schemes -> alles außer Kombinationen
-*von Line, Quad und Tet auf "nicht implementiert" setzen
-*/
-t8_scheme_new_2_5dimension_cxx (t8_eclass_scheme_c *scheme1, t8_eclass_scheme_c *scheme2);
-
-#endif /* !T8_2_5DIMENSION_CXX_HXX */
+// int
+// t8_2_5D_get_linear_id (const t8_element_t *elem, int level1, int level2)
+// {   
+//     return t8_2_5dimension_scheme_c->t8_element_get_linear_id (elem, level1, 1) * pow(eclass2, level2)
+// }

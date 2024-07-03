@@ -20,24 +20,33 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef T8_2_5DIMENSION_CXX_HXX
-#define T8_2_5DIMENSION_CXX_HXX
+/** \file t8_2_5D.hxx
+ * Definitions of 2.5D-specific functions. 
+ */
 
-#include <new>
-#include <t8_refcount.h>
-#include <t8_eclass.h>
+#ifndef T8_2_5D_HXX
+#define T8_2_5D_HXX
+
+#include <t8_element.h>
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_line/t8_default_line_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_quad/t8_default_quad_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_tri/t8_default_tri_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_pyramid/t8_default_pyramid_cxx.hxx>
 
-/** Return the 2_5dimension element implementation of t8code. */
-t8_scheme_comb_cxx_t *
-/**TODO:
-*doppelter Pointer (array ist bereits Pointer) auf array von schemes -> alles außer Kombinationen
-*von Line, Quad und Tet auf "nicht implementiert" setzen
-*/
-t8_scheme_new_2_5dimension_cxx (t8_eclass_scheme_c *scheme1, t8_eclass_scheme_c *scheme2);
+// /** Compute the linear id of a given element in a hypothetical uniform
+//  * refinement of given level for eclass1 and eclass2.
+//  * \param [in] elem     The element whose id we compute.
+//  * \param [in] level1   The level of eclass1 of the uniform refinement to consider.
+//  * \param [in] level2   The level of eclass2 of the uniform refinement to consider.
+//  * \return              The linear id of the element.
+//  * 
+//  */
+// int
+// t8_2_5D_get_linear_id (const t8_element_t *elem, int level1, int level2)
 
-#endif /* !T8_2_5DIMENSION_CXX_HXX */
+// typedef struct t8_2_5D
+// {
+//   int8_t level;
+//   t8_dline_coord_t x;
+//   t8_dline_coord_t y;
+//   t8_dline_coord_t z;
+// } t8_2_5D_t;
+
+#endif /* T8_2_5D_HXX */
