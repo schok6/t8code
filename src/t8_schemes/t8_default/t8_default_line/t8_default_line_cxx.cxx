@@ -335,7 +335,7 @@ t8_default_scheme_line_c::t8_element_max_num_faces (const t8_element_t *elem) co
 }
 
 int
-t8_default_scheme_line_c::t8_element_num_children (const t8_element_t *elem) const
+t8_default_scheme_line_c::t8_element_num_children (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return T8_DLINE_CHILDREN;

@@ -38,7 +38,7 @@ t8_default_scheme_tet_c::t8_element_maxlevel (void) const
 }
 
 int
-t8_default_scheme_tet_c::t8_element_level (const t8_element_t *elem,int dir ) const
+t8_default_scheme_tet_c::t8_element_level (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dtet_get_level ((t8_dtet_t *) elem);
@@ -100,7 +100,7 @@ t8_default_scheme_tet_c::t8_element_max_num_faces (const t8_element_t *elem) con
 }
 
 int
-t8_default_scheme_tet_c::t8_element_num_children (const t8_element_t *elem) const
+t8_default_scheme_tet_c::t8_element_num_children (const t8_element_t *elem, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return T8_DTET_CHILDREN;

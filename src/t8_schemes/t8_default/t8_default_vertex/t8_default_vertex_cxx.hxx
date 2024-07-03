@@ -172,7 +172,7 @@ struct t8_default_scheme_vertex_c: public t8_default_scheme_common_c
    * \return            The number of children of \a elem if it is to be refined.
    */
   virtual int
-  t8_element_num_children (const t8_element_t *elem) const;
+  t8_element_num_children (const t8_element_t *elem, int dir = 0) const;
 
   /** Return the number of children of an element's face when the element is refined.
    * \param [in] elem   The element whose face is considered.

@@ -87,7 +87,7 @@ struct t8_default_scheme_hex_c: public t8_default_scheme_common_c
    */
   virtual void
   t8_element_init (int length, t8_element_t *elem) const;
-
+  
   /** Return the refinement level of an element.
    * \param [in] elem    The element whose level should be returned.
    * \return             The level of \b elem.
@@ -179,7 +179,7 @@ struct t8_default_scheme_hex_c: public t8_default_scheme_common_c
    * \return            The number of children of \a elem if it is to be refined.
    */
   virtual int
-  t8_element_num_children (const t8_element_t *elem) const;
+  t8_element_num_children (const t8_element_t *elem, int dir = 0) const;
 
   /** Return the number of children of an element's face when the element is refined.
    * \param [in] elem   The element whose face is considered.
