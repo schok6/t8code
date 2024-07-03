@@ -77,9 +77,9 @@ main (int argc, char **argv)
   t8_cmesh_t          cmesh;
   t8_forest_t         forest;
   //t8_scheme_cxx_t     *scheme_default = t8_scheme_new_default_cxx ();
-  t8_scheme_comb_cxx_t    *scheme = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_quad_c());
-  t8_scheme_comb_cxx_t    *scheme1 = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_pyramid_c());
-  t8_scheme_comb_cxx_t    *scheme2 = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_tri_c());
+  t8_scheme_comb_cxx_t    *scheme = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_quad_c(),new t8_default_scheme_line_c());
+  t8_scheme_comb_cxx_t    *scheme1 = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_tri_c(), new t8_default_scheme_line_c());
+  //t8_scheme_comb_cxx_t    *scheme2 = t8_scheme_new_2_5dimension_cxx (new t8_default_scheme_line_c(),new t8_default_scheme_tri_c());
 
 
 //   const char         *prefix_uniform = "uniform_forest";
