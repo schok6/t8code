@@ -247,6 +247,16 @@ t8_cmesh_set_dimension (t8_cmesh_t cmesh, int dim);
 void
 t8_cmesh_set_tree_class (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class);
 
+/** Set the class of a tree in the cmesh.
+ * It is not allowed to call this function after \ref t8_cmesh_commit.
+ * It is not allowed to call this function multiple times for the same tree.
+ * \param [in,out] cmesh        The cmesh to be updated.
+ * \param [in]     tree_id      The global number of the tree.
+ * \param [in]     tree_class   The element class of this tree.
+ */
+void
+t8_cmesh_set_tree_class_2_5D (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2);
+
 /** Store an attribute at a tree in a cmesh.
  *  Attributes can be arbitrary data that is copied to an internal storage
  *  associated to the tree.

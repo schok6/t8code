@@ -461,6 +461,33 @@ t8_cmesh_set_tree_class (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tre
 #endif
 }
 
+void
+t8_cmesh_set_tree_class_2_5D (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2)
+{
+  T8_ASSERT (t8_cmesh_is_initialized (cmesh));
+  T8_ASSERT (gtree_id >= 0);
+
+  /* If we insert the first tree, set the dimension of the cmesh
+   * to this tree's dimension. Otherwise check whether the dimension
+   * of the tree to be inserted equals the dimension of the cmesh. */
+  if (cmesh->dimension == t8_eclass_to_dimension[tree_class1]) {
+    cmesh->dimension = t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2];
+  }
+  else {
+    /* TODO: This makes it illegal to set a tree to i.e. quad and change it
+     *       to hex later. Even if we replace all trees with another dimension.
+     *       We could move this check to commit. */
+    /* TODO: If cmesh is partitioned and this part has no trees then the
+     *       dimension remains unset forever. */
+    T8_ASSERT (t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2] == cmesh->dimension);
+  }
+
+  t8_stash_add_class (cmesh->stash, gtree_id, tree_class2);
+#ifdef T8_ENABLE_DEBUG
+  cmesh->inserted_trees++;
+#endif
+}
+
 /* Given a set of vertex coordinates for a tree of a given eclass.
  * Query whether the geometric volume of the tree with this coordinates
  * would be negative.

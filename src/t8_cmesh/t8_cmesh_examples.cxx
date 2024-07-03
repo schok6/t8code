@@ -649,6 +649,166 @@ t8_cmesh_new_hypercube_hybrid (sc_MPI_Comm comm, int do_partition, int periodic)
   return cmesh;
 }
 
+t8_cmesh_t
+t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Comm comm, int do_bcast, int do_partition, int periodic)
+{
+  t8_cmesh_t cmesh;
+  t8_eclass_t eclasses[2] = {eclass1, eclass2};
+  int i;
+  int j;
+  int num_trees_for_eclass[T8_ECLASS_COUNT] = { 1, 1, 1, 2, 1, 6, 2, 3 };
+  int num_trees_for_2_5D[T8_ECLASS_COUNT][T8_ECLASS_COUNT];
+  for (i = 0; i < T8_ECLASS_COUNT; i++){
+    for (j = 0; j < T8_ECLASS_COUNT; j++){
+      num_trees_for_2_5D[i][j] = num_trees_for_eclass[i] + num_trees_for_eclass[i]*num_trees_for_eclass[j];
+    }
+  }
+
+  /* For now eclass1 ist LINE (for 1.5D) or TRIANGLE or QUAD and eclass2 is LINE
+  */
+    
+  T8_ASSERT (eclasses[0] == T8_ECLASS_LINE || eclasses[0] == T8_ECLASS_TRIANGLE || eclasses[0] == T8_ECLASS_QUAD);
+  T8_ASSERT (eclasses[1] == T8_ECLASS_LINE);
+  
+  t8_locidx_t vertices[8];
+  double attr_vertices[24];
+  int mpirank, mpiret;
+  /* clang-format off */
+  const double vertices_coords[24] = { 
+    0, 0, 0, 
+    1, 0, 0, 
+    0, 1, 0, 
+    1, 1, 0, 
+    0, 0, 1, 
+    1, 0, 1, 
+    0, 1, 1,
+    1, 1, 1 
+  };
+  /* clang-format on */
+
+  const int dimensions[2] = {t8_eclass_to_dimension[eclasses[0]], t8_eclass_to_dimension[eclasses[1]]}; 
+
+  SC_CHECK_ABORT (eclass1 != T8_ECLASS_PYRAMID || eclass2 != T8_ECLASS_PYRAMID || !periodic, "The pyramid cube mesh cannot be periodic.\n");
+
+  if (do_partition) {
+    t8_global_errorf (
+      "WARNING: Partitioning the hypercube cmesh is currently not supported.\n"
+      "Using this cmesh will crash when vertices are used. See also https://github.com/holke/t8code/issues/79\n");
+  }
+  //cmesh->dimension = dimensions[0] + dimensions[1];
+
+  mpiret = sc_MPI_Comm_rank (comm, &mpirank);
+  SC_CHECK_MPI (mpiret);
+  if (!do_bcast || mpirank == 0) {
+    t8_cmesh_init (&cmesh);
+    for (i = 0; i < num_trees_for_eclass[eclasses[0]]; i++) {
+    // for (i = 0; i < num_trees_for_2_5D[eclasses[0]][eclasses[1]]; i++) {
+      t8_cmesh_set_tree_class (cmesh, i, eclasses[0]);
+    }
+    for (i = num_trees_for_eclass[eclasses[0]]; i < num_trees_for_2_5D[eclasses[0]][eclasses[1]]; i++) {
+      t8_cmesh_set_tree_class_2_5D (cmesh, i, eclasses[0], eclasses[1]);
+    }
+    t8_eclass_t eclass = eclasses[0];
+    switch (eclass) {
+    case T8_ECLASS_QUAD:
+      vertices[3] = 3;
+      vertices[2] = 2;
+      if (periodic) {
+        t8_cmesh_set_join (cmesh, 0, 0, 2, 3, 0);
+      }
+    case T8_ECLASS_LINE:
+      vertices[1] = 1;
+      if (periodic) {
+        t8_cmesh_set_join (cmesh, 0, 0, 0, 1, 0);
+      }
+    case T8_ECLASS_VERTEX:
+      vertices[0] = 0;
+      // vertices[1] = 4;
+      // vertices[0] = 0;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices,
+                                                    t8_eclass_num_vertices[eclass]);
+      t8_cmesh_set_tree_vertices (cmesh, 0, attr_vertices, t8_eclass_num_vertices[eclass]);
+      break;
+    case T8_ECLASS_TRIANGLE:
+      t8_cmesh_set_join (cmesh, 0, 1, 1, 2, 0);
+      vertices[0] = 0;
+      vertices[1] = 1;
+      vertices[2] = 3;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 3);
+      t8_cmesh_set_tree_vertices (cmesh, 0, attr_vertices, 3);
+      vertices[1] = 3;
+      vertices[2] = 2;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 3);
+      t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 3);
+      if (periodic) {
+        t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
+        t8_cmesh_set_join (cmesh, 0, 1, 2, 0, 0);
+      }
+      break;
+    default:
+      break;
+    }
+    //eclass = eclasses[0];
+    switch (eclass) {
+    case T8_ECLASS_QUAD:
+    case T8_ECLASS_LINE:
+      vertices[1] = 4;
+      vertices[0] = 0;
+      // vertices[1] = 4;
+      // vertices[0] = 0;
+      if (periodic) {
+        t8_cmesh_set_join (cmesh, 0, 0, 0, 1, 0);
+      }
+      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);
+      t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 2);
+      break;
+    case T8_ECLASS_TRIANGLE:
+      //t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
+      //t8_cmesh_set_join (cmesh, 0, 2, 1, 2, 0);
+      vertices[1] = 5;
+      vertices[0] = 1;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);        
+      t8_cmesh_set_tree_vertices (cmesh, 2, attr_vertices, 2);
+      vertices[1] = 6;
+      vertices[0] = 2;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);
+      t8_cmesh_set_tree_vertices (cmesh, 3, attr_vertices, 2);
+      // if (periodic) { //TODO
+      //   t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
+      //   t8_cmesh_set_join (cmesh, 0, 1, 2, 0, 0);
+      // }
+      break;
+    default:
+      break;
+    }
+  }
+  if (do_bcast) {
+    if (mpirank != 0) {
+      cmesh = NULL;
+    }
+    cmesh = t8_cmesh_bcast (cmesh, 0, comm);
+  }
+
+  /* Use linear geometry */
+  /* We need to set the geometry after broadcasting, since we
+   * cannot bcast the geometries. */
+  // for (int i = 0; i < sizeof(eclasses); i++){
+  //   const int dim = t8_eclass_to_dimension[eclasses[i]];
+  const int dim = dimensions[0] + dimensions[1];
+  t8_cmesh_register_geometry<t8_geometry_linear> (cmesh, dim);
+  // }
+
+  /* Check whether the cmesh will be partitioned */
+  if (do_partition) {
+    /* Compute and set the partition for the cmesh */
+    t8_cmesh_examples_compute_and_set_partition_range (cmesh, num_trees_for_2_5D[eclass1][eclass2], 3, comm);
+  }
+
+  /* Commit the constructed cmesh */
+  t8_cmesh_commit (cmesh, comm);
+  return cmesh;
+}
+
 /* The unit cube is constructed from trees of the same eclass.
  * For triangles the square is divided along the (0,0) -- (1,1) diagonal.
  * For prisms the front (y=0) and back (y=1) face are divided into triangles
@@ -848,7 +1008,7 @@ t8_cmesh_new_hypercube (t8_eclass_t eclass, sc_MPI_Comm comm, int do_bcast, int 
     t8_cmesh_examples_compute_and_set_partition_range (cmesh, num_trees_for_hypercube[eclass], 3, comm);
   }
 
-  /* Commit the constructed cmesh */
+  /* Commit the constructed cmesh */#
   t8_cmesh_commit (cmesh, comm);
   return cmesh;
 }

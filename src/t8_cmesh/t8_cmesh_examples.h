@@ -74,11 +74,17 @@ t8_cmesh_new_empty (sc_MPI_Comm comm, const int do_partition, const int dimensio
 /** Constructs a cmesh that consists only of one tree of a given element class.
  * \param [in]      eclass     The element class.
  * \param [in]      comm       mpi communicator to be used with the new cmesh.
- * \param [in]      do_dup     Flag whether the communicator shall be duplicated or not.
+ * \param [in]      do_dup     Flag whether the communicator shall be duplicated or not. //?
  * \return          A committed t8_cmesh structure with one tree of class \a eclass.
  */
 t8_cmesh_t
 t8_cmesh_new_from_class (t8_eclass_t eclass, sc_MPI_Comm comm);
+
+/**
+ * TODO: Declaration
+*/
+t8_cmesh_t
+t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Comm comm, int do_bcast, int do_partition, int periodic);
 
 /** Construct a hypercube forest from one primitive tree class.
  * \param [in] eclass       This element class determines the dimension and
