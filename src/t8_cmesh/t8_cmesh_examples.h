@@ -80,12 +80,6 @@ t8_cmesh_new_empty (sc_MPI_Comm comm, const int do_partition, const int dimensio
 t8_cmesh_t
 t8_cmesh_new_from_class (t8_eclass_t eclass, sc_MPI_Comm comm);
 
-/**
- * TODO: Declaration
-*/
-t8_cmesh_t
-t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Comm comm, int do_bcast, int do_partition, int periodic);
-
 /** Construct a hypercube forest from one primitive tree class.
  * \param [in] eclass       This element class determines the dimension and
  *                          the number of trees needed to construct a cube.
@@ -100,6 +94,12 @@ t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Co
  */
 t8_cmesh_t
 t8_cmesh_new_hypercube (t8_eclass_t eclass, sc_MPI_Comm comm, int do_bcast, int do_partition, int periodic);
+
+/**
+ * TODO: Declaration
+*/
+t8_cmesh_t
+t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Comm comm, int do_bcast, int do_partition, int periodic);
 
 /** Construct a hypercube forest from one primitive tree class.
  * \param [in] eclass       This element class determines the dimension of the cube.
