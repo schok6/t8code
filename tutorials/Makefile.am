@@ -15,7 +15,8 @@ bin_PROGRAMS += \
 	tutorials/general/t8_tutorial_build_cmesh \
 	tutorials/general/t8_tutorial_search \
 	tutorials/features/t8_features_curved_meshes \
-	tutorials/2_5D/t8_uniform_forest
+	tutorials/2_5D/t8_2_5D_cmesh \
+	tutorials/2_5D/t8_2_5D_uniform_forest
 
 dist_t8data_DATA += \
   tutorials/features/t8_features_curved_meshes_generate_cmesh_hex.geo \
@@ -60,8 +61,10 @@ tutorials_general_t8_tutorial_search_SOURCES = \
 	tutorials/general/t8_step3_adapt_forest.cxx
 tutorials_features_t8_features_curved_meshes_SOURCES = \
   tutorials/features/t8_features_curved_meshes.cxx
-tutorials_2_5D_t8_uniform_forest_SOURCES = \
-	tutorials/2_5D/t8_uniform_forest.cxx
+tutorials_2_5D_t8_2_5D_cmesh_SOURCES = \
+  	tutorials/2_5D/t8_2_5D_cmesh.cxx 
+tutorials_2_5D_t8_2_5D_uniform_forest_SOURCES = \
+	tutorials/2_5D/t8_2_5D_uniform_forest.cxx
 
 libt8_installed_headers += \
         tutorials/general/t8_step3.h \

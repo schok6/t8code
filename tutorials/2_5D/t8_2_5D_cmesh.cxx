@@ -25,15 +25,6 @@
 #include <t8_cmesh_vtk_writer.h>        /* cmesh-writer interface. */
 #include <t8_cmesh/t8_cmesh_examples.h> /* A collection of exemplary cmeshes */
 
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
-
-
-#include <t8_schemes/t8_default/t8_default_line/t8_default_line_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_quad/t8_default_quad_cxx.hxx>
-
-#include <t8_vtk.h>
-#include <t8_cmesh/t8_cmesh_trees.h>
-
 
 /* Builds cmesh of shapes for eclass1 (LINE (1.5D), QUAD or TRIANGLE) and for eclass1 (LINE) that build up a unit cube.
  * \param [in] comm   MPI Communicator to use.
@@ -56,6 +47,8 @@ t8_2_5D_build_hypercube_coarse_mesh (t8_eclass_t eclass1, t8_eclass_t eclass2, s
    *   periodic     - If non-zero the cube will have periodic boundaries. That is, i.e. the left face is connected to the right face.
    */
   cmesh = t8_cmesh_new_hypercube_2_5D(eclass1, eclass2, comm, 0, 0, 0);
+
+  t8_global_productionf (" [2_5D] Constructed coarse mesh.\n");
 
   return cmesh;
 }
@@ -89,9 +82,9 @@ main (int argc, char **argv)
   int mpiret;
   t8_cmesh_t cmesh;
   /* The prefix for our output files. */
-  // const char prefix[BUFSIZ] = "t8_1_5D_LINE_LINE";
-  // const char prefix[BUFSIZ] = "t8_2_5D_QUAD_LINE";
-  const char prefix[BUFSIZ] = "t8_2_5D_TRI_LINE";
+  // const char prefix[BUFSIZ] = "t8_1_5D_CMESH__LINE_LINE";
+  // const char prefix[BUFSIZ] = "t8_2_5D_CMESH__QUAD_LINE";
+  const char prefix[BUFSIZ] = "t8_2_5D_CMESH_TRI_LINE";
   t8_locidx_t local_num_trees;
   t8_gloidx_t global_num_trees;
 
@@ -118,7 +111,6 @@ main (int argc, char **argv)
   /* Compute local and global number of trees. */
   local_num_trees = t8_cmesh_get_num_local_trees (cmesh);
   global_num_trees = t8_cmesh_get_num_trees (cmesh);
-  t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   t8_global_productionf (" [2_5D] Local number of trees:\t%i\n", local_num_trees);
   t8_global_productionf (" [2_5D] Global number of trees:\t%li\n", global_num_trees);
   t8_2_5D_write_cmesh_vtk (cmesh, prefix);
