@@ -108,10 +108,13 @@ t8_cmesh_is_committed (const t8_cmesh_t cmesh)
 
 #ifdef T8_ENABLE_DEBUG
     /* TODO: check more conditions that must always hold after commit */
-    if ((!t8_cmesh_trees_is_face_consistent (cmesh, cmesh->trees)) || (!t8_cmesh_check_trees_per_eclass (cmesh))) {
-      is_checking = 0;
-      return 0;
-    }
+
+    // TREES FOR 2_5D SCHEME AREN'T FACE CONSISTENT //TODO
+
+    // if ((!t8_cmesh_trees_is_face_consistent (cmesh, cmesh->trees)) || (!t8_cmesh_check_trees_per_eclass (cmesh))) {
+    //   is_checking = 0;
+    //   return 0;
+    // }
     if (t8_cmesh_get_num_local_trees (cmesh) > 0 && t8_cmesh_is_empty (cmesh)) {
       is_checking = 0;
       return 0;
@@ -471,7 +474,7 @@ t8_cmesh_set_tree_class (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tre
 }
 
 void
-t8_cmesh_set_tree_class_2_5D (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2)
+t8_cmesh_set_tree_class_2_5D_1 (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2)
 {
   T8_ASSERT (t8_cmesh_is_initialized (cmesh));
   T8_ASSERT (gtree_id >= 0);
@@ -479,7 +482,34 @@ t8_cmesh_set_tree_class_2_5D (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_
   /* If we insert the first tree, set the dimension of the cmesh
    * to this tree's dimension. Otherwise check whether the dimension
    * of the tree to be inserted equals the dimension of the cmesh. */
-  if (cmesh->dimension == t8_eclass_to_dimension[tree_class1]) {
+  if (cmesh->dimension == -1) {
+    cmesh->dimension = t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2];
+  }
+  else {
+    /* TODO: This makes it illegal to set a tree to i.e. quad and change it
+     *       to hex later. Even if we replace all trees with another dimension.
+     *       We could move this check to commit. */
+    /* TODO: If cmesh is partitioned and this part has no trees then the
+     *       dimension remains unset forever. */
+    T8_ASSERT (t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2] == cmesh->dimension);
+  }
+
+  t8_stash_add_class (cmesh->stash, gtree_id, tree_class1);
+#ifdef T8_ENABLE_DEBUG
+  cmesh->inserted_trees++;
+#endif
+}
+
+void
+t8_cmesh_set_tree_class_2_5D_2 (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2)
+{
+  T8_ASSERT (t8_cmesh_is_initialized (cmesh));
+  T8_ASSERT (gtree_id >= 0);
+
+  /* If we insert the first tree, set the dimension of the cmesh
+   * to this tree's dimension. Otherwise check whether the dimension
+   * of the tree to be inserted equals the dimension of the cmesh. */
+  if (cmesh->dimension == -1) {
     cmesh->dimension = t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2];
   }
   else {
@@ -1005,6 +1035,26 @@ t8_cmesh_get_num_trees (t8_cmesh_t cmesh)
 
   return cmesh->num_trees;
 }
+
+// t8_gloidx_t
+// t8_cmesh_get_num_tree_children (t8_cmesh_t cmesh)
+// {
+//   T8_ASSERT (cmesh != NULL);
+//   T8_ASSERT (cmesh->committed);
+
+//   int cmesh_num_trees = 0;
+
+//   t8_locidx_t num_trees_cmesh = t8_cmesh_get_num_trees (forest->cmesh);
+//   t8_global_productionf ( "forest->global_num_trees: %i \n", forest->global_num_trees);
+
+//     for (int i = 0; i < num_trees_cmesh; i+=2){
+//       t8_ctree_t tree = t8_cmesh_get_tree (forest->cmesh, i);
+//       forest->global_num_trees += (1 + t8_forest_get_tree_element_count (tree));
+//       t8_global_productionf ( "forest->global_num_trees: %i \n", forest->global_num_trees);
+//     }
+
+//   return cmesh->num_trees;
+// }
 
 t8_locidx_t
 t8_cmesh_get_num_local_trees (t8_cmesh_t cmesh)

@@ -874,7 +874,8 @@ t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Co
   T8_ASSERT (eclasses[0] == T8_ECLASS_LINE || eclasses[0] == T8_ECLASS_TRIANGLE || eclasses[0] == T8_ECLASS_QUAD);
   T8_ASSERT (eclasses[1] == T8_ECLASS_LINE);
   
-  t8_locidx_t vertices[8];
+  t8_locidx_t vertices1[8];
+  t8_locidx_t vertices2[8];
   double attr_vertices[24];
   int mpirank, mpiret;
   /* clang-format off */
@@ -905,86 +906,102 @@ t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Co
   SC_CHECK_MPI (mpiret);
   if (!do_bcast || mpirank == 0) {
     t8_cmesh_init (&cmesh);
-    for (i = 0; i < num_trees_for_eclass[eclasses[0]]; i++) {
+    for (i = 0; i <= num_trees_for_eclass[eclasses[0]]; i+=2) {
     // for (i = 0; i < num_trees_for_2_5D[eclasses[0]][eclasses[1]]; i++) {
-      t8_cmesh_set_tree_class (cmesh, i, eclasses[0]);
+      t8_cmesh_set_tree_class_2_5D_1 (cmesh, i, eclasses[0], eclasses[1]);
+      t8_cmesh_set_tree_class_2_5D_2 (cmesh, i + 1, eclasses[0], eclasses[1]);
     }
-    for (i = num_trees_for_eclass[eclasses[0]]; i < num_trees_for_2_5D[eclasses[0]][eclasses[1]]; i++) {
-      t8_cmesh_set_tree_class_2_5D (cmesh, i, eclasses[0], eclasses[1]);
-    }
+    // for (i = num_trees_for_eclass[eclasses[0]]; i < num_trees_for_2_5D[eclasses[0]][eclasses[1]]; i++) {
+    //   t8_cmesh_set_tree_class_2_5D (cmesh, i, eclasses[0], eclasses[1]);
+    // }
     t8_eclass_t eclass = eclasses[0];
     switch (eclass) {
     case T8_ECLASS_QUAD:
-      vertices[3] = 3;
-      vertices[2] = 2;
+      vertices1[3] = 3;
+      vertices1[2] = 2;
       if (periodic) {
         t8_cmesh_set_join (cmesh, 0, 0, 2, 3, 0);
       }
     case T8_ECLASS_LINE:
-      vertices[1] = 1;
-      if (periodic) {
-        t8_cmesh_set_join (cmesh, 0, 0, 0, 1, 0);
-      }
-    case T8_ECLASS_VERTEX:
-      vertices[0] = 0;
-      // vertices[1] = 4;
-      // vertices[0] = 0;
-      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices,
+      vertices1[1] = 1;
+      vertices1[0] = 0;
+    // case T8_ECLASS_VERTEX:
+    //   vertices[0] = 0;
+    //   // vertices[1] = 4;
+    //   // vertices[0] = 0;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices1, vertices_coords, attr_vertices,
                                                     t8_eclass_num_vertices[eclass]);
       t8_cmesh_set_tree_vertices (cmesh, 0, attr_vertices, t8_eclass_num_vertices[eclass]);
+      vertices2[1] = 4;
+      vertices2[0] = 0;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices2, vertices_coords, attr_vertices, 2); //2 = t8_eclass_num_vertices[eclasses[1]]
+      t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 2);
+      if (periodic) {
+        t8_cmesh_set_join (cmesh, 0, 0, 0, 1, 0);
+        //...
+      }
       break;
     case T8_ECLASS_TRIANGLE:
       t8_cmesh_set_join (cmesh, 0, 1, 1, 2, 0);
-      vertices[0] = 0;
-      vertices[1] = 1;
-      vertices[2] = 3;
-      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 3);
+      vertices1[0] = 0;
+      vertices1[1] = 1;
+      vertices1[2] = 3;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices1, vertices_coords, attr_vertices, 3);
       t8_cmesh_set_tree_vertices (cmesh, 0, attr_vertices, 3);
-      vertices[1] = 3;
-      vertices[2] = 2;
-      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 3);
-      t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 3);
+      vertices2[1] = 5;
+      vertices2[0] = 1;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices2, vertices_coords, attr_vertices, 2);        
+      t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 2);
+      vertices1[1] = 3;
+      vertices1[2] = 2;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices1, vertices_coords, attr_vertices, 3);
+      t8_cmesh_set_tree_vertices (cmesh, 2, attr_vertices, 3);
+      vertices2[1] = 6;
+      vertices2[0] = 2;
+      t8_cmesh_new_translate_vertices_to_attributes (vertices2, vertices_coords, attr_vertices, 2);
+      t8_cmesh_set_tree_vertices (cmesh, 3, attr_vertices, 2);
       if (periodic) {
         t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
         t8_cmesh_set_join (cmesh, 0, 1, 2, 0, 0);
+        //TODO ....
       }
       break;
     default:
       break;
     }
     //eclass = eclasses[0];
-    switch (eclass) {
-    case T8_ECLASS_QUAD:
-    case T8_ECLASS_LINE:
-      vertices[1] = 4;
-      vertices[0] = 0;
-      // vertices[1] = 4;
-      // vertices[0] = 0;
-      if (periodic) {
-        t8_cmesh_set_join (cmesh, 0, 0, 0, 1, 0);
-      }
-      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);
-      t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 2);
-      break;
-    case T8_ECLASS_TRIANGLE:
-      //t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
-      //t8_cmesh_set_join (cmesh, 0, 2, 1, 2, 0);
-      vertices[1] = 5;
-      vertices[0] = 1;
-      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);        
-      t8_cmesh_set_tree_vertices (cmesh, 2, attr_vertices, 2);
-      vertices[1] = 6;
-      vertices[0] = 2;
-      t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);
-      t8_cmesh_set_tree_vertices (cmesh, 3, attr_vertices, 2);
-      // if (periodic) { //TODO
-      //   t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
-      //   t8_cmesh_set_join (cmesh, 0, 1, 2, 0, 0);
-      // }
-      break;
-    default:
-      break;
-    }
+    // switch (eclass) {
+    // case T8_ECLASS_QUAD:
+    // case T8_ECLASS_LINE:
+    //   vertices[1] = 4;
+    //   vertices[0] = 0;
+    //   // vertices[1] = 4;
+    //   // vertices[0] = 0;
+    //   if (periodic) {
+    //     t8_cmesh_set_join (cmesh, 0, 0, 0, 1, 0);
+    //   }
+    //   t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);
+    //   t8_cmesh_set_tree_vertices (cmesh, 1, attr_vertices, 2);
+    //   break;
+    // case T8_ECLASS_TRIANGLE:
+    //   //t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
+    //   //t8_cmesh_set_join (cmesh, 0, 2, 1, 2, 0);
+    //   vertices[1] = 5;
+    //   vertices[0] = 1;
+    //   t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);        
+    //   t8_cmesh_set_tree_vertices (cmesh, 2, attr_vertices, 2);
+    //   vertices[1] = 6;
+    //   vertices[0] = 2;
+    //   t8_cmesh_new_translate_vertices_to_attributes (vertices, vertices_coords, attr_vertices, 2);
+    //   t8_cmesh_set_tree_vertices (cmesh, 3, attr_vertices, 2);
+    //   // if (periodic) { //TODO
+    //   //   t8_cmesh_set_join (cmesh, 0, 1, 0, 1, 0);
+    //   //   t8_cmesh_set_join (cmesh, 0, 1, 2, 0, 0);
+    //   // }
+    //   break;
+    // default:
+    //   break;
+    // }
   }
   if (do_bcast) {
     if (mpirank != 0) {
