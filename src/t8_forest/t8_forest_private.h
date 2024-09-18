@@ -97,7 +97,7 @@ t8_eclass_scheme_c *
 t8_forest_get_eclass_scheme_before_commit_2_5D (t8_forest_t forest, t8_eclass_t eclass1, t8_eclass_t eclass2);
 
 /** Compute the maximum possible refinement level in a forest.
- * This is the minimum over all maimum refinement level of the present element
+ * This is the minimum over all maximum refinement level of the present element
  * classes.
  * \param [in,out] forest The forest.
  */

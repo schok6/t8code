@@ -84,10 +84,10 @@ t8_cmesh_set_shmem_type (sc_MPI_Comm comm)
 }
 
 static void
-t8_cmesh_add_attributes (t8_cmesh_t cmesh, sc_hash_t *ghost_ids, size_t *attribute_data_offset)
+t8_cmesh_add_attributes (const t8_cmesh_t cmesh, sc_hash_t *ghost_ids, size_t *attribute_data_offset)
 {
   t8_stash_attribute_struct_t *attribute;
-  t8_stash_t stash = cmesh->stash;
+  const t8_stash_t stash = cmesh->stash;
   t8_locidx_t ltree;
   size_t si, sj;
   t8_ghost_facejoin_t *temp_facejoin, **facejoin_pp; /* used to lookup global ghost ids in the hash */
@@ -249,6 +249,10 @@ t8_cmesh_commit_partitioned_new (t8_cmesh_t cmesh, sc_MPI_Comm comm)
     cmesh->first_tree_shared = t8_shmem_array_get_gloidx (cmesh->tree_offsets, cmesh->mpirank) < 0;
     /* Get the number of local trees */
     cmesh->num_local_trees = t8_offset_num_trees (cmesh->mpirank, tree_offsets);
+  }
+  else {
+    SC_CHECK_ABORT (cmesh->set_partition_level < 0,
+                    "Do not use t8_cmesh_set_partition_uniform when creating a cmesh from stash!\n");
   }
   /* The first_tree and first_tree_shared entries must be set by now */
   T8_ASSERT (cmesh->first_tree >= 0);
