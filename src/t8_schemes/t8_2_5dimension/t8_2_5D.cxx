@@ -22,6 +22,13 @@
 
 #include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 
+// void
+// t8_2_5D_init (t8_2_5D_t *el)
+// {
+//   scheme1->t8_element_init (1, el->elem1);
+//   scheme2->t8_element_init (1, el->elem2);
+// }
+
 // int
 // t8_2_5D_get_linear_id (const t8_element_t *elem, int level1, int level2)
 // {   

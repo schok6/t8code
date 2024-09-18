@@ -385,6 +385,12 @@ t8_default_scheme_line_c::t8_element_is_family (t8_element_t *const *fam) const
   return t8_dline_is_familypv ((const t8_dline_t **) fam);
 }
 
+t8_eclass_t
+t8_default_scheme_line_c::t8_element_get_eclass (int dir) const
+{
+  SC_ABORT ("Not implemented.\n");
+}
+
 int
 t8_default_scheme_line_c::t8_element_refines_irregular () const
 {
@@ -411,7 +417,7 @@ t8_default_scheme_line_c::t8_element_to_string (const t8_element_t *elem, char *
 #endif
 
 void
-t8_default_scheme_line_c::t8_element_new (int length, t8_element_t **elem) const
+t8_default_scheme_line_c::t8_element_new (int length, t8_element_t **elem, int dir) const
 {
   /* allocate memory for a line */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -425,6 +431,47 @@ t8_default_scheme_line_c::t8_element_new (int length, t8_element_t **elem) const
     }
   }
 #endif
+}
+
+void
+t8_default_scheme_line_c::t8_element_set_type (t8_element_t *elem, int dir) const 
+{
+  if (dir == 1) {
+    t8_dline_t *el1 = (t8_dline_t *) elem;
+    el1->level = el1->x = 0;
+  }
+  else if (dir == 2) {
+    t8_dline_t *el2 = (t8_dline_t *) elem;
+    el2->level = el2->x = 0;
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
+}
+
+void
+t8_default_scheme_line_c::t8_element_get_type (t8_element_t *elem) const 
+{
+  t8_dline_t *el = (t8_dline_t *) elem;
+}
+
+int
+t8_default_scheme_line_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+{
+  t8_dline_t *el = (t8_dline_t *) elem;
+  if (var == 1) {
+    // t8_global_productionf("el_line->x: %i \n", el->x);
+    return el->x;
+  }
+  else {
+    SC_ABORT ("Line is 1D.\n");
+  }
+}
+
+t8_eclass_scheme_c *
+t8_default_scheme_line_c::t8_element_get_scheme (int dir) const
+{
+  T8_ASSERT( "Not implemented." );
 }
 
 void

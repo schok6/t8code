@@ -49,6 +49,19 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 
   ~t8_2_5dimension_scheme_c ();
 
+  // /**
+  //  * TODO
+  // *
+  // virtual t8_eclass_scheme_c
+  // t8_element_get_eclass_scheme (int dir = 0);
+
+  // /**
+  //  * TODO
+  // */
+  virtual t8_eclass_t
+  t8_element_get_eclass (int dir = 0) const;
+
+
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.
    * \return                    non-zero if there is one element in the tree that does not refine into 2^dim children.
@@ -491,7 +504,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
     *  \return              The shape of the element as an eclass
    */
   virtual t8_element_shape_t
-  t8_element_shape (const t8_element_t *elem) const;
+  t8_element_shape (const t8_element_t *elem, int dir = 0) const;
 
   /** Initialize the entries of an allocated element according to a
    *  given linear id in a uniform refinement.
@@ -520,8 +533,8 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   * \return              The linear id of the element.
   * 
   */
-  int
-  t8_2_5D_get_linear_id (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const; 
+  virtual t8_linearidx_t
+  t8_element_get_linear_id_2_5D (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const; 
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -669,7 +682,31 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   /* TODO: would it be better to directly allocate an array of elements,
    *       not element pointers? */
   virtual void
-  t8_element_new (int length, t8_element_t **elem) const;
+  t8_element_new (int length, t8_element_t **elem, int dir = 0) const;
+
+   /**
+   * TODO
+  */
+  virtual void
+  t8_element_set_type (t8_element_t *elem, int dir = 0) const;
+
+  /**
+   * TODO
+  */
+  virtual void
+  t8_element_get_type (t8_element_t *elem) const;
+
+  /**
+  * TODO
+  */
+  virtual int
+  t8_element_get_variable (t8_element_t *elem, int var, int dir = 0) const;
+
+  /**
+  * TODO
+  */
+  virtual t8_eclass_scheme_c *
+  t8_element_get_scheme (int dir = 0) const;
 
   /** Initialize an array of allocated elements.
    * \param [in] length   The number of elements to be initialized.
@@ -687,6 +724,9 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    */
   virtual void
   t8_element_init (int length, t8_element_t *elem) const;
+
+  // void
+  // t8_2_5D_init (t8_2_5D_t *el) const;
 
   /** Deinitialize an array of allocated elements.
    * \param [in] length   The number of elements to be deinitialized.
@@ -707,7 +747,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    *                      \b elem itself will not be freed by this function.
    */
   virtual void
-  t8_element_destroy (int length, t8_element_t **elem) const;
+  t8_element_destroy (int length, t8_element_t **elem, int dir = 0) const;
 
   /** create the root element
    * \param [in,out] elem The element that is filled with the root
@@ -753,11 +793,20 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 // typedef int8_t t8_2_5D_type_t;
 // typedef int8_t t8_1_5D_type_t;
 
+//Hier auskommentieren?
+
 typedef struct t8_2_5D
 {
-t8_element_t *elem1;
-t8_element_t *elem2;
+  t8_element_t *elem1;
+  t8_element_t *elem2;
 } t8_2_5D_t;
+
+// typedef struct t8_2_5Dnew
+// {
+//   t8_element_t **schemeelem = T8_ALLOC(t8_element_t,2);
+//   // t8_element_t *elem1;
+//   // t8_element_t *elem2;
+// } t8_2_5Dnew_t;
 
 
 // typedef struct t8_2_5D

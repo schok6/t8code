@@ -47,15 +47,15 @@ class t8_default_scheme_common_c: public t8_eclass_scheme_c {
 
   /** Allocate space for a bunch of elements. */
   virtual void
-  t8_element_new (int length, t8_element_t **elem) const;
+  t8_element_new (int length, t8_element_t **elem, int dir = 0) const;
 
   /** Deallocate space for a bunch of elements. */
   virtual void
-  t8_element_destroy (int length, t8_element_t **elem) const;
+  t8_element_destroy (int length, t8_element_t **elem, int dir = 0) const;
 
   /** Return the shape of an element */
   virtual t8_element_shape_t
-  t8_element_shape (const t8_element_t *elem) const;
+  t8_element_shape (const t8_element_t *elem, int dir = 0) const;
 
   /** Count how many leaf descendants of a given uniform level an element would produce.
    * \param [in] t     The element to be checked.

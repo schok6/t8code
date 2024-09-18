@@ -21,6 +21,8 @@
 */
 
 #include "t8_2_5dimension_element_cxx.hxx"
+#include <sc_functions.h>
+#include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 #include <t8_schemes/t8_default/t8_default_line/t8_dline.h>
 #include <t8_schemes/t8_default/t8_default_quad/t8_dquad.h>
 #include <t8_schemes/t8_default/t8_default_tri/t8_dtri.h>
@@ -31,18 +33,38 @@
 // t8_linearidx_t
 // t8_element_get_linear_id (const t8_element_t *elem, int level, int dir);
 
+/** This class independent function assumes an sc_mempool_t as context.
+ * It is suitable as the elem_new callback in \ref t8_eclass_scheme_t.
+ * We assume that the mempool has been created with the correct element size.
+ * \param [in,out] ts_context   An element is allocated in this sc_mempool_t.
+ * \param [in]     length       Non-negative number of elements to allocate.
+ * \param [in,out] elem         Array of correct size whose members are filled.
+ */
+static void
+t8_2_5D_mempool_alloc (sc_mempool_t *ts_context, int length, t8_element_t **elem);
+
+/** This class independent function assumes an sc_mempool_t as context.
+ * It is suitable as the elem_destroy callback in \ref t8_eclass_scheme_t.
+ * We assume that the mempool has been created with the correct element size.
+ * \param [in,out] ts_context   An element is returned to this sc_mempool_t.
+ * \param [in]     length       Non-negative number of elements to destroy.
+ * \param [in,out] elem         Array whose members are returned to the mempool.
+ */
+static void
+t8_2_5D_mempool_free (sc_mempool_t *ts_context, int length, t8_element_t **elem);
+
 t8_2_5dimension_scheme_c::t8_2_5dimension_scheme_c (t8_eclass_scheme_c *scheme1, t8_eclass_scheme_c *scheme2)
 {
   this->scheme1 = scheme1;
-  this->scheme2 = scheme1;
+  this->scheme2 = scheme2;
   t8_eclass_t eclass1 = scheme1->eclass;
   t8_eclass_t eclass2 = scheme2->eclass;
   t8_global_productionf ("eclass1:\t%i\n", eclass1);
   t8_global_productionf ("eclass2:\t%i\n", eclass2);
   //for testing
-  if (eclass1 == T8_ECLASS_LINE && eclass2 == T8_ECLASS_LINE) {
-    //if (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE)){
-    //if ((eclass1 == T8_ECLASS_LINE && (eclass2 == T8_ECLASS_QUAD || eclass2 == T8_ECLASS_TRIANGLE)) //leave this out for now
+  // if (eclass1 == T8_ECLASS_LINE && eclass2 == T8_ECLASS_LINE) {
+    if (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE)){
+    // if ((eclass1 == T8_ECLASS_LINE && (eclass2 == T8_ECLASS_QUAD || eclass2 == T8_ECLASS_TRIANGLE)) //leave this out for now
     //|| (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE)))) {
     element_size = sizeof (scheme1->t8_element_size ()) * sizeof (scheme2->t8_element_size ());
     ts_context = sc_mempool_new (element_size);
@@ -63,6 +85,36 @@ t8_2_5dimension_scheme_c::~t8_2_5dimension_scheme_c ()
   sc_mempool_destroy ((sc_mempool_t *) ts_context);
 }
 
+ t8_eclass_t
+ t8_2_5dimension_scheme_c::t8_element_get_eclass (int dir) const
+ {
+  if (dir == 1) {
+    t8_eclass_t eclass = scheme1->eclass;
+    return eclass;
+  }
+  else if (dir == 2) {
+    t8_eclass_t eclass = scheme2->eclass;
+    return eclass;
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
+ }
+
+//  t8_scheme_cxx_t
+//  t8_2_5dimension_scheme_c::t8_element_get_eclass_scheme (int dir)
+//  {
+//   if (dir == 1) {
+//     return *scheme1;
+//   }
+//   else if (dir == 2) {
+//     return *scheme2;
+//   }
+//   else {
+//     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+//   }
+//  }  
+
 int
 t8_2_5dimension_scheme_c::t8_element_refines_irregular (void) const
 {
@@ -73,19 +125,20 @@ int
 t8_2_5dimension_scheme_c::t8_element_maxlevel (void) const
 {
   //langt ein maxlevel?
-  return 3; //for testing
+  return 12; //for testing
   //return SC_MIN (scheme1->t8_element_maxlevel (), scheme2->t8_element_maxlevel ());
 }
 
 int
 t8_2_5dimension_scheme_c::t8_element_level (const t8_element_t *elem, int dir) const
 {
-  const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
+  // const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
   if (dir == 1) {
-    return scheme1->t8_element_level (el->elem1);
+    // return scheme1->t8_element_level (el->elem1);
+    return scheme1->t8_element_level (elem);
   }
   else if (dir == 2) {
-    return scheme2->t8_element_level (el->elem2);
+    return scheme2->t8_element_level (elem);
   }
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
@@ -94,7 +147,17 @@ t8_2_5dimension_scheme_c::t8_element_level (const t8_element_t *elem, int dir) c
 
 void
 t8_2_5dimension_scheme_c::t8_element_copy (const t8_element_t *source, t8_element_t *dest) const
-{
+{  
+  // if (dir == 1) {
+  //   // return scheme1->t8_element_level (el->elem1);
+  //   return scheme1->t8_element_copy (source, dest);
+  // }
+  // else if (dir == 2) {
+  //   return scheme2->t8_element_copy (source, dest);
+  // }
+  // else {
+  //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  // }
   const t8_2_5D_t *s = (const t8_2_5D_t *) source;
   t8_2_5D_t *d = (t8_2_5D_t *) dest;
   scheme1->t8_element_copy (s->elem1, d->elem1);
@@ -201,7 +264,7 @@ t8_2_5dimension_scheme_c::t8_element_parent (const t8_element_t *elem, t8_elemen
 //   }
 // }
 
-
+//ONLY for 2_5D
 int8_t
 t8_2_5dimension_scheme_c::t8_element_get_level (const t8_element_t *elem, int dir) const
 {
@@ -337,9 +400,11 @@ t8_2_5dimension_scheme_c::t8_element_num_children (const t8_element_t *elem, int
 {
   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
   if (dir == 1) {
+    scheme1->t8_element_new (1, const_cast<t8_element_t **>(&el->elem1), 1);
     return scheme1->t8_element_num_children (el->elem1);
   }
   else if (dir == 2) {
+    scheme2->t8_element_new (1, const_cast<t8_element_t **>(&el->elem2), 2);
     return scheme2->t8_element_num_children (el->elem2);
   }
   else if (dir == 3) {
@@ -676,37 +741,52 @@ t8_2_5dimension_scheme_c::t8_element_face_neighbor_inside (const t8_element_t *e
 }
 
 t8_element_shape_t
-t8_2_5dimension_scheme_c::t8_element_shape (const t8_element_t *elem) const
+t8_2_5dimension_scheme_c::t8_element_shape (const t8_element_t *elem, int dir) const
 {
-  SC_ABORT ("[NOT NEEDED] This function is not implemented yet.\n");
-  return T8_ECLASS_ZERO;
-  //   if (dir == 1)
-  //   {
-  //     return scheme1->t8_element_shape(elem);
-  //   }
-  //   else if (dir == 2)
-  //   {
-  //     return scheme2->t8_element_shape(const t8_element_t *elem);
-  //   }
-  //   else{
-  //     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-  //   }
-  // }
+  if (dir == 1)
+  {
+    return scheme1->t8_element_shape(elem);
+  }
+  else if (dir == 2)
+  {
+    return scheme2->t8_element_shape(elem);
+  }
+  else{
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
 }
+
+// void
+// t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, int level1, int level2, t8_linearidx_t id) const
+// {
+//   return t8_element_get_linear_id (elem, level1, 1) * sc_intpow (t8_element_num_children (elem, 2), level2)
+//           + t8_element_get_linear_id (elem, level2, 2);
+// }
 
 void
 t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
 {
-  if (dir == 1) {
+  if (dir == 1) { //brauchen wir dir oder langt 3?
     return scheme1->t8_element_set_linear_id (elem, level, id);
   }
   else if (dir == 2) {
     return scheme2->t8_element_set_linear_id (elem, level, id);
   }
+  // else if (dir == 3) {
+  //   return t8_element_get_linear_id (elem, level1, 1) * sc_intpow (t8_element_num_children (elem, 2), level2)
+  //         + t8_element_get_linear_id (elem, level2, 2);
+  // }
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
   }
 }
+
+// void
+// t8_2_5dimension_scheme_c::t8_element_set_linear_id_2_5D (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const
+// {
+//   return t8_element_get_linear_id (elem1, level1, 1) * sc_intpow (t8_element_num_children (elem2, 2), level2)
+//          + t8_element_get_linear_id (elem2, level2, 2);
+// }
 
 t8_linearidx_t
 t8_2_5dimension_scheme_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
@@ -722,8 +802,8 @@ t8_2_5dimension_scheme_c::t8_element_get_linear_id (const t8_element_t *elem, in
   }
 }
 
-int
-t8_2_5dimension_scheme_c::t8_2_5D_get_linear_id (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const
+t8_linearidx_t
+t8_2_5dimension_scheme_c::t8_element_get_linear_id_2_5D (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const
 {
   return t8_element_get_linear_id (elem1, level1, 1) * sc_intpow (t8_element_num_children (elem2, 2), level2)
          + t8_element_get_linear_id (elem2, level2, 2);
@@ -793,34 +873,23 @@ t8_gloidx_t
 t8_2_5dimension_scheme_c::t8_element_count_leaves (const t8_element_t *elem, int level, int dir) const
 {
   SC_ABORT ("Waiting for scheme interface.\n");
-  //return 100000000;
-  //return;
-  //   return t8_sele_num_descendants_at_leveldiff<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem,
-  //                                                          level - t8_element_level (elem));
 }
 
 t8_gloidx_t
 t8_2_5dimension_scheme_c::t8_element_count_leaves_from_root (int level, int dir) const
 {
-  SC_ABORT ("Waiting for scheme interface.\n");
-  //return 100000000;
-  // T8_ASSERT (level >= 0);
-  // // t8_linearidx_t two_to_l = 1LL << level;
-  // // t8_linearidx_t eight_to_l = 1LL << (3 * level);
-  // // if constexpr ((eclass_T1 == T8_ECLASS_PYRAMID) && (eclass_T2 == T8_ECLASS_PYRAMID)){
-  // //   t8_linearidx_t leafs_from_root[] = {((eight_to_l << 2) - two_to_l) / 3, ((eight_to_l << 2) - two_to_l) / 3};
-  // //   return *leafs_from_root;
-  // // }
-  // // else if constexpr ((eclass_T1 == T8_ECLASS_PYRAMID) && (eclass_T2 != T8_ECLASS_PYRAMID)){
-  // //   t8_gloidx_t leafs_from_root[] = {((eight_to_l << 2) - two_to_l) / 3, 1LL << (level * T8_ELEMENT_DIM[eclass_T2])};
-  // //   return *leafs_from_root;
-  // // }
-  // // else if constexpr ((eclass_T1 != T8_ECLASS_PYRAMID) && (eclass_T2 == T8_ECLASS_PYRAMID)){
-  // //   t8_gloidx_t leafs_from_root[] = {1LL << (level * T8_ELEMENT_DIM[eclass_T1]), ((eight_to_l << 2) - two_to_l) / 3};
-  // //   return *leafs_from_root;
-  // // }
-  // t8_gloidx_t leafs_from_root[] = {1LL << (level * T8_ELEMENT_DIM[eclass_T1]), 1LL << (level * T8_ELEMENT_DIM[eclass_T2])};
-  // return *leafs_from_root;
+  if (dir == 1) {
+    scheme1->t8_element_count_leaves_from_root (level);
+    // t8_global_productionf( "eclass1 %i \n", scheme1->eclass);
+    // t8_global_productionf( "t8_eclass_to_dimension[T8_ECLASS_QUAD] %i \n", t8_eclass_to_dimension[T8_ECLASS_QUAD]);
+  }
+  else if (dir == 2) {
+    scheme2->t8_element_count_leaves_from_root (level);
+    // t8_global_productionf( "eclass2 %i \n", scheme2->eclass);
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
 }
 
 void
@@ -863,28 +932,113 @@ t8_2_5dimension_scheme_c::t8_element_to_string (const t8_element_t *elem, char *
 #endif
 
 void
-t8_2_5dimension_scheme_c::t8_element_new (int length, t8_element_t **elem) const
+t8_2_5dimension_scheme_c::t8_element_new (int length, t8_element_t **elem, int dir) const
 {
-  /* allocate memory */
-  //T8_ASSERT (scheme1->ts_context != NULL);
-  //T8_ASSERT (scheme2->ts_context != NULL);
+  if (dir == 1) {
+    scheme1->t8_element_new(length, elem);
+    // t8_global_productionf( "eclass1 %i \n", scheme1->eclass);
+    // t8_global_productionf( "t8_eclass_to_dimension[T8_ECLASS_QUAD] %i \n", t8_eclass_to_dimension[T8_ECLASS_QUAD]);
+  }
+  else if (dir == 2) {
+    scheme2->t8_element_new(length, elem);
+    // t8_global_productionf( "eclass2 %i \n", scheme2->eclass);
+  }
+  //brauchen wir für new direction parameter????
+  else if (dir == 3) {
+    /* allocate memory */
+    //T8_ASSERT (scheme1->ts_context != NULL);
+    //T8_ASSERT (scheme2->ts_context != NULL);
+    T8_ASSERT (0 <= length);
+    T8_ASSERT (elem != NULL);
+    //static inline void *
+    //sc_mempool_alloc (sc_mempool_t * mempool) @unused@???
+    t8_2_5D_mempool_alloc ((sc_mempool_t *) this->ts_context, length, elem);
+    // scheme1->t8_element_new (length, elem);
+    // scheme2->t8_element_new (length, elem);
+
+    /* in debug mode, set sensible default values. */
+  #ifdef T8_ENABLE_DEBUG
+    {
+      int i;
+      for (i = 0; i < length; i++) {
+        //t8_element_init (1, elem[i]);
+        t8_element_root (elem[i]);
+      }
+    }
+  #endif
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
+}
+
+static void
+t8_2_5D_mempool_alloc (sc_mempool_t *ts_context, int length, t8_element_t **elem)
+{
+  int i;
+
+  T8_ASSERT (ts_context != NULL);
   T8_ASSERT (0 <= length);
   T8_ASSERT (elem != NULL);
-  //static inline void *
-  //sc_mempool_alloc (sc_mempool_t * mempool) @unused@???
-  scheme1->t8_element_new (length, elem);
-  scheme2->t8_element_new (length, elem);
 
-  /* in debug mode, set sensible default values. */
-#ifdef T8_ENABLE_DEBUG
-  {
-    int i;
-    for (i = 0; i < length; i++) {
-      //t8_element_init (1, elem[i]);
-      t8_element_root (elem[i]);
-    }
+  for (i = 0; i < length; ++i) {
+    elem[i] = (t8_element_t *) sc_mempool_alloc (ts_context);
   }
-#endif
+}
+
+static void
+t8_2_5D_mempool_free (sc_mempool_t *ts_context, int length, t8_element_t **elem)
+{
+  int i;
+
+  T8_ASSERT (ts_context != NULL);
+  T8_ASSERT (0 <= length);
+  T8_ASSERT (elem != NULL);
+
+  for (i = 0; i < length; ++i) {
+    sc_mempool_free (ts_context, elem[i]);
+  }
+}
+
+void
+t8_2_5dimension_scheme_c::t8_element_set_type (t8_element_t *elem, int dir) const
+{
+  T8_ASSERT( "Not implemented." );
+}
+
+void
+t8_2_5dimension_scheme_c::t8_element_get_type (t8_element_t *elem) const
+{
+  T8_ASSERT( "Not implemented." );
+}
+
+int
+t8_2_5dimension_scheme_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+{
+  if (dir == 1) {
+    scheme1->t8_element_get_variable (elem, var);
+  }
+  else if (dir == 2) {
+    scheme2->t8_element_get_variable (elem, var);
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
+}
+
+t8_eclass_scheme_c *
+t8_2_5dimension_scheme_c::t8_element_get_scheme (int dir) const
+{
+  //T8_ASSERT( "Not implemented." );
+  if (dir == 1) {
+    return scheme1;
+  }
+  else if (dir == 2) {
+    return scheme2;
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
 }
 
 void
@@ -893,12 +1047,46 @@ t8_2_5dimension_scheme_c::t8_element_init (int length, t8_element_t *elem) const
 #ifdef T8_ENABLE_DEBUG
   {
     t8_2_5D_t *el = (t8_2_5D_t *) elem;
+    // int dim1;
+    for (int j = 0; j < length*3; j+=3) {
+    // dim1 = t8_eclass_to_dimension[scheme1->eclass];
+    // if (dim1 == 2){
+      // scheme1->t8_element_set_type (el->elem1);
+      (el + j)->elem1 = (t8_element_t *) (el + j + 1);
+      // scheme1->t8_element_set_type (el->elem1, 1); //braucht man dir parameter?
+      scheme1->t8_element_init (1, el->elem1);
+      // scheme1->t8_element_get_type (el->elem1);
+      t8_dquad_t *elem1 = (t8_dquad_t *) el->elem1;
+      // t8_global_productionf( "el->elem1->level %i", elem1->level);
+      (el + j)->elem2 = (t8_element_t *) (el + j + 2);
+      scheme2->t8_element_init (1, el->elem2);
+      // el->x = level = 0;
+    // }
+    }
+    
+    // else{
+    //   elem2->x = elem2->y = elem2->level = 0;
+    //   elem1->x = elem1->level = 0;
+    // }
+    // for (int j = 0; j < length; j++) {
+    //   // el->elem1 = el + 1;
+    //   // el->elem2 = el + 2;
+    //   // t8_element_t *elem1 = (el+j)->elem1;
+    //   // t8_element_t *elem2 = (el+j)->elem2;
+    //   scheme1->t8_element_init (1, el->elem1);
+    //   scheme2->t8_element_init (1, el->elem2);
+    // }
     /* Set all values to 0 */  //remove this line?
-    scheme1->t8_element_init (length, el->elem1);
-    scheme2->t8_element_init (length, el->elem2);
   }
 #endif
 }
+
+// void
+// t8_2_5dimension_scheme_c::t8_2_5D_init (t8_2_5D_t *el) const
+// {
+//   scheme1->t8_element_init (1, el->elem1);
+//   scheme2->t8_element_init (1, el->elem2);
+// }
 
 void
 t8_2_5dimension_scheme_c::t8_element_deinit (int length, t8_element_t *elem) const
@@ -907,21 +1095,39 @@ t8_2_5dimension_scheme_c::t8_element_deinit (int length, t8_element_t *elem) con
 }
 
 void
-t8_2_5dimension_scheme_c::t8_element_destroy (int length, t8_element_t **elem) const
+t8_2_5dimension_scheme_c::t8_element_destroy (int length, t8_element_t **elem, int dir) const
 {
-  SC_ABORT ("Next.\n");
-  //   T8_ASSERT (this->ts_context != NULL);
-  //   T8_ASSERT (0 <= length);
-  //   T8_ASSERT (elem != NULL);
-  //   for (int i = 0; i < length; ++i) {
-  //     sc_mempool_free ((sc_mempool_t *) this->ts_context, elem[i]);
-  //   }
+  if (dir == 1) {
+    scheme1->t8_element_destroy (length, elem);
+  }
+  else if (dir == 2) {
+    scheme2->t8_element_destroy (length, elem);
+  }
+  else if (dir == 3) {
+    T8_ASSERT (this->ts_context != NULL);
+    T8_ASSERT (0 <= length);
+    T8_ASSERT (elem != NULL);
+    for (int i = 0; i < length; ++i) {
+      sc_mempool_free ((sc_mempool_t *) this->ts_context, elem[i]);
+    }
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
+
 }
 
 void
 t8_2_5dimension_scheme_c::t8_element_root (t8_element_t *elem) const
 {
-  SC_ABORT ("Not implemented for standalone.\n");
+  t8_2_5D_t *schemeelem = (t8_2_5D_t *) elem;
+  t8_global_productionf("Test");
+  // scheme1->t8_element_root (schemeelem[1]);
+  //element deklarieren mit new von scheme selbst
+  scheme1->t8_element_new(1,&schemeelem->elem1);
+  scheme1->t8_element_root (schemeelem->elem1);
+  scheme2->t8_element_new(1,&schemeelem->elem2);
+  scheme2->t8_element_root (schemeelem->elem2);
 }
 
 void

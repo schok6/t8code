@@ -49,4 +49,7 @@
 //   t8_dline_coord_t z;
 // } t8_2_5D_t;
 
+// void
+// t8_2_5D_init (t8_2_5D_t *el);
+
 #endif /* T8_2_5D_HXX */

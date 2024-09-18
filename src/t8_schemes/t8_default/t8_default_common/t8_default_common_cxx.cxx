@@ -64,13 +64,13 @@ t8_default_scheme_common_c::t8_element_num_corners (const t8_element_t *elem) co
 }
 
 void
-t8_default_scheme_common_c::t8_element_new (int length, t8_element_t **elem) const
+t8_default_scheme_common_c::t8_element_new (int length, t8_element_t **elem, int dir) const
 {
   t8_default_mempool_alloc ((sc_mempool_t *) this->ts_context, length, elem);
 }
 
 void
-t8_default_scheme_common_c::t8_element_destroy (int length, t8_element_t **elem) const
+t8_default_scheme_common_c::t8_element_destroy (int length, t8_element_t **elem, int dir) const
 {
   t8_default_mempool_free ((sc_mempool_t *) this->ts_context, length, elem);
 }
@@ -104,7 +104,7 @@ t8_default_mempool_free (sc_mempool_t *ts_context, int length, t8_element_t **el
 }
 
 t8_element_shape_t
-t8_default_scheme_common_c::t8_element_shape (const t8_element_t *elem) const
+t8_default_scheme_common_c::t8_element_shape (const t8_element_t *elem, int dir) const
 {
   return eclass;
 }

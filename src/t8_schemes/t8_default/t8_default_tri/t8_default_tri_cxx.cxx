@@ -491,6 +491,12 @@ t8_default_scheme_tri_c::t8_element_reference_coords (const t8_element_t *elem, 
   t8_dtri_compute_reference_coords ((const t8_dtri_t *) elem, ref_coords, num_coords, 0, out_coords);
 }
 
+t8_eclass_t
+t8_default_scheme_tri_c::t8_element_get_eclass (int dir) const
+{
+  SC_ABORT ("Not implemented.\n");
+}
+
 int
 t8_default_scheme_tri_c::t8_element_refines_irregular () const
 {
@@ -517,7 +523,7 @@ t8_default_scheme_tri_c::t8_element_to_string (const t8_element_t *elem, char *d
 #endif
 
 void
-t8_default_scheme_tri_c::t8_element_new (int length, t8_element_t **elem) const
+t8_default_scheme_tri_c::t8_element_new (int length, t8_element_t **elem, int dir) const
 {
   /* allocate memory for a tet */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -531,6 +537,51 @@ t8_default_scheme_tri_c::t8_element_new (int length, t8_element_t **elem) const
     }
   }
 #endif
+}
+
+void
+t8_default_scheme_tri_c::t8_element_set_type(t8_element_t *elem, int dir) const
+{
+  if (dir == 1) {
+    t8_dtri_t *el1 = (t8_dtri_t *) elem;
+    el1->level = el1->x =  el1->y = 0;
+  }
+  else if (dir == 2) {
+    t8_dtri_t *el2 = (t8_dtri_t *) elem;
+    el2->level = el2->x =  el2->y = 0;
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
+}
+
+void
+t8_default_scheme_tri_c::t8_element_get_type(t8_element_t *elem) const
+{
+  t8_dtri_t *el = (t8_dtri_t *) elem;
+}
+
+int
+t8_default_scheme_tri_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+{
+  t8_dtri_t *el = (t8_dtri_t *) elem;
+  if (var == 1) {
+    // t8_global_productionf("el_tri->x: %i \n", el->x);
+    return el->x;
+  }
+  else if (var == 2) {
+    // t8_global_productionf("el_tri->y: %i \n", el->y);
+    return el->y;
+  }
+  else {
+    SC_ABORT ("Tri is 2D.\n");
+  }
+}
+
+t8_eclass_scheme_c *
+t8_default_scheme_tri_c::t8_element_get_scheme (int dir) const
+{
+  T8_ASSERT( "Not implemented." );
 }
 
 void

@@ -574,6 +574,12 @@ t8_default_scheme_hex_c::t8_element_reference_coords (const t8_element_t *elem, 
   t8_dhex_compute_reference_coords ((const t8_dhex_t *) elem, ref_coords, num_coords, out_coords);
 }
 
+t8_eclass_t
+t8_default_scheme_hex_c::t8_element_get_eclass (int dir) const
+{
+  SC_ABORT ("Not implemented.\n");
+}
+
 int
 t8_default_scheme_hex_c::t8_element_refines_irregular () const
 {
@@ -582,7 +588,7 @@ t8_default_scheme_hex_c::t8_element_refines_irregular () const
 }
 
 void
-t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem) const
+t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem, int dir) const
 {
   /* allocate memory for a hex */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -597,6 +603,30 @@ t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem) const
     }
   }
 #endif
+}
+
+void
+t8_default_scheme_hex_c::t8_element_set_type (t8_element_t *elem, int dir) const
+{
+  T8_ASSERT( "Not implemented." );
+}
+
+void
+t8_default_scheme_hex_c::t8_element_get_type (t8_element_t *elem) const
+{
+  T8_ASSERT( "Not implemented." );
+}
+
+int
+t8_default_scheme_hex_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+{
+  T8_ASSERT( "Not implemented." );
+}
+
+t8_eclass_scheme_c *
+t8_default_scheme_hex_c::t8_element_get_scheme (int dir) const
+{
+  T8_ASSERT( "Not implemented." );
 }
 
 void

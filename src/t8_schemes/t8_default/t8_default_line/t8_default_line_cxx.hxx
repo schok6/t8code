@@ -65,7 +65,31 @@ struct t8_default_scheme_line_c: public t8_default_scheme_common_c
    * \see t8_element_is_valid
    */
   virtual void
-  t8_element_new (int length, t8_element_t **elem) const;
+  t8_element_new (int length, t8_element_t **elem, int dir = 0) const;
+
+  /**
+   * TODO
+  */
+  void
+  t8_element_set_type (t8_element_t *elem, int dir = 0) const;
+
+  /**
+   * TODO
+  */
+  void
+  t8_element_get_type (t8_element_t *elem) const;
+
+  /**
+  * TODO
+  */
+  virtual int
+  t8_element_get_variable (t8_element_t *elem, int var, int dir = 0) const;
+
+  /**
+  * TODO
+  */
+  virtual t8_eclass_scheme_c *
+  t8_element_get_scheme (int dir = 0) const;
 
   /** Initialize an array of allocated line elements.
    * \param [in] length   The number of line elements to be initialized.
@@ -495,6 +519,7 @@ struct t8_default_scheme_line_c: public t8_default_scheme_common_c
   virtual void
   t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
 
+  //???
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
    * \param [in,out] elem2  The element whose entries will be set.
@@ -558,6 +583,12 @@ struct t8_default_scheme_line_c: public t8_default_scheme_common_c
   virtual void
   t8_element_reference_coords (const t8_element_t *elem, const double *ref_coords, const size_t num_coords,
                                double *out_coords) const;
+
+  // /**
+  //  * TODO
+  // */
+  virtual t8_eclass_t
+  t8_element_get_eclass (int dir = 0) const;
 
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.
