@@ -66,6 +66,13 @@ struct t8_eclass_scheme
   virtual size_t
   t8_element_size (void) const;
 
+  // /**
+  //  * TODO
+  // */
+  virtual t8_eclass_t
+  t8_element_get_eclass (int dir = 0) const
+   = 0;
+  
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.
    * \return                    non-zero if there is one element in the tree that does not refine into 2^dim children.
@@ -86,7 +93,7 @@ struct t8_eclass_scheme
    * \return             The level of \b elem.
    */
   virtual int
-  t8_element_level (const t8_element_t *elem) const
+  t8_element_level (const t8_element_t *elem, int dir = 0) const
     = 0;
 
   /** Copy all entries of \b source to \b dest. \b dest must be an existing
@@ -134,7 +141,7 @@ struct t8_eclass_scheme
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   virtual void
-  t8_element_parent (const t8_element_t *elem, t8_element_t *parent) const
+  t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const
     = 0;
 
   /** Compute the number of siblings of an element. That is the number of 
@@ -144,7 +151,7 @@ struct t8_eclass_scheme
    * Note that this number is >= 1, since we count the element itself as a sibling.
    */
   virtual int
-  t8_element_num_siblings (const t8_element_t *elem) const
+  t8_element_num_siblings (const t8_element_t *elem, int dir = 0) const
     = 0;
 
   /** Compute a specific sibling of a given element \b elem and store it in \b sibling.
@@ -159,7 +166,7 @@ struct t8_eclass_scheme
    *                    and match the element class of the sibling.
    */
   virtual void
-  t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const
+  t8_element_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling, int dir = 0) const
     = 0;
 
   /** Compute the number of corners of a given element.
@@ -192,7 +199,7 @@ struct t8_eclass_scheme
    * \return            The number of children of \a elem if it is to be refined.
    */
   virtual int
-  t8_element_num_children (const t8_element_t *elem) const
+  t8_element_num_children (const t8_element_t *elem, int dir = 0) const
     = 0;
 
   /** Return the number of children of an element's face when the element is refined.
@@ -244,7 +251,7 @@ struct t8_eclass_scheme
    * It is valid to call this function with elem = child.
    */
   virtual void
-  t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child) const
+  t8_element_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir = 0) const
     = 0;
 
   /** Construct all children of a given element.
@@ -257,7 +264,7 @@ struct t8_eclass_scheme
    * \see t8_element_num_children
    */
   virtual void
-  t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[]) const
+  t8_element_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir = 0) const
     = 0;
 
   /** Compute the child id of an element.
@@ -265,7 +272,7 @@ struct t8_eclass_scheme
    * \return              The child id of elem.
    */
   virtual int
-  t8_element_child_id (const t8_element_t *elem) const
+  t8_element_child_id (const t8_element_t *elem, int dir = 0) const
     = 0;
 
   /** Compute the ancestor id of an element, that is the child id
@@ -275,7 +282,7 @@ struct t8_eclass_scheme
    * \return              The child_id of \a elem in regard to its \a level ancestor.
    */
   virtual int
-  t8_element_ancestor_id (const t8_element_t *elem, int level) const
+  t8_element_ancestor_id (const t8_element_t *elem, int level, int dir = 0) const
     = 0;
 
   /** Query whether a given set of elements is a family or not.
@@ -299,7 +306,7 @@ struct t8_eclass_scheme
    *                      \b elem1 and \b elem2.
    */
   virtual void
-  t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const
+  t8_element_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir = 0) const
     = 0;
 
   /** Compute the shape of the face of an element.
@@ -354,7 +361,7 @@ struct t8_eclass_scheme
    *                      that coincides with \a face_child.
    */
   virtual int
-  t8_element_face_child_face (const t8_element_t *elem, int face, int face_child) const
+  t8_element_face_child_face (const t8_element_t *elem, int face, int face_child, int dir = 0) const
     = 0;
 
   /** Given a face of an element return the face number
@@ -368,7 +375,7 @@ struct t8_eclass_scheme
      * \note For the root element this function always returns \a face.
      */
   virtual int
-  t8_element_face_parent_face (const t8_element_t *elem, int face) const
+  t8_element_face_parent_face (const t8_element_t *elem, int face, int dir = 0) const
     = 0;
 
   /** Given an element and a face of this element. If the face lies on the
@@ -429,7 +436,7 @@ struct t8_eclass_scheme
    */
   virtual int
   t8_element_extrude_face (const t8_element_t *face, const t8_eclass_scheme_c *face_scheme, t8_element_t *elem,
-                           int root_face) const
+                           int root_face, int dir = 0) const
     = 0;
 
   /** Construct the boundary element at a specific face.
@@ -457,7 +464,8 @@ struct t8_eclass_scheme
    * \param [in] level     The level, at which the first descendant is constructed
    */
   virtual void
-  t8_element_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level) const
+  t8_element_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level, 
+                                    int dir = 0) const
     = 0;
 
   /** Construct the last descendant of an element at a given level that touches a given face.
@@ -469,7 +477,8 @@ struct t8_eclass_scheme
    * \param [in] level     The level, at which the last descendant is constructed
    */
   virtual void
-  t8_element_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level) const
+  t8_element_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level,
+                                   int dir = 0) const
     = 0;
 
   /** Compute whether a given element shares a given face with its root tree.
@@ -507,7 +516,7 @@ struct t8_eclass_scheme
     *  \return              The shape of the element as an eclass
    */
   virtual t8_element_shape_t
-  t8_element_shape (const t8_element_t *elem) const
+  t8_element_shape (const t8_element_t *elem, int dir = 0) const
     = 0;
 
   /** Initialize the entries of an allocated element according to a
@@ -518,7 +527,7 @@ struct t8_eclass_scheme
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id) const
+  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir = 0) const
     = 0;
 
   /** Compute the linear id of a given element in a hypothetical uniform
@@ -528,7 +537,7 @@ struct t8_eclass_scheme
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, int level) const
+  t8_element_get_linear_id (const t8_element_t *elem, int level, int dir = 0) const
     = 0;
 
   /** Compute the first descendant of a given element.
@@ -538,7 +547,7 @@ struct t8_eclass_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const
     = 0;
 
   /** Compute the last descendant of a given element.
@@ -548,7 +557,7 @@ struct t8_eclass_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level) const
+  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const
     = 0;
 
   /** Construct the successor in a uniform refinement of a given element.
@@ -556,7 +565,7 @@ struct t8_eclass_scheme
    * \param [in,out] elem2  The element whose entries will be set.
    */
   virtual void
-  t8_element_successor (const t8_element_t *t, t8_element_t *s) const
+  t8_element_successor (const t8_element_t *t, t8_element_t *s, int dir = 0) const
     = 0;
 
   /** Compute the coordinates of a given element vertex inside a reference tree
@@ -598,8 +607,19 @@ struct t8_eclass_scheme
    *  then the return value is max(0, 2^{\a level - level(\a t)}).
    *  Thus, if \a t's level is 0, and \a level = 3, the return value is 2^3 = 8.
    */
+
+  /* TODO: deactivate */
+/** Return a pointer to a t8_element in an array indexed by a size_t.
+ * \param [in] array    The \ref sc_array storing \t t8_element_t pointers.
+ * \param [in] it       The index of the element that should be returned.
+ * \return              A pointer to the it-th element in \b array.
+ * We provide a default implementation of this routine that should suffice
+ * for most use cases.
+ */
+/* t8_element_t *t8_element_array_index (sc_array_t *array, size_t it); */
+
   virtual t8_gloidx_t
-  t8_element_count_leaves (const t8_element_t *t, int level) const
+  t8_element_count_leaves (const t8_element_t *t, int level, int dir = 0) const
     = 0;
 
   /** Count how many leaf descendants of a given uniform level the root element will produce.
@@ -611,7 +631,7 @@ struct t8_eclass_scheme
    * \ref t8_element_count_leaves.
    */
   virtual t8_gloidx_t
-  t8_element_count_leaves_from_root (int level) const
+  t8_element_count_leaves_from_root (int level, int dir = 0) const
     = 0;
 
 #ifdef T8_ENABLE_DEBUG
@@ -679,7 +699,35 @@ struct t8_eclass_scheme
    * \see t8_element_is_valid
    */
   virtual void
-  t8_element_new (int length, t8_element_t **elem) const
+  t8_element_new (int length, t8_element_t **elem, int dir = 0) const
+    = 0;
+
+  /**
+  * TODO
+  */
+  virtual void
+  t8_element_set_type (t8_element_t *elem, int dir = 0) const
+    = 0;
+
+  /**
+  * TODO
+  */
+  virtual void
+  t8_element_get_type (t8_element_t *elem) const
+    = 0;
+
+  /**
+  * TODO
+  */
+  virtual int
+  t8_element_get_variable (t8_element_t *elem, int var, int dir = 0) const
+    = 0;
+
+  /**
+  * TODO
+  */
+  virtual t8_eclass_scheme_c *
+  t8_element_get_scheme (int dir = 0) const
     = 0;
 
   /** Initialize an array of allocated elements.
@@ -721,7 +769,7 @@ struct t8_eclass_scheme
    * \see t8_element_new
    */
   virtual void
-  t8_element_destroy (int length, t8_element_t **elem) const
+  t8_element_destroy (int length, t8_element_t **elem, int dir = 0) const
     = 0;
 
   /** create the root element
@@ -771,6 +819,11 @@ struct t8_eclass_scheme
   * param [in] scheme           Defines the implementation of the element class. */
 void
 t8_scheme_cxx_destroy (t8_scheme_cxx_t *s);
+
+/** Destroy an implementation of a particular combined element class for 2_5D. 
+  * param [in] scheme           Defines the implementation of the combined element class. */
+void
+t8_scheme_comb_cxx_destroy (t8_scheme_comb_cxx_t *s);
 
 T8_EXTERN_C_END ();
 

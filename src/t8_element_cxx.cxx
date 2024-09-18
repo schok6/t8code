@@ -43,11 +43,42 @@ t8_scheme_cxx_destroy (t8_scheme_cxx_t *s)
   T8_FREE (s);
 }
 
+/* This belongs here since it uses c++ function,
+ * see t8_element.c/.h */
+void
+t8_scheme_comb_cxx_destroy (t8_scheme_comb_cxx_t *s)
+{
+  int t;
+  int u;
+
+  T8_ASSERT (s != NULL);
+  T8_ASSERT (s->rc.refcount == 0);
+
+  for (t = 0; t < T8_ECLASS_COUNT; ++t) {
+    for (u = 0; u < T8_ECLASS_COUNT; ++u) {
+      if (s->eclass_schemes_comb[t][u] != NULL) {
+        delete s->eclass_schemes_comb[t][u];
+      }
+    }
+  }
+  T8_FREE (s);
+}
+
 /* Default implementation for the element size */
 size_t
 t8_eclass_scheme::t8_element_size () const
 {
   return element_size;
 }
+
+// /* Default implementation for array_index */
+// t8_element_t *
+// t8_eclass_scheme::t8_element_array_index (sc_array_t *array, size_t it) const
+// {
+//   T8_ASSERT (it < array->elem_count);
+//   T8_ASSERT (element_size == array->elem_size);
+
+//   return (t8_element_t *) sc_array_index (array, it);
+// }
 
 T8_EXTERN_C_END ();
