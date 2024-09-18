@@ -70,6 +70,8 @@ typedef struct t8_forest
   t8_refcount_t rc; /**< Reference counter. */
 
   int set_level;          /**< Level to use in new construction. */
+  int set_level1;        /**< Level1 to use in new 2_5D construction. */
+  int set_level2;        /**< Level2 to use in new 2_5D construction. */
   int set_for_coarsening; /**< Change partition to allow
                                                      for one round of coarsening */
 
@@ -77,7 +79,13 @@ typedef struct t8_forest
   t8_cmesh_t cmesh;    /**< Coarse mesh to use. */
   //t8_scheme_t        *scheme;        /**< Scheme for element types. */
   t8_scheme_cxx_t *scheme_cxx; /**< Scheme for element types. */
+  //t8_scheme_2_5D_cxx_t *scheme_2_5D;
+  // t8_scheme_cxx_t *scheme1_cxx; /**< Scheme for element types of eclass1. */
+  // t8_scheme_cxx_t *scheme2_cxx; /**< Scheme for element types of eclass2. */
+  t8_scheme_comb_cxx_t *scheme_comb_cxx; /**< Scheme for combined element types. */
   int maxlevel;                /**< The maximum allowed refinement level for elements in this forest. */
+  // int maxlevel1;                /**< The maximum allowed refinement level1 for elements in this 2_5D forest. */
+  // int maxlevel2;                /**< The maximum allowed refinement level2 for elements in this 2_5D forest. */
   int maxlevel_existing;       /**< If >= 0, the maximum occurring refinemnent level of a forest element. */
   int do_dup;                  /**< Communicator shall be duped. */
   int dimension;               /**< Dimension inferred from \b cmesh. */
@@ -112,7 +120,19 @@ typedef struct t8_forest
                                              If first_local_tree is larger than last_local_tree then 
                                              this processor/forest is empty.
                                              See https://github.com/DLR-AMR/t8code/wiki/Tree-indexing */
+  t8_gloidx_t first_local_tree1; /**< The global index of the first local tree of eclass 1 on this process. 
+                                             If first_local_tree1 is larger than last_local_tree1 then 
+                                             this processor/forest is empty.
+                                             See https://github.com/DLR-AMR/t8code/wiki/Tree-indexing */
+  t8_gloidx_t first_local_tree2; /**< The global index of the first local tree of eclass2 on this process. 
+                                             If first_local_tree2 is larger than last_local_tree2 then 
+                                             this processor/forest is empty. 
+                                             See https://github.com/DLR-AMR/t8code/wiki/Tree-indexing */                                           
   t8_gloidx_t last_local_tree;  /**< The global index of the last local tree on this process.
+                                             -1 if this processor is empty. */
+  t8_gloidx_t last_local_tree1;  /**< The global index of the last local tree of eclass1 on this process.
+                                             -1 if this processor is empty. */
+  t8_gloidx_t last_local_tree2;  /**< The global index of the last local tree of eclass1 on this process.
                                              -1 if this processor is empty. */
   t8_gloidx_t global_num_trees; /**< The total number of global trees */
   sc_array_t *trees;
