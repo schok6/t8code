@@ -1,4 +1,4 @@
-name: Test if tarball can be build and code compiled from it
+name: CMake Tarball
 
 #  This file is part of t8code.
 #  t8code is a C library to manage a collection (a forest) of multiple
@@ -75,8 +75,15 @@ jobs:
 #     with p4est and sc as internal dependencies which is needed for make dist
 #
 #
-    - name: configure
-      run: mkdir build && cd build && ../configure
+    - name: less-test option
+      if: ${{ inputs.LESS_TESTS }}
+      run: export LESS_TEST_OPTION="-DT8CODE_ENABLE_LESS_TESTS=ON"
+          && echo LESS_TEST_OPTION="$LESS_TEST_OPTION" >> $GITHUB_ENV
+    - name: build config variables
+      run: export CONFIG_OPTIONS="${LESS_TEST_OPTION} -GNinja -DT8CODE_USE_SYSTEM_SC=OFF -DT8CODE_USE_SYSTEM_P4EST=OFF -DT8CODE_BUILD_PEDANTIC=ON -DT8CODE_ENABLE_MPI=$MPI -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+        && echo CONFIG_OPTIONS="$CONFIG_OPTIONS" >> $GITHUB_ENV
+    - name: cmake
+      run: mkdir build && cd build && cmake ../ $CONFIG_OPTIONS
     - name: OnFailUploadLog
       if: failure()
       uses: actions/upload-artifact@v4
@@ -90,19 +97,13 @@ jobs:
       run: pandoc --version
 # Build the tarball
     - name: Make tarball
-      run: cd build && make dist && mkdir tarballs && mv *.tar.gz tarballs
+      run: cd build && ninja GenerateVersionFile && ninja package_source && mkdir tarballs && mv package/*Source.tar.gz tarballs
 # Upload the tarball
     - name: upload tarball
       uses: actions/upload-artifact@v4
       with:
         name: tarballs
         path: build/tarballs
- # Perform a make distcheck to check the distribution locally
- #   - name: make distcheck
- #     run: |
- #           cd build
- #           make distcheck
-
 
   test-tarball:
     needs: build
@@ -129,42 +130,36 @@ jobs:
           echo TAR_DIR="$TAR_DIR" >>$GITHUB_ENV
           
 # build config vars
-    - name: build CFLAGS and CXXFLAGS variables
-      run: echo CFLAGS_var="-Wall -pedantic -O0" >> $GITHUB_ENV
-           && echo CXXFLAGS_var="-Wall -pedantic -O0" >> $GITHUB_ENV
-      # Note: We want to use '-Werror', but if we already provide it at the configure step
-      #       we get errors in configure that we cannot remove (for example the autotools way
-      #       of checking for libm results in a compiler warning).
-      #       Thus, we add '-Werror' later at the make step.
     - name: less-test-option
       if: github.event_name == 'pull_request'
-      run: export LESS_TEST_OPTION="--enable-less-tests"
-            && echo LESS_TEST_OPTION="$LESS_TEST_OPTION" >> $GITHUB_ENV
+      run: export LESS_TEST_OPTION="-DT8CODE_ENABLE_LESS_TESTS=ON"
+           && echo LESS_TEST_OPTION="$LESS_TEST_OPTION" >> $GITHUB_ENV
     - name: build config variables
-      run: export CONFIG_OPTIONS="--without-blas ${LESS_TEST_OPTION}"
-            && export CONFIG_DEBUG="$CONFIG_OPTIONS --enable-debug --enable-mpi"
-            && echo CONFIG_OPTIONS="$CONFIG_OPTIONS" >> $GITHUB_ENV
-            && echo CONFIG_DEBUG="$CONFIG_DEBUG" >> $GITHUB_ENV
+      run: export CONFIG_OPTIONS="${LESS_TEST_OPTION} -GNinja -DT8CODE_USE_SYSTEM_SC=OFF -DT8CODE_USE_SYSTEM_P4EST=OFF -DT8CODE_BUILD_PEDANTIC=ON -DT8CODE_ENABLE_MPI=$MPI -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+        && echo CONFIG_OPTIONS="$CONFIG_OPTIONS" >> $GITHUB_ENV
     - name: Check vars
       run: echo "[$CONFIG_DEBUG]"
     - name: configure from Tarball
-      run: mkdir build_tar && cd build_tar && $TAR_DIR/configure $CONFIG_DEBUG CFLAGS="$CFLAGS_var" CXXFLAGS="$CXXFLAGS_var"
+      run: mkdir build_tar && cd build_tar && cmake $TAR_DIR $CONFIG_OPTIONS
     - name: OnFailUploadLog
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: build_tar.log
         path: build_tar/config.log
-    - name: make
-      run: cd build_tar && make $MAKEFLAGS
-    - name: make install
-      run: cd build_tar && make install $MAKEFLAGS 
-    - name: make check
-      run: cd build_tar && make check $MAKEFLAGS CFLAGS="$CFLAGS_var -Werror" CXXFLAGS="$CXXFLAGS_var -Werror"
+    - name: build
+      run: cd build_tar && ninja
+    - name: install
+      run: cd build_tar && ninja install 
+    - name: check serial
+      run: cd build_tar && ctest -R _serial
+    - name: check parallel
+      run: cd build_tar && ctest -R _parallel
     - name: OnFailUploadLog
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: build_tar.log
         path: build_tar/test-suite.log
+
 
