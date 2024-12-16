@@ -2,6 +2,12 @@
 #Non-recursive Makefile.am in test
 #Included from toplevel directory
 
+bin_PROGRAMS += \
+    test/mytest
+
+test_mytest_SOURCES = \
+	test/mytest.cxx
+
 t8code_googletestincludedir=
 
 t8code_googletest_installed_headers = \

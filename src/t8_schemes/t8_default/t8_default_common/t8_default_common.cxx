@@ -27,7 +27,7 @@
 T8_EXTERN_C_BEGIN ();
 
 /** This class independent function assumes an sc_mempool_t as context.
- * It is suitable as the elem_new callback in \ref t8_eclass_scheme_t.
+ * It is suitable as the elem_new callback in \ref t8_eclass_scheme_c.
  * We assume that the mempool has been created with the correct element size.
  * \param [in,out] ts_context   An element is allocated in this sc_mempool_t.
  * \param [in]     length       Non-negative number of elements to allocate.
@@ -37,7 +37,7 @@ static void
 t8_default_mempool_alloc (sc_mempool_t *ts_context, int length, t8_element_t **elem);
 
 /** This class independent function assumes an sc_mempool_t as context.
- * It is suitable as the elem_destroy callback in \ref t8_eclass_scheme_t.
+ * It is suitable as the elem_destroy callback in \ref t8_eclass_scheme_c.
  * We assume that the mempool has been created with the correct element size.
  * \param [in,out] ts_context   An element is returned to this sc_mempool_t.
  * \param [in]     length       Non-negative number of elements to destroy.
@@ -64,13 +64,13 @@ t8_default_scheme_common_c::t8_element_num_corners (const t8_element_t *elem) co
 }
 
 void
-t8_default_scheme_common_c::t8_element_new (int length, t8_element_t **elem, int dir) const
+t8_default_scheme_common_c::t8_element_new (int length, t8_element_t **elem) const
 {
   t8_default_mempool_alloc ((sc_mempool_t *) this->ts_context, length, elem);
 }
 
 void
-t8_default_scheme_common_c::t8_element_destroy (int length, t8_element_t **elem, int dir) const
+t8_default_scheme_common_c::t8_element_destroy (int length, t8_element_t **elem) const
 {
   t8_default_mempool_free ((sc_mempool_t *) this->ts_context, length, elem);
 }
@@ -104,7 +104,7 @@ t8_default_mempool_free (sc_mempool_t *ts_context, int length, t8_element_t **el
 }
 
 t8_element_shape_t
-t8_default_scheme_common_c::t8_element_shape (const t8_element_t *elem, int dir) const
+t8_default_scheme_common_c::t8_element_shape (const t8_element_t *elem) const
 {
   return eclass;
 }

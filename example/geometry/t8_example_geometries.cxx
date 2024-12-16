@@ -1124,7 +1124,7 @@ t8_analytic_geom (int level, t8_example_geom_type geom_type)
     /* Create a forest that is only refined at the tree boundaries. 
      * We pass the input level as user pointer and use it in the adapt 
      * callback to stop refinement after this level. */
-    forest_adapt = t8_forest_new_adapt (forest, t8_geom_adapt_boundary, 1, 1, &level);
+    forest_adapt = t8_forest_new_adapt (forest, t8_geom_adapt_boundary, 1, 1, 0, &level);
     forest = forest_adapt;
   }
 

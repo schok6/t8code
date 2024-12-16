@@ -88,7 +88,8 @@ TEST_P (class_element_leaves, test_element_count_leaves_less_level)
   class_scheme->t8_element_new (1, &element);
   for (int level = 0; level <= maxlevel; ++level) {
     /* Create the first element on this level */
-    class_scheme->t8_element_set_linear_id (element, level, 0);
+    std::vector<int> level_vec {level};
+    class_scheme->t8_element_set_linear_id (element, level_vec, 0);
     /* Count the leaves of this element */
     const t8_gloidx_t leaf_count_same_level = class_scheme->t8_element_count_leaves (element, level);
     /* Check if equals 1 */
@@ -115,7 +116,8 @@ TEST_P (class_element_leaves, test_element_count_leaves_one_level)
   class_scheme->t8_element_new (1, &element);
   for (int level = 1; level < maxlevel; ++level) {
     /* Create the first element on the previous level */
-    class_scheme->t8_element_set_linear_id (element, level - 1, 0);
+    std::vector<int> level_vec {level-1};
+    class_scheme->t8_element_set_linear_id (element, level_vec, 0);
     /* Count the leaves of this element */
     const t8_gloidx_t leaf_count = class_scheme->t8_element_count_leaves (element, level);
     /* Compute the number of children of the element */

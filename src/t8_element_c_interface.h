@@ -31,6 +31,9 @@
 #ifndef T8_ELEMENT_C_INTERFACE_H
 #define T8_ELEMENT_C_INTERFACE_H
 
+// #include <iostream>
+// #include <vector>
+
 #include <t8_element.h>
 
 T8_EXTERN_C_BEGIN ();
@@ -492,6 +495,7 @@ t8_element_shape (const t8_eclass_scheme_c *ts, const t8_element_t *elem);
  */
 void
 t8_element_set_linear_id (const t8_eclass_scheme_c *ts, t8_element_t *elem, int level, t8_linearidx_t id);
+// t8_element_set_linear_id (const t8_eclass_scheme_c *ts, t8_element_t *elem, std::vector<int>& level, t8_linearidx_t id);
 
 /** Compute the linear id of a given element in a hypothetical uniform
  * refinement of a given level.

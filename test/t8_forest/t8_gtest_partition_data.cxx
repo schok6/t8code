@@ -229,7 +229,7 @@ TEST (partition_data, test_partition_data)
   t8_forest_t base_forest = t8_forest_new_uniform (cmesh, scheme, 1, 0, sc_MPI_COMM_WORLD);
 
   /* Adapt the forest examplary. */
-  t8_forest_t initial_forest = t8_forest_new_adapt (base_forest, t8_test_partition_data_adapt, 1, 0, NULL);
+  t8_forest_t initial_forest = t8_forest_new_adapt (base_forest, t8_test_partition_data_adapt, 1, 0, 0, NULL);
 
   /* Reference the forest in order to keep it after the partition step. */
   t8_forest_ref (initial_forest);

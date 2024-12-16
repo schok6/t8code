@@ -66,7 +66,8 @@ t8_test_gao_adapt (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t whic
 {
   /* refine every second element up to the maximum level */
   int level = ts->t8_element_level (elements[0]);
-  t8_linearidx_t eid = ts->t8_element_get_linear_id (elements[0], level);
+  std::vector<int> level_vec {level};
+  t8_linearidx_t eid = ts->t8_element_get_linear_id (elements[0], level_vec);
   int maxlevel = *(int *) t8_forest_get_user_data (forest);
 
   if (eid % 2 && level < maxlevel) {
@@ -137,7 +138,7 @@ TEST_P (forest_ghost_owner, test_ghost_owner)
     t8_test_gao_check (forest);
     /* Adapt the forest and exchange data again */
     int maxlevel = level + 2;
-    t8_forest_t forest_adapt = t8_forest_new_adapt (forest, t8_test_gao_adapt, 1, 1, &maxlevel);
+    t8_forest_t forest_adapt = t8_forest_new_adapt (forest, t8_test_gao_adapt, 1, 1, 0, &maxlevel);
     /* Check the owners of the ghost elements */
     t8_test_gao_check (forest_adapt);
     t8_forest_unref (&forest_adapt);

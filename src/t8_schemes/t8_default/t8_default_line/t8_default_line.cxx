@@ -249,13 +249,13 @@ t8_default_scheme_line_c::t8_element_face_neighbor_inside (const t8_element_t *e
 }
 
 void
-t8_default_scheme_line_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
+t8_default_scheme_line_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= T8_DLINE_MAXLEVEL);
-  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DLINE_MAXLEVEL);
+  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << levels[0]);
 
-  t8_dline_init_linear_id ((t8_default_line_t *) elem, level, id);
+  t8_dline_init_linear_id ((t8_default_line_t *) elem, levels[0], id);
 }
 
 void
@@ -269,13 +269,13 @@ t8_default_scheme_line_c::t8_element_successor (const t8_element_t *elem1, t8_el
 }
 
 void
-t8_default_scheme_line_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_line_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
 
-  T8_ASSERT (0 <= level && level <= T8_DLINE_MAXLEVEL);
-  t8_dline_first_descendant ((const t8_dline_t *) elem, (t8_dline_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DLINE_MAXLEVEL);
+  t8_dline_first_descendant ((const t8_dline_t *) elem, (t8_dline_t *) desc, levels[0]);
 }
 
 void
@@ -312,12 +312,12 @@ t8_default_scheme_line_c::t8_element_reference_coords (const t8_element_t *elem,
 }
 
 t8_linearidx_t
-t8_default_scheme_line_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
+t8_default_scheme_line_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= T8_DLINE_MAXLEVEL);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DLINE_MAXLEVEL);
 
-  return t8_dline_linear_id ((const t8_dline_t *) elem, level);
+  return t8_dline_linear_id ((const t8_dline_t *) elem, levels[0]);
 }
 
 int
@@ -417,7 +417,7 @@ t8_default_scheme_line_c::t8_element_to_string (const t8_element_t *elem, char *
 #endif
 
 void
-t8_default_scheme_line_c::t8_element_new (int length, t8_element_t **elem, int dir) const
+t8_default_scheme_line_c::t8_element_new (int length, t8_element_t **elem) const
 {
   /* allocate memory for a line */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -433,30 +433,8 @@ t8_default_scheme_line_c::t8_element_new (int length, t8_element_t **elem, int d
 #endif
 }
 
-void
-t8_default_scheme_line_c::t8_element_set_type (t8_element_t *elem, int dir) const 
-{
-  if (dir == 1) {
-    t8_dline_t *el1 = (t8_dline_t *) elem;
-    el1->level = el1->x = 0;
-  }
-  else if (dir == 2) {
-    t8_dline_t *el2 = (t8_dline_t *) elem;
-    el2->level = el2->x = 0;
-  }
-  else {
-    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-  }
-}
-
-void
-t8_default_scheme_line_c::t8_element_get_type (t8_element_t *elem) const 
-{
-  t8_dline_t *el = (t8_dline_t *) elem;
-}
-
 int
-t8_default_scheme_line_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+t8_default_scheme_line_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   t8_dline_t *el = (t8_dline_t *) elem;
   if (var == 1) {

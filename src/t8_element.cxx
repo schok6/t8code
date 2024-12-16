@@ -60,6 +60,14 @@ t8_scheme_cxx_ref (t8_scheme_cxx_t *scheme)
 }
 
 void
+t8_scheme_comb_cxx_ref (t8_scheme_comb_cxx_t *scheme)
+{
+  T8_ASSERT (scheme != NULL);
+
+  sc_refcount_ref (&scheme->rc);
+}
+
+void
 t8_scheme_cxx_unref (t8_scheme_cxx_t **pscheme)
 {
   t8_scheme_cxx_t *scheme;
@@ -75,6 +83,20 @@ t8_scheme_cxx_unref (t8_scheme_cxx_t **pscheme)
 }
 
 void
+t8_scheme_comb_cxx_unref (t8_scheme_comb_cxx_t **pscheme)
+{
+  t8_scheme_comb_cxx_t *scheme;
+  T8_ASSERT (pscheme != NULL);  
+  scheme = *pscheme;
+  T8_ASSERT (scheme != NULL);
+
+  if (sc_refcount_unref (&scheme->rc)) {
+    t8_scheme_comb_cxx_destroy (scheme);
+    *pscheme = NULL;
+  }
+}
+
+void
 t8_scheme_cxx_destroy (t8_scheme_cxx_t *s)
 {
   int t;
@@ -84,7 +106,28 @@ t8_scheme_cxx_destroy (t8_scheme_cxx_t *s)
 
   for (t = 0; t < T8_ECLASS_COUNT; ++t) {
     if (s->eclass_schemes[t] != NULL) {
-      delete s->eclass_schemes[t];
+      delete s->eclass_schemes[t]; //neue scheme interface function -> scheme_destroy
+    }
+  }
+  T8_FREE (s);
+}
+
+/* This belongs here since it uses c++ function,
+ * see t8_element.c/.h */
+void
+t8_scheme_comb_cxx_destroy (t8_scheme_comb_cxx_t *s)
+{
+  int t;
+  int u;
+
+  T8_ASSERT (s != NULL);
+  T8_ASSERT (s->rc.refcount == 0);
+
+  for (t = 0; t < T8_ECLASS_COUNT; ++t) {
+    for (u = 0; u < T8_ECLASS_COUNT; ++u) {
+      if (s->eclass_schemes_comb[t][u] != NULL) {
+        delete s->eclass_schemes_comb[t][u];
+      }
     }
   }
   T8_FREE (s);

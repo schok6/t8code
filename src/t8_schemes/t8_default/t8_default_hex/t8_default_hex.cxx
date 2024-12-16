@@ -477,31 +477,31 @@ t8_default_scheme_hex_c::t8_element_face_neighbor_inside (const t8_element_t *el
 }
 
 void
-t8_default_scheme_hex_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
+t8_default_scheme_hex_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= HEX_LINEAR_MAXLEVEL);
-  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << P8EST_DIM * level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= HEX_LINEAR_MAXLEVEL);
+  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << P8EST_DIM * levels[0]);
 
-  p8est_quadrant_set_morton ((p8est_quadrant_t *) elem, level, id);
+  p8est_quadrant_set_morton ((p8est_quadrant_t *) elem, levels[0], id);
 }
 
 t8_linearidx_t
-t8_default_scheme_hex_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
+t8_default_scheme_hex_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= HEX_LINEAR_MAXLEVEL);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= HEX_LINEAR_MAXLEVEL);
 
-  return p8est_quadrant_linear_id ((p8est_quadrant_t *) elem, level);
+  return p8est_quadrant_linear_id ((p8est_quadrant_t *) elem, levels[0]);
 }
 
 void
-t8_default_scheme_hex_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_hex_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
-  T8_ASSERT (0 <= level && level <= HEX_REFINE_MAXLEVEL);
-  p8est_quadrant_first_descendant ((p8est_quadrant_t *) elem, (p8est_quadrant_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= HEX_REFINE_MAXLEVEL);
+  p8est_quadrant_first_descendant ((p8est_quadrant_t *) elem, (p8est_quadrant_t *) desc, levels[0]);
 }
 
 void
@@ -588,7 +588,7 @@ t8_default_scheme_hex_c::t8_element_refines_irregular () const
 }
 
 void
-t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem, int dir) const
+t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem) const
 {
   /* allocate memory for a hex */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -605,20 +605,8 @@ t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem, int di
 #endif
 }
 
-void
-t8_default_scheme_hex_c::t8_element_set_type (t8_element_t *elem, int dir) const
-{
-  T8_ASSERT( "Not implemented." );
-}
-
-void
-t8_default_scheme_hex_c::t8_element_get_type (t8_element_t *elem) const
-{
-  T8_ASSERT( "Not implemented." );
-}
-
 int
-t8_default_scheme_hex_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+t8_default_scheme_hex_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   T8_ASSERT( "Not implemented." );
 }

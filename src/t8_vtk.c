@@ -166,8 +166,12 @@ t8_write_pvtu (const char *filename, int num_procs, int write_tree, int write_ra
     if (write_rank) {
       printed += snprintf (vtkCellDataString + printed, BUFSIZ - printed, "%s%s", printed > 0 ? "," : "", "mpirank");
     }
-    if (write_level) {
+    if (write_level == 1) {
       printed += snprintf (vtkCellDataString + printed, BUFSIZ - printed, "%s%s", printed > 0 ? "," : "", "level");
+    }
+    else if (write_level == 2) {
+      printed += snprintf (vtkCellDataString + printed, BUFSIZ - printed, "%s%s", printed > 0 ? "," : "", "level1");
+      printed += snprintf (vtkCellDataString + printed, BUFSIZ - printed, "%s%s", printed > 0 ? "," : "", "level2");
     }
     if (write_id) {
       printed += snprintf (vtkCellDataString + printed, BUFSIZ - printed, "%s%s", printed > 0 ? "," : "", "element_id");
@@ -211,10 +215,20 @@ t8_write_pvtu (const char *filename, int num_procs, int write_tree, int write_ra
              "<PDataArray type=\"%s\" Name=\"mpirank\" format=\"%s\"/>\n",
              "Int32", T8_VTK_FORMAT_STRING);
   }
-  if (write_level) {
+  if (write_level == 1) {
     fprintf (pvtufile,
              "      "
              "<PDataArray type=\"%s\" Name=\"level\" format=\"%s\"/>\n",
+             "Int32", T8_VTK_FORMAT_STRING);
+  }
+  else if (write_level == 2) {
+    fprintf (pvtufile,
+             "      "
+             "<PDataArray type=\"%s\" Name=\"level1\" format=\"%s\"/>\n",
+             "Int32", T8_VTK_FORMAT_STRING);
+    fprintf (pvtufile,
+             "      "
+             "<PDataArray type=\"%s\" Name=\"level2\" format=\"%s\"/>\n",
              "Int32", T8_VTK_FORMAT_STRING);
   }
   if (write_id) {

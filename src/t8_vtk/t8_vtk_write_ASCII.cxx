@@ -112,457 +112,457 @@ typedef int (*t8_forest_vtk_cell_data_kernel_2_5D) (t8_forest_t forest, const t8
                                                t8_eclass_scheme_c *ts, const int is_ghost, FILE *vtufile, int *columns,
                                                void **data, T8_VTK_KERNEL_MODUS modus);
 
-#define T8_FOREST_VTK_QUADRATIC_ELEMENT_MAX_CORNERS 20
-/** Lookup table for number of nodes for curved eclasses. */
-const int t8_curved_eclass_num_nodes[T8_ECLASS_COUNT] = { 1, 3, 8, 6, 20, 10, 15, 13 };
+// #define T8_FOREST_VTK_QUADRATIC_ELEMENT_MAX_CORNERS 20
+// /** Lookup table for number of nodes for curved eclasses. */
+// const int t8_curved_eclass_num_nodes[T8_ECLASS_COUNT] = { 1, 3, 8, 6, 20, 10, 15, 13 };
 
-/** Lookup table for vtk types of curved elements */
-const int t8_curved_eclass_vtk_type[T8_ECLASS_COUNT] = { 1, 21, 23, 22, 25, 24, 26, 27 };
+// /** Lookup table for vtk types of curved elements */
+// const int t8_curved_eclass_vtk_type[T8_ECLASS_COUNT] = { 1, 21, 23, 22, 25, 24, 26, 27 };
 
-/** Map vtk element corners to element reference coordinates. The reference
- * coordinates are defined in such a way, that the linear vtk corners are listed
- * first and then the curved coords. This way, this array can be used for linear
- * vtk elements as well as quadratic vtk elements.
- */
-const double t8_forest_vtk_point_to_element_ref_coords[T8_ECLASS_COUNT][T8_FOREST_VTK_QUADRATIC_ELEMENT_MAX_CORNERS][3]
-  = { { /* T8_ECLASS_VERTEX */
-        { 0, 0, 0 },    { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
-      { /* T8_ECLASS_LINE */
-        { 0, 0, 0 },    { 1, 0, 0 },    { 0.5, 0, 0 },  { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
-      { /* T8_ECLASS_QUAD */
-        { 0, 0, 0 },    { 1, 0, 0 },    { 1, 1, 0 },    { 0, 1, 0 },    { 0.5, 0, 0 },  { 1, 0.5, 0 },  { 0.5, 1, 0 },
-        { 0, 0.5, 0 },  { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
-      { /* T8_ECLASS_TRIANGLE */
-        { 0, 0, 0 },    { 1, 0, 0 },    { 1, 1, 0 },    { 0.5, 0, 0 },  { 1, 0.5, 0 },  { 0.5, 0.5, 0 }, { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },  { -1, -1, -1 },
-        { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
-      { /* T8_ECLASS_HEX */
-        { 0, 0, 0 },   { 1, 0, 0 },   { 1, 1, 0 },   { 0, 1, 0 },   { 0, 0, 1 },   { 1, 0, 1 },   { 1, 1, 1 },
-        { 0, 1, 1 },   { 0.5, 0, 0 }, { 1, 0.5, 0 }, { 0.5, 1, 0 }, { 0, 0.5, 0 }, { 0.5, 0, 1 }, { 1, 0.5, 1 },
-        { 0.5, 1, 1 }, { 0, 0.5, 1 }, { 0, 0, 0.5 }, { 1, 0, 0.5 }, { 1, 1, 0.5 }, { 0, 1, 0.5 } },
-      { /* T8_ECLASS_TET */
-        { 0, 0, 0 },     { 1, 0, 0 },       { 1, 1, 1 },     { 1, 0, 1 },    { 0.5, 0, 0 },
-        { 1, 0.5, 0.5 }, { 0.5, 0.5, 0.5 }, { 0.5, 0, 0.5 }, { 1, 0, 0.5 },  { 1, 0.5, 1 },
-        { -1, -1, -1 },  { -1, -1, -1 },    { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 },  { -1, -1, -1 },    { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 } },
-      { /* T8_ECLASS_PRISM */
-        { 0, 0, 0 },   { 1, 0, 0 },     { 1, 1, 0 },    { 0, 0, 1 },    { 1, 0, 1 },     { 1, 1, 1 },   { 0.5, 0, 0 },
-        { 1, 0.5, 0 }, { 0.5, 0.5, 0 }, { 0.5, 0, 1 },  { 1, 0.5, 1 },  { 0.5, 0.5, 1 }, { 0, 0, 0.5 }, { 1, 0, 0.5 },
-        { 1, 1, 0.5 }, { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },  { -1, -1, -1 } },
-      { /* T8_ECLASS_PYRAMID */
-        { 0, 0, 0 },     { 1, 0, 0 },    { 1, 1, 0 },     { 0, 1, 0 },    { 1, 1, 1 },
-        { 0.5, 0, 0 },   { 1, 0.5, 0 },  { 0.5, 1, 0 },   { 0, 0.5, 0 },  { 0.5, 0.5, 0.5 },
-        { 1, 0.5, 0.5 }, { 1, 1, 0.5 },  { 0.5, 1, 0.5 }, { -1, -1, -1 }, { -1, -1, -1 },
-        { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 } } };
+// /** Map vtk element corners to element reference coordinates. The reference
+//  * coordinates are defined in such a way, that the linear vtk corners are listed
+//  * first and then the curved coords. This way, this array can be used for linear
+//  * vtk elements as well as quadratic vtk elements.
+//  */
+// const double t8_forest_vtk_point_to_element_ref_coords[T8_ECLASS_COUNT][T8_FOREST_VTK_QUADRATIC_ELEMENT_MAX_CORNERS][3]
+//   = { { /* T8_ECLASS_VERTEX */
+//         { 0, 0, 0 },    { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
+//       { /* T8_ECLASS_LINE */
+//         { 0, 0, 0 },    { 1, 0, 0 },    { 0.5, 0, 0 },  { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
+//       { /* T8_ECLASS_QUAD */
+//         { 0, 0, 0 },    { 1, 0, 0 },    { 1, 1, 0 },    { 0, 1, 0 },    { 0.5, 0, 0 },  { 1, 0.5, 0 },  { 0.5, 1, 0 },
+//         { 0, 0.5, 0 },  { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
+//       { /* T8_ECLASS_TRIANGLE */
+//         { 0, 0, 0 },    { 1, 0, 0 },    { 1, 1, 0 },    { 0.5, 0, 0 },  { 1, 0.5, 0 },  { 0.5, 0.5, 0 }, { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },  { -1, -1, -1 },
+//         { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 } },
+//       { /* T8_ECLASS_HEX */
+//         { 0, 0, 0 },   { 1, 0, 0 },   { 1, 1, 0 },   { 0, 1, 0 },   { 0, 0, 1 },   { 1, 0, 1 },   { 1, 1, 1 },
+//         { 0, 1, 1 },   { 0.5, 0, 0 }, { 1, 0.5, 0 }, { 0.5, 1, 0 }, { 0, 0.5, 0 }, { 0.5, 0, 1 }, { 1, 0.5, 1 },
+//         { 0.5, 1, 1 }, { 0, 0.5, 1 }, { 0, 0, 0.5 }, { 1, 0, 0.5 }, { 1, 1, 0.5 }, { 0, 1, 0.5 } },
+//       { /* T8_ECLASS_TET */
+//         { 0, 0, 0 },     { 1, 0, 0 },       { 1, 1, 1 },     { 1, 0, 1 },    { 0.5, 0, 0 },
+//         { 1, 0.5, 0.5 }, { 0.5, 0.5, 0.5 }, { 0.5, 0, 0.5 }, { 1, 0, 0.5 },  { 1, 0.5, 1 },
+//         { -1, -1, -1 },  { -1, -1, -1 },    { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 },  { -1, -1, -1 },    { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 } },
+//       { /* T8_ECLASS_PRISM */
+//         { 0, 0, 0 },   { 1, 0, 0 },     { 1, 1, 0 },    { 0, 0, 1 },    { 1, 0, 1 },     { 1, 1, 1 },   { 0.5, 0, 0 },
+//         { 1, 0.5, 0 }, { 0.5, 0.5, 0 }, { 0.5, 0, 1 },  { 1, 0.5, 1 },  { 0.5, 0.5, 1 }, { 0, 0, 0.5 }, { 1, 0, 0.5 },
+//         { 1, 1, 0.5 }, { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 }, { -1, -1, -1 },  { -1, -1, -1 } },
+//       { /* T8_ECLASS_PYRAMID */
+//         { 0, 0, 0 },     { 1, 0, 0 },    { 1, 1, 0 },     { 0, 1, 0 },    { 1, 1, 1 },
+//         { 0.5, 0, 0 },   { 1, 0.5, 0 },  { 0.5, 1, 0 },   { 0, 0.5, 0 },  { 0.5, 0.5, 0.5 },
+//         { 1, 0.5, 0.5 }, { 1, 1, 0.5 },  { 0.5, 1, 0.5 }, { -1, -1, -1 }, { -1, -1, -1 },
+//         { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 },  { -1, -1, -1 }, { -1, -1, -1 } } };
 
-/* depending on whether we want to write curved or non-curved elements
- * we need the right number of points, so we choose the right lookup table
- */
-#if T8_WITH_VTK
-static int
-t8_get_number_of_vtk_nodes (const t8_element_shape_t eclass, const int curved_flag)
-{
-  /* use the lookup table of the eclasses. */
-  if (curved_flag) {
-    return t8_curved_eclass_num_nodes[eclass];
-  }
-  return t8_eclass_num_vertices[eclass];
-}
-#endif
+// /* depending on whether we want to write curved or non-curved elements
+//  * we need the right number of points, so we choose the right lookup table
+//  */
+// #if T8_WITH_VTK
+// static int
+// t8_get_number_of_vtk_nodes (const t8_element_shape_t eclass, const int curved_flag)
+// {
+//   /* use the lookup table of the eclasses. */
+//   if (curved_flag) {
+//     return t8_curved_eclass_num_nodes[eclass];
+//   }
+//   return t8_eclass_num_vertices[eclass];
+// }
+// #endif
 
-#if T8_WITH_VTK
-static void
-t8_forest_vtk_get_element_nodes (t8_forest_t forest, t8_locidx_t ltreeid, const t8_element_t *element, const int vertex,
-                                 const int curved_flag, double *out_coords)
-{
-  const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, ltreeid);
-  const t8_eclass_scheme_c *scheme = t8_forest_get_eclass_scheme (forest, tree_class);
-  const t8_element_shape_t element_shape = scheme->t8_element_shape (element);
-  const double *ref_coords = t8_forest_vtk_point_to_element_ref_coords[element_shape][vertex];
-  const int num_node = t8_get_number_of_vtk_nodes (element_shape, curved_flag);
-  t8_forest_element_from_ref_coords (forest, ltreeid, element, ref_coords, num_node, out_coords);
-}
+// #if T8_WITH_VTK
+// static void
+// t8_forest_vtk_get_element_nodes (t8_forest_t forest, t8_locidx_t ltreeid, const t8_element_t *element, const int vertex,
+//                                  const int curved_flag, double *out_coords)
+// {
+//   const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, ltreeid);
+//   const t8_eclass_scheme_c *scheme = t8_forest_get_eclass_scheme (forest, tree_class);
+//   const t8_element_shape_t element_shape = scheme->t8_element_shape (element);
+//   const double *ref_coords = t8_forest_vtk_point_to_element_ref_coords[element_shape][vertex];
+//   const int num_node = t8_get_number_of_vtk_nodes (element_shape, curved_flag);
+//   t8_forest_element_from_ref_coords (forest, ltreeid, element, ref_coords, num_node, out_coords);
+// }
 
-/**
- * Translate a single element from the forest into a vtkCell and fill the vtkArrays with
- * the data related to the element (not element_data).
- */
-static void
-t8_forest_element_to_vtk_cell (
-  t8_forest_t forest, const t8_element_t *element, t8_eclass_scheme_c *scheme, const t8_locidx_t itree,
-  const t8_gloidx_t offset, const int write_treeid, const int write_mpirank, const int write_level,
-  const int write_element_id, const int curved_flag, const int is_ghost, const int elem_id, long int *point_id,
-  int *cellTypes, vtkSmartPointer<vtkPoints> points, vtkSmartPointer<vtkCellArray> cellArray,
-  vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_treeid, vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_mpirank,
-  vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_level, vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_element_id)
-{
-  vtkSmartPointer<vtkCell> pvtkCell = NULL;
+// /**
+//  * Translate a single element from the forest into a vtkCell and fill the vtkArrays with
+//  * the data related to the element (not element_data).
+//  */
+// static void
+// t8_forest_element_to_vtk_cell (
+//   t8_forest_t forest, const t8_element_t *element, t8_eclass_scheme_c *scheme, const t8_locidx_t itree,
+//   const t8_gloidx_t offset, const int write_treeid, const int write_mpirank, const int write_level,
+//   const int write_element_id, const int curved_flag, const int is_ghost, const int elem_id, long int *point_id,
+//   int *cellTypes, vtkSmartPointer<vtkPoints> points, vtkSmartPointer<vtkCellArray> cellArray,
+//   vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_treeid, vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_mpirank,
+//   vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_level, vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_element_id)
+// {
+//   vtkSmartPointer<vtkCell> pvtkCell = NULL;
 
-  const t8_element_shape_t element_shape = scheme->t8_element_shape (element);
-  const int num_node = t8_get_number_of_vtk_nodes (element_shape, curved_flag);
-  /* depending on the element type we choose the correct vtk cell to insert points to */
-  if (curved_flag == 0) {
-    switch (element_shape) {
-    case T8_ECLASS_VERTEX:
-      pvtkCell = vtkSmartPointer<vtkVertex>::New ();
-      break;
-    case T8_ECLASS_LINE:
-      pvtkCell = vtkSmartPointer<vtkLine>::New ();
-      break;
-    case T8_ECLASS_QUAD:
-      pvtkCell = vtkSmartPointer<vtkQuad>::New ();
-      break;
-    case T8_ECLASS_TRIANGLE:
-      pvtkCell = vtkSmartPointer<vtkTriangle>::New ();
-      break;
-    case T8_ECLASS_HEX:
-      pvtkCell = vtkSmartPointer<vtkHexahedron>::New ();
-      break;
-    case T8_ECLASS_TET:
-      pvtkCell = vtkSmartPointer<vtkTetra>::New ();
-      break;
-    case T8_ECLASS_PRISM:
-      pvtkCell = vtkSmartPointer<vtkWedge>::New ();
-      break;
-    case T8_ECLASS_PYRAMID:
-      pvtkCell = vtkSmartPointer<vtkPyramid>::New ();
-      break;
-    default:
-      SC_ABORT_NOT_REACHED ();
-    }
-  }
-  else { /* curved_flag != 0 */
-    switch (element_shape) {
-    case T8_ECLASS_VERTEX:
-      pvtkCell = vtkSmartPointer<vtkVertex>::New ();
-      break;
-    case T8_ECLASS_LINE:
-      pvtkCell = vtkSmartPointer<vtkQuadraticEdge>::New ();
-      break;
-    case T8_ECLASS_QUAD:
-      pvtkCell = vtkSmartPointer<vtkQuadraticQuad>::New ();
-      break;
-    case T8_ECLASS_TRIANGLE:
-      pvtkCell = vtkSmartPointer<vtkQuadraticTriangle>::New ();
-      break;
-    case T8_ECLASS_HEX:
-      pvtkCell = vtkSmartPointer<vtkQuadraticHexahedron>::New ();
-      break;
-    case T8_ECLASS_TET:
-      pvtkCell = vtkSmartPointer<vtkQuadraticTetra>::New ();
-      break;
-    case T8_ECLASS_PRISM:
-      pvtkCell = vtkSmartPointer<vtkQuadraticWedge>::New ();
-      break;
-    case T8_ECLASS_PYRAMID:
-      pvtkCell = vtkSmartPointer<vtkQuadraticPyramid>::New ();
-      break;
-    default:
-      SC_ABORT_NOT_REACHED ();
-    }
-  }
-  double *coordinates = T8_ALLOC (double, 3 * num_node);
-  /* Compute coordinates for all vertices inside the domain. */
-  t8_forest_vtk_get_element_nodes (forest, itree, element, 0, curved_flag, coordinates);
-  /* For each element we iterate over all points */
-  for (int ivertex = 0; ivertex < num_node; ivertex++, (*point_id)++) {
-    const size_t offset_3d = 3 * ivertex;
-    /* Insert point in the points array */
-    points->InsertNextPoint (coordinates[offset_3d], coordinates[offset_3d + 1], coordinates[offset_3d + 2]);
+//   const t8_element_shape_t element_shape = scheme->t8_element_shape (element);
+//   const int num_node = t8_get_number_of_vtk_nodes (element_shape, curved_flag);
+//   /* depending on the element type we choose the correct vtk cell to insert points to */
+//   if (curved_flag == 0) {
+//     switch (element_shape) {
+//     case T8_ECLASS_VERTEX:
+//       pvtkCell = vtkSmartPointer<vtkVertex>::New ();
+//       break;
+//     case T8_ECLASS_LINE:
+//       pvtkCell = vtkSmartPointer<vtkLine>::New ();
+//       break;
+//     case T8_ECLASS_QUAD:
+//       pvtkCell = vtkSmartPointer<vtkQuad>::New ();
+//       break;
+//     case T8_ECLASS_TRIANGLE:
+//       pvtkCell = vtkSmartPointer<vtkTriangle>::New ();
+//       break;
+//     case T8_ECLASS_HEX:
+//       pvtkCell = vtkSmartPointer<vtkHexahedron>::New ();
+//       break;
+//     case T8_ECLASS_TET:
+//       pvtkCell = vtkSmartPointer<vtkTetra>::New ();
+//       break;
+//     case T8_ECLASS_PRISM:
+//       pvtkCell = vtkSmartPointer<vtkWedge>::New ();
+//       break;
+//     case T8_ECLASS_PYRAMID:
+//       pvtkCell = vtkSmartPointer<vtkPyramid>::New ();
+//       break;
+//     default:
+//       SC_ABORT_NOT_REACHED ();
+//     }
+//   }
+//   else { /* curved_flag != 0 */
+//     switch (element_shape) {
+//     case T8_ECLASS_VERTEX:
+//       pvtkCell = vtkSmartPointer<vtkVertex>::New ();
+//       break;
+//     case T8_ECLASS_LINE:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticEdge>::New ();
+//       break;
+//     case T8_ECLASS_QUAD:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticQuad>::New ();
+//       break;
+//     case T8_ECLASS_TRIANGLE:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticTriangle>::New ();
+//       break;
+//     case T8_ECLASS_HEX:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticHexahedron>::New ();
+//       break;
+//     case T8_ECLASS_TET:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticTetra>::New ();
+//       break;
+//     case T8_ECLASS_PRISM:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticWedge>::New ();
+//       break;
+//     case T8_ECLASS_PYRAMID:
+//       pvtkCell = vtkSmartPointer<vtkQuadraticPyramid>::New ();
+//       break;
+//     default:
+//       SC_ABORT_NOT_REACHED ();
+//     }
+//   }
+//   double *coordinates = T8_ALLOC (double, 3 * num_node);
+//   /* Compute coordinates for all vertices inside the domain. */
+//   t8_forest_vtk_get_element_nodes (forest, itree, element, 0, curved_flag, coordinates);
+//   /* For each element we iterate over all points */
+//   for (int ivertex = 0; ivertex < num_node; ivertex++, (*point_id)++) {
+//     const size_t offset_3d = 3 * ivertex;
+//     /* Insert point in the points array */
+//     points->InsertNextPoint (coordinates[offset_3d], coordinates[offset_3d + 1], coordinates[offset_3d + 2]);
 
-    pvtkCell->GetPointIds ()->SetId (ivertex, *point_id);
-  }
-  T8_FREE (coordinates);
-  /* We insert the next cell in the cell array */
-  cellArray->InsertNextCell (pvtkCell);
-  /*
-   * Write current cell Type in the cell Types array at the elem_id index.
-   * Depending on the values of the binary inputs write_treeid,
-   * write_mpirank and write_element_id we also fill the corresponding
-   * arrays with the data we want(treeid,mpirank,element_id).
-   * To get the element id, we have to add the local id in the tree 
-   * plus theo
-   */
-  if (curved_flag == 0) {
-    cellTypes[elem_id - offset] = t8_eclass_vtk_type[element_shape];
-  }
-  else {
-    cellTypes[elem_id - offset] = t8_curved_eclass_vtk_type[element_shape];
-  }
-  if (write_treeid == 1) {
-    const t8_gloidx_t gtree_id = t8_forest_global_tree_id (forest, itree);
-    if (is_ghost) {
-      vtk_treeid->InsertNextValue (-1);
-    }
-    else {
-      vtk_treeid->InsertNextValue (gtree_id);
-    }
-  }
-  if (write_mpirank == 1) {
-    vtk_mpirank->InsertNextValue (forest->mpirank);
-  }
-  if (write_level == 1) {
-    vtk_level->InsertNextValue (scheme->t8_element_level (element));
-  }
-  if (write_element_id == 1) {
-    vtk_element_id->InsertNextValue (elem_id);
-  }
-}
-#endif
+//     pvtkCell->GetPointIds ()->SetId (ivertex, *point_id);
+//   }
+//   T8_FREE (coordinates);
+//   /* We insert the next cell in the cell array */
+//   cellArray->InsertNextCell (pvtkCell);
+//   /*
+//    * Write current cell Type in the cell Types array at the elem_id index.
+//    * Depending on the values of the binary inputs write_treeid,
+//    * write_mpirank and write_element_id we also fill the corresponding
+//    * arrays with the data we want(treeid,mpirank,element_id).
+//    * To get the element id, we have to add the local id in the tree 
+//    * plus theo
+//    */
+//   if (curved_flag == 0) {
+//     cellTypes[elem_id - offset] = t8_eclass_vtk_type[element_shape];
+//   }
+//   else {
+//     cellTypes[elem_id - offset] = t8_curved_eclass_vtk_type[element_shape];
+//   }
+//   if (write_treeid == 1) {
+//     const t8_gloidx_t gtree_id = t8_forest_global_tree_id (forest, itree);
+//     if (is_ghost) {
+//       vtk_treeid->InsertNextValue (-1);
+//     }
+//     else {
+//       vtk_treeid->InsertNextValue (gtree_id);
+//     }
+//   }
+//   if (write_mpirank == 1) {
+//     vtk_mpirank->InsertNextValue (forest->mpirank);
+//   }
+//   if (write_level == 1) {
+//     vtk_level->InsertNextValue (scheme->t8_element_level (element));
+//   }
+//   if (write_element_id == 1) {
+//     vtk_element_id->InsertNextValue (elem_id);
+//   }
+// }
+// #endif
 
-int
-t8_forest_vtk_write_file_via_API (t8_forest_t forest, const char *fileprefix, const int write_treeid,
-                                  const int write_mpirank, const int write_level, const int write_element_id,
-                                  const int curved_flag, const int write_ghosts, const int num_data,
-                                  t8_vtk_data_field_t *data)
-{
-#if T8_WITH_VTK
-  int freturn = 0;
-  T8_ASSERT (fileprefix != NULL);
-  /* 
-   * Write file: First we construct the unstructured Grid 
-   * that will store the points and elements. It requires
-   * information about the points(coordinates, stored in the points object)
-   * and the cells(cellTypes and which points belong to this cell) 
-   */
+// int
+// t8_forest_vtk_write_file_via_API (t8_forest_t forest, const char *fileprefix, const int write_treeid,
+//                                   const int write_mpirank, const int write_level, const int write_element_id,
+//                                   const int curved_flag, const int write_ghosts, const int num_data,
+//                                   t8_vtk_data_field_t *data)
+// {
+// #if T8_WITH_VTK
+//   int freturn = 0;
+//   T8_ASSERT (fileprefix != NULL);
+//   /* 
+//    * Write file: First we construct the unstructured Grid 
+//    * that will store the points and elements. It requires
+//    * information about the points(coordinates, stored in the points object)
+//    * and the cells(cellTypes and which points belong to this cell) 
+//    */
 
-  vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = vtkSmartPointer<vtkUnstructuredGrid>::New ();
-  t8_forest_to_vtkUnstructuredGrid (forest, unstructuredGrid, write_treeid, write_mpirank, write_level,
-                                    write_element_id, curved_flag, write_ghosts, num_data, data);
-  /*
-   * We define the filename used to write the pvtu and the vtu files.
-   * The pwriterObj is of class XMLPUnstructuredGridWriter, the P in
-   * XMLP is important: We want to write a vtu file for each process.
-   * This class enables us to do exactly that. 
-   */
-  char mpifilename[BUFSIZ];
-  snprintf (mpifilename, BUFSIZ, "%s.pvtu", fileprefix);
+//   vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = vtkSmartPointer<vtkUnstructuredGrid>::New ();
+//   t8_forest_to_vtkUnstructuredGrid (forest, unstructuredGrid, write_treeid, write_mpirank, write_level,
+//                                     write_element_id, curved_flag, write_ghosts, num_data, data);
+//   /*
+//    * We define the filename used to write the pvtu and the vtu files.
+//    * The pwriterObj is of class XMLPUnstructuredGridWriter, the P in
+//    * XMLP is important: We want to write a vtu file for each process.
+//    * This class enables us to do exactly that. 
+//    */
+//   char mpifilename[BUFSIZ];
+//   snprintf (mpifilename, BUFSIZ, "%s.pvtu", fileprefix);
 
-  vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriterObj = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New ();
-  /*
-   * Get/Set whether the appended data section is base64 encoded. 
-   * If encoded, reading and writing will be slower, but the file 
-   * will be fully valid XML and text-only. 
-   * If not encoded, the XML specification will be violated, 
-   * but reading and writing will be fast. The default is to do the encoding.
-   * Documentation: https://vtk.org/doc/release/5.0/html/a02260.html#z3560_2
-   */
-  pwriterObj->EncodeAppendedDataOff ();
+//   vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriterObj = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New ();
+//   /*
+//    * Get/Set whether the appended data section is base64 encoded. 
+//    * If encoded, reading and writing will be slower, but the file 
+//    * will be fully valid XML and text-only. 
+//    * If not encoded, the XML specification will be violated, 
+//    * but reading and writing will be fast. The default is to do the encoding.
+//    * Documentation: https://vtk.org/doc/release/5.0/html/a02260.html#z3560_2
+//    */
+//   pwriterObj->EncodeAppendedDataOff ();
 
-  /* We set the filename of the pvtu file. The filenames of the vtu files
-   * are given based on the name of the pvtu file and the process number.
-   */
-  pwriterObj->SetFileName (mpifilename);
+//   /* We set the filename of the pvtu file. The filenames of the vtu files
+//    * are given based on the name of the pvtu file and the process number.
+//    */
+//   pwriterObj->SetFileName (mpifilename);
 
-  /*
-   * Since we want to write multiple files, the processes 
-   * have to communicate. Therefore, we define the communicator
-   * vtk_comm and set it as the communicator. 
-   * We have to set a controller for the pwriterObj, 
-   * therefore we define the controller vtk_mpi_ctrl.
-   */
-#if T8_ENABLE_MPI
-  vtkSmartPointer<vtkMPICommunicator> vtk_comm = vtkSmartPointer<vtkMPICommunicator>::New ();
-  vtkMPICommunicatorOpaqueComm vtk_opaque_comm (&forest->mpicomm);
-  vtk_comm->InitializeExternal (&vtk_opaque_comm);
+//   /*
+//    * Since we want to write multiple files, the processes 
+//    * have to communicate. Therefore, we define the communicator
+//    * vtk_comm and set it as the communicator. 
+//    * We have to set a controller for the pwriterObj, 
+//    * therefore we define the controller vtk_mpi_ctrl.
+//    */
+// #if T8_ENABLE_MPI
+//   vtkSmartPointer<vtkMPICommunicator> vtk_comm = vtkSmartPointer<vtkMPICommunicator>::New ();
+//   vtkMPICommunicatorOpaqueComm vtk_opaque_comm (&forest->mpicomm);
+//   vtk_comm->InitializeExternal (&vtk_opaque_comm);
 
-  vtkSmartPointer<vtkMPIController> vtk_mpi_ctrl = vtkSmartPointer<vtkMPIController>::New ();
-  vtk_mpi_ctrl->SetCommunicator (vtk_comm);
+//   vtkSmartPointer<vtkMPIController> vtk_mpi_ctrl = vtkSmartPointer<vtkMPIController>::New ();
+//   vtk_mpi_ctrl->SetCommunicator (vtk_comm);
 
-  pwriterObj->SetController (vtk_mpi_ctrl);
-#endif
-  /*
-   * We set the number of pieces as the number of mpi processes,
-   * since we want to write a file for each process. We also
-   * need to define a Start and EndPiece for the current
-   * process. Then we can set the inputData for the writer:
-   * We want to write the unstructured Grid, update the writer
-   * and then write.
-   * 
-   * Note: We could write more than one file per process here, if desired.
-   */
-  pwriterObj->SetNumberOfPieces (forest->mpisize);
-  pwriterObj->SetStartPiece (forest->mpirank);
-  pwriterObj->SetEndPiece (forest->mpirank);
+//   pwriterObj->SetController (vtk_mpi_ctrl);
+// #endif
+//   /*
+//    * We set the number of pieces as the number of mpi processes,
+//    * since we want to write a file for each process. We also
+//    * need to define a Start and EndPiece for the current
+//    * process. Then we can set the inputData for the writer:
+//    * We want to write the unstructured Grid, update the writer
+//    * and then write.
+//    * 
+//    * Note: We could write more than one file per process here, if desired.
+//    */
+//   pwriterObj->SetNumberOfPieces (forest->mpisize);
+//   pwriterObj->SetStartPiece (forest->mpirank);
+//   pwriterObj->SetEndPiece (forest->mpirank);
 
-  /* We set the input data and write the vtu files. */
-  pwriterObj->SetInputData (unstructuredGrid);
-  pwriterObj->Update ();
-  if (pwriterObj->Write ()) {
-    /* Writing was successful */
-    freturn = 1;
-  }
-  else {
-    t8_errorf ("Error when writing vtk file.\n");
-  }
+//   /* We set the input data and write the vtu files. */
+//   pwriterObj->SetInputData (unstructuredGrid);
+//   pwriterObj->Update ();
+//   if (pwriterObj->Write ()) {
+//     /* Writing was successful */
+//     freturn = 1;
+//   }
+//   else {
+//     t8_errorf ("Error when writing vtk file.\n");
+//   }
 
-  /* Return whether writing was successful */
-  return freturn;
+//   /* Return whether writing was successful */
+//   return freturn;
 
-#else
-  t8_global_errorf ("Warning: t8code is not linked against vtk library. Vtk output will not be generated.\n");
-  t8_global_productionf ("Consider calling 't8_forest_write_vtk' or 't8_forest_vtk_write_file' instead.\n");
-  return 0;
-#endif
-}
+// #else
+//   t8_global_errorf ("Warning: t8code is not linked against vtk library. Vtk output will not be generated.\n");
+//   t8_global_productionf ("Consider calling 't8_forest_write_vtk' or 't8_forest_vtk_write_file' instead.\n");
+//   return 0;
+// #endif
+// }
 
-#if T8_WITH_VTK
-void
-t8_forest_to_vtkUnstructuredGrid (t8_forest_t forest, vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid,
-                                  const int write_treeid, const int write_mpirank, const int write_level,
-                                  const int write_element_id, const int write_ghosts, const int curved_flag,
-                                  const int num_data, t8_vtk_data_field_t *data)
-{
-  /*Check assertions: forest and fileprefix are not NULL and forest is committed */
-  T8_ASSERT (forest != NULL);
-  T8_ASSERT (forest->rc.refcount > 0);
-  T8_ASSERT (forest->committed);
+// #if T8_WITH_VTK
+// void
+// t8_forest_to_vtkUnstructuredGrid (t8_forest_t forest, vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid,
+//                                   const int write_treeid, const int write_mpirank, const int write_level,
+//                                   const int write_element_id, const int write_ghosts, const int curved_flag,
+//                                   const int num_data, t8_vtk_data_field_t *data)
+// {
+//   /*Check assertions: forest and fileprefix are not NULL and forest is committed */
+//   T8_ASSERT (forest != NULL);
+//   T8_ASSERT (forest->rc.refcount > 0);
+//   T8_ASSERT (forest->committed);
 
-  long int point_id = 0; /* The id of the point in the points Object. */
+//   long int point_id = 0; /* The id of the point in the points Object. */
 
-  const t8_gloidx_t offset = t8_forest_get_first_local_element_id (forest);
-  t8_gloidx_t elem_id = offset;
+//   const t8_gloidx_t offset = t8_forest_get_first_local_element_id (forest);
+//   t8_gloidx_t elem_id = offset;
 
-  vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New ();
+//   vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New ();
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New ();
+//   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New ();
 
-  int ghosts = write_ghosts;
-  if (forest->ghosts == NULL || forest->ghosts->num_ghosts_elements == 0) {
-    /* Never write ghost elements if there aren't any */
-    ghosts = 0;
-  }
-  T8_ASSERT (forest->ghosts != NULL || !ghosts);
-  /* 
-   * The cellTypes Array stores the element types as integers(see vtk doc).
-   */
-  t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
-  if (ghosts) {
-    num_elements += t8_forest_get_num_ghosts (forest);
-  }
-  int *cellTypes = T8_ALLOC (int, num_elements);
+//   int ghosts = write_ghosts;
+//   if (forest->ghosts == NULL || forest->ghosts->num_ghosts_elements == 0) {
+//     /* Never write ghost elements if there aren't any */
+//     ghosts = 0;
+//   }
+//   T8_ASSERT (forest->ghosts != NULL || !ghosts);
+//   /* 
+//    * The cellTypes Array stores the element types as integers(see vtk doc).
+//    */
+//   t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
+//   if (ghosts) {
+//     num_elements += t8_forest_get_num_ghosts (forest);
+//   }
+//   int *cellTypes = T8_ALLOC (int, num_elements);
 
-  /*
-   * We need the vertex coords array to be of the 
-   * correct dim. Since it is always the same
-   * in one mesh, we take the dim of one element.
-   * We add 1 if we look at a vertext(dim=0) because 
-   * an array of size 0 is not allowed. 
-   * Then we allocate memory, because we do not know
-   * beforehand how many entries the array needs.
-   */
+//   /*
+//    * We need the vertex coords array to be of the 
+//    * correct dim. Since it is always the same
+//    * in one mesh, we take the dim of one element.
+//    * We add 1 if we look at a vertext(dim=0) because 
+//    * an array of size 0 is not allowed. 
+//    * Then we allocate memory, because we do not know
+//    * beforehand how many entries the array needs.
+//    */
 
-  /*
-   * We have to define the vtkTypeInt64Array that hold 
-   * metadata if wanted. 
-   */
+//   /*
+//    * We have to define the vtkTypeInt64Array that hold 
+//    * metadata if wanted. 
+//    */
 
-  vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_treeid = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
-  vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_mpirank = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
-  vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_level = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
-  vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_element_id = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
+//   vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_treeid = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
+//   vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_mpirank = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
+//   vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_level = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
+//   vtkSmartPointer<t8_vtk_gloidx_array_type_t> vtk_element_id = vtkSmartPointer<t8_vtk_gloidx_array_type_t>::New ();
 
-  /*
-   * We need the dataArray for writing double valued user defined data in the vtu files.
-   * We want to write num_data many timesteps/arrays.
-   * We need num_data many vtkDoubleArrays, so we need to allocate storage.
-   * Later we call the constructor with: dataArrays[idata]=vtkDoubleArray::New()
-   */
-  vtkDoubleArray **dataArrays;
-  dataArrays = T8_ALLOC (vtkDoubleArray *, num_data);
+//   /*
+//    * We need the dataArray for writing double valued user defined data in the vtu files.
+//    * We want to write num_data many timesteps/arrays.
+//    * We need num_data many vtkDoubleArrays, so we need to allocate storage.
+//    * Later we call the constructor with: dataArrays[idata]=vtkDoubleArray::New()
+//    */
+//   vtkDoubleArray **dataArrays;
+//   dataArrays = T8_ALLOC (vtkDoubleArray *, num_data);
 
-  const t8_locidx_t num_local_trees = t8_forest_get_num_local_trees (forest);
+//   const t8_locidx_t num_local_trees = t8_forest_get_num_local_trees (forest);
 
-  /* We iterate over all local trees*/
-  for (t8_locidx_t itree = 0; itree < num_local_trees; itree++) {
-    /* 
-     * We get the current tree, the scheme for this tree
-     * and the number of elements in this tree. We need the vertices of
-     * the tree to get the coordinates of the elements later. We need
-     * the number of elements in this tree to iterate over all of them.
-     */
-    t8_eclass_scheme_c *scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-    const t8_locidx_t elems_in_tree = t8_forest_get_tree_num_elements (forest, itree);
-    /* We iterate over all elements in the tree */
-    for (t8_locidx_t ielement = 0; ielement < elems_in_tree; ielement++) {
-      const t8_element_t *element = t8_forest_get_element_in_tree (forest, itree, ielement);
-      T8_ASSERT (element != NULL);
+//   /* We iterate over all local trees*/
+//   for (t8_locidx_t itree = 0; itree < num_local_trees; itree++) {
+//     /* 
+//      * We get the current tree, the scheme for this tree
+//      * and the number of elements in this tree. We need the vertices of
+//      * the tree to get the coordinates of the elements later. We need
+//      * the number of elements in this tree to iterate over all of them.
+//      */
+//     t8_eclass_scheme_c *scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
+//     const t8_locidx_t elems_in_tree = t8_forest_get_tree_num_elements (forest, itree);
+//     /* We iterate over all elements in the tree */
+//     for (t8_locidx_t ielement = 0; ielement < elems_in_tree; ielement++) {
+//       const t8_element_t *element = t8_forest_get_element_in_tree (forest, itree, ielement);
+//       T8_ASSERT (element != NULL);
 
-      t8_forest_element_to_vtk_cell (forest, element, scheme, itree, offset, write_treeid, write_mpirank, write_level,
-                                     write_element_id, curved_flag, 0, elem_id, &point_id, cellTypes, points, cellArray,
-                                     vtk_treeid, vtk_mpirank, vtk_level, vtk_element_id);
+//       t8_forest_element_to_vtk_cell (forest, element, scheme, itree, offset, write_treeid, write_mpirank, write_level,
+//                                      write_element_id, curved_flag, 0, elem_id, &point_id, cellTypes, points, cellArray,
+//                                      vtk_treeid, vtk_mpirank, vtk_level, vtk_element_id);
 
-      elem_id++;
-    } /* end of loop over elements */
-  }   /* end of loop over local trees */
-  if (ghosts) {
-    /* Get number of ghost-trees */
-    const t8_locidx_t num_ghost_trees = t8_forest_ghost_num_trees (forest);
-    for (t8_locidx_t itree_ghost = 0; itree_ghost < num_ghost_trees; itree_ghost++) {
-      /* Get Tree scheme of the ghost tree */
-      t8_eclass_scheme_c *scheme
-        = t8_forest_get_eclass_scheme (forest, t8_forest_ghost_get_tree_class (forest, itree_ghost));
-      const t8_locidx_t num_ghosts = t8_forest_ghost_tree_num_elements (forest, itree_ghost);
-      for (t8_locidx_t ielem_ghost = 0; ielem_ghost < num_ghosts; ielem_ghost++) {
-        const t8_element_t *element = t8_forest_ghost_get_element (forest, itree_ghost, ielem_ghost);
-        t8_forest_element_to_vtk_cell (forest, element, scheme, itree_ghost + num_local_trees, offset, write_treeid,
-                                       write_mpirank, write_level, write_element_id, curved_flag, 1, elem_id, &point_id,
-                                       cellTypes, points, cellArray, vtk_treeid, vtk_mpirank, vtk_level,
-                                       vtk_element_id);
-        elem_id++;
-      }
-    }
-  }
+//       elem_id++;
+//     } /* end of loop over elements */
+//   }   /* end of loop over local trees */
+//   if (ghosts) {
+//     /* Get number of ghost-trees */
+//     const t8_locidx_t num_ghost_trees = t8_forest_ghost_num_trees (forest);
+//     for (t8_locidx_t itree_ghost = 0; itree_ghost < num_ghost_trees; itree_ghost++) {
+//       /* Get Tree scheme of the ghost tree */
+//       t8_eclass_scheme_c *scheme
+//         = t8_forest_get_eclass_scheme (forest, t8_forest_ghost_get_tree_class (forest, itree_ghost));
+//       const t8_locidx_t num_ghosts = t8_forest_ghost_tree_num_elements (forest, itree_ghost);
+//       for (t8_locidx_t ielem_ghost = 0; ielem_ghost < num_ghosts; ielem_ghost++) {
+//         const t8_element_t *element = t8_forest_ghost_get_element (forest, itree_ghost, ielem_ghost);
+//         t8_forest_element_to_vtk_cell (forest, element, scheme, itree_ghost + num_local_trees, offset, write_treeid,
+//                                        write_mpirank, write_level, write_element_id, curved_flag, 1, elem_id, &point_id,
+//                                        cellTypes, points, cellArray, vtk_treeid, vtk_mpirank, vtk_level,
+//                                        vtk_element_id);
+//         elem_id++;
+//       }
+//     }
+//   }
 
-  unstructuredGrid->SetPoints (points);
-  unstructuredGrid->SetCells (cellTypes, cellArray);
+//   unstructuredGrid->SetPoints (points);
+//   unstructuredGrid->SetCells (cellTypes, cellArray);
 
-  if (write_treeid) {
-    vtk_treeid->SetName ("treeid");
-    unstructuredGrid->GetCellData ()->AddArray (vtk_treeid);
-  }
-  if (write_mpirank) {
-    vtk_mpirank->SetName ("mpirank");
-    unstructuredGrid->GetCellData ()->AddArray (vtk_mpirank);
-  }
-  if (write_level) {
-    vtk_level->SetName ("level");
-    unstructuredGrid->GetCellData ()->AddArray (vtk_level);
-  }
-  if (write_element_id) {
-    vtk_element_id->SetName ("element_id");
-    unstructuredGrid->GetCellData ()->AddArray (vtk_element_id);
-  }
+//   if (write_treeid) {
+//     vtk_treeid->SetName ("treeid");
+//     unstructuredGrid->GetCellData ()->AddArray (vtk_treeid);
+//   }
+//   if (write_mpirank) {
+//     vtk_mpirank->SetName ("mpirank");
+//     unstructuredGrid->GetCellData ()->AddArray (vtk_mpirank);
+//   }
+//   if (write_level) {
+//     vtk_level->SetName ("level");
+//     unstructuredGrid->GetCellData ()->AddArray (vtk_level);
+//   }
+//   if (write_element_id) {
+//     vtk_element_id->SetName ("element_id");
+//     unstructuredGrid->GetCellData ()->AddArray (vtk_element_id);
+//   }
 
-  /* Write the user defined data fields. 
-   * For that we iterate over the idata, set the name, the array
-   * and then give this data to the unstructured Grid Object.
-   * We differentiate between scalar and vector data.
-   */
-  for (int idata = 0; idata < num_data; idata++) {
-    dataArrays[idata] = vtkDoubleArray::New ();
-    const int num_components = data[idata].type == T8_VTK_SCALAR ? 1 : 3;
-    dataArrays[idata]->SetName (data[idata].description);      /* Set the name of the array */
-    dataArrays[idata]->SetNumberOfTuples (num_elements);       /* We want number of tuples=number of elements */
-    dataArrays[idata]->SetNumberOfComponents (num_components); /* Each tuples has 3 values */
-    dataArrays[idata]->SetVoidArray (data[idata].data, num_elements * num_components, 1);
-    unstructuredGrid->GetCellData ()->AddArray (dataArrays[idata]);
-  }
+//   /* Write the user defined data fields. 
+//    * For that we iterate over the idata, set the name, the array
+//    * and then give this data to the unstructured Grid Object.
+//    * We differentiate between scalar and vector data.
+//    */
+//   for (int idata = 0; idata < num_data; idata++) {
+//     dataArrays[idata] = vtkDoubleArray::New ();
+//     const int num_components = data[idata].type == T8_VTK_SCALAR ? 1 : 3;
+//     dataArrays[idata]->SetName (data[idata].description);      /* Set the name of the array */
+//     dataArrays[idata]->SetNumberOfTuples (num_elements);       /* We want number of tuples=number of elements */
+//     dataArrays[idata]->SetNumberOfComponents (num_components); /* Each tuples has 3 values */
+//     dataArrays[idata]->SetVoidArray (data[idata].data, num_elements * num_components, 1);
+//     unstructuredGrid->GetCellData ()->AddArray (dataArrays[idata]);
+//   }
 
-  /* We have to free the allocated memory for the cellTypes Array and the other arrays we allocated memory for. */
-  for (int idata = 0; idata < num_data; idata++) {
-    dataArrays[idata]->Delete ();
-  }
+//   /* We have to free the allocated memory for the cellTypes Array and the other arrays we allocated memory for. */
+//   for (int idata = 0; idata < num_data; idata++) {
+//     dataArrays[idata]->Delete ();
+//   }
 
-  T8_FREE (cellTypes);
-  T8_FREE (dataArrays);
-}
-#endif
+//   T8_FREE (cellTypes);
+//   T8_FREE (dataArrays);
+// }
+// #endif
 
 static t8_locidx_t
 t8_forest_num_points (t8_forest_t forest, const int count_ghosts)
@@ -605,6 +605,7 @@ t8_forest_vtk_cells_vertices_kernel (t8_forest_t forest, const t8_locidx_t ltree
                                      t8_eclass_scheme_c *ts, const int is_ghost, FILE *vtufile, int *columns,
                                      void **data, T8_VTK_KERNEL_MODUS modus)
 {
+  t8_global_productionf ("t8_forest_vtk_cells_vertices_kernel \n");
   double element_coordinates[3];
   int num_el_vertices, ivertex;
   int freturn;
@@ -619,8 +620,10 @@ t8_forest_vtk_cells_vertices_kernel (t8_forest_t forest, const t8_locidx_t ltree
    *       does this work too over tree->class or do we need something else?
    */
 
-  element_shape = ts->t8_element_shape (element);
-  num_el_vertices = t8_eclass_num_vertices[element_shape];
+  // if (forest->set_type == 1) {
+    element_shape = ts->t8_element_shape (element);
+    num_el_vertices = t8_eclass_num_vertices[element_shape];
+  // }
   for (ivertex = 0; ivertex < num_el_vertices; ivertex++) {
     const double *ref_coords = t8_forest_vtk_point_to_element_ref_coords[element_shape][ivertex];
     t8_forest_element_from_ref_coords (forest, ltree_id, element, ref_coords, 1, element_coordinates);
@@ -642,58 +645,6 @@ t8_forest_vtk_cells_vertices_kernel (t8_forest_t forest, const t8_locidx_t ltree
      * by keeping the columns value constant. */
     *columns = 1;
   }
-  return 1;
-}
-
-static int
-t8_forest_vtk_cells_vertices_kernel_2_5D (t8_forest_t forest, const t8_locidx_t ltree_id,
-                                        const t8_tree_t tree1, const t8_tree_t tree2,
-                                        const t8_locidx_t element_index1, const t8_locidx_t element_index2, 
-                                        const t8_element_t *element1, const t8_element_t *element2,
-                                        t8_eclass_scheme_c *ts, const int is_ghost, FILE *vtufile, int *columns,
-                                        void **data, T8_VTK_KERNEL_MODUS modus)
-{
-  double element_coordinates[3];
-  int num_el_vertices, ivertex;
-  int freturn;
-  t8_element_shape_t element_shape1, element_shape2;
-
-  if (modus != T8_VTK_KERNEL_EXECUTE) {
-    /* Nothing to do if we are in Init or clean up mode */
-    return 1;
-  }
-
-  /* TODO: be careful with pyramid class here.
-   *       does this work too over tree->class or do we need something else?
-   */
-
-  element_shape1 = ts->t8_element_shape (element1, 1);
-  element_shape2 = ts->t8_element_shape (element2, 2);
-  num_el_vertices = t8_eclass_num_vertices[element_shape1] + t8_eclass_num_vertices[element_shape2];
-  // t8_global_productionf (" num_el_vertices: %i \n", num_el_vertices);
-
-
-//   for (ivertex = 0; ivertex < num_el_vertices; ivertex++) {
-//     const double *ref_coords = t8_forest_vtk_point_to_element_ref_coords[element_shape][ivertex];
-//     t8_forest_element_from_ref_coords (forest, ltree_id, element, ref_coords, 1, element_coordinates);
-//     freturn = fprintf (vtufile, "         ");
-//     if (freturn <= 0) {
-//       return 0;
-//     }
-// #ifdef T8_VTK_DOUBLES
-//     freturn = fprintf (vtufile, " %24.16e %24.16e %24.16e\n", element_coordinates[0], element_coordinates[1],
-//                        element_coordinates[2]);
-// #else
-//     freturn = fprintf (vtufile, " %16.8e %16.8e %16.8e\n", element_coordinates[0], element_coordinates[1],
-//                        element_coordinates[2]);
-// #endif
-//     if (freturn <= 0) {
-//       return 0;
-//     }
-//     /* We switch of the column control of the surrounding function
-//      * by keeping the columns value constant. */
-//     *columns = 1;
-//   }
   return 1;
 }
 
@@ -730,42 +681,6 @@ t8_forest_vtk_cells_connectivity_kernel (t8_forest_t forest, const t8_locidx_t l
   }
   *columns += t8_eclass_num_vertices[element_shape];
   return 1;
-}
-
-static int
-t8_forest_vtk_cells_connectivity_kernel_2_5D (t8_forest_t forest, const t8_locidx_t ltree_id, const t8_tree_t tree1,
-                                         const t8_tree_t tree2, const t8_locidx_t element_index1, const t8_locidx_t element_index2,
-                                         const t8_element_t *element1, const t8_element_t *element2,
-                                         t8_eclass_scheme_c *ts, const int is_ghost, FILE *vtufile, int *columns,
-                                         void **data, T8_VTK_KERNEL_MODUS modus)
-{
-  int ivertex, num_vertices;
-  int freturn;
-  t8_locidx_t *count_vertices;
-  t8_element_shape_t element_shape;
-
-  if (modus == T8_VTK_KERNEL_INIT) {
-    /* We use data to count the number of written vertices */
-    *data = T8_ALLOC_ZERO (t8_locidx_t, 1);
-    return 1;
-  }
-  // else if (modus == T8_VTK_KERNEL_CLEANUP) {
-  //   T8_FREE (*data);
-  //   return 1;
-  // }
-  // T8_ASSERT (modus == T8_VTK_KERNEL_EXECUTE);
-
-  // count_vertices = (t8_locidx_t *) *data;
-  // element_shape = ts->t8_element_shape (element);
-  // num_vertices = t8_eclass_num_vertices[element_shape];
-  // for (ivertex = 0; ivertex < num_vertices; ++ivertex, (*count_vertices)++) {
-  //   freturn = fprintf (vtufile, " %ld", (long) *count_vertices);
-  //   if (freturn <= 0) {
-  //     return 0;
-  //   }
-  // }
-  // *columns += t8_eclass_num_vertices[element_shape];
-  // return 1;
 }
 
 static int
@@ -826,7 +741,41 @@ t8_forest_vtk_cells_level_kernel (t8_forest_t forest, const t8_locidx_t ltree_id
                                   T8_VTK_KERNEL_MODUS modus)
 {
   if (modus == T8_VTK_KERNEL_EXECUTE) {
-    fprintf (vtufile, "%i ", ts->t8_element_level (element));
+    // if (forest->set_type == 1) {
+      fprintf (vtufile, "%i ", ts->t8_element_level (element));
+      *columns += 1;
+    // }
+    // else if (forest->set_type == 2) {
+    //   // t8_global_productionf ("ts->t8_element_level (element, 1): %i", ts->t8_element_level (element, 1));
+    //   // t8_global_productionf ("ts->t8_element_level (element, 2): %i", ts->t8_element_level (element, 2));
+    //   fprintf (vtufile, "%i, %i ", ts->t8_element_level (element, 1), ts->t8_element_level (element, 2));
+    //   *columns += 2;
+    // }
+  }
+  return 1;
+}
+
+static int
+t8_forest_vtk_cells_level_kernel_1 (t8_forest_t forest, const t8_locidx_t ltree_id, const t8_tree_t tree,
+                                  const t8_locidx_t element_index, const t8_element_t *element, t8_eclass_scheme_c *ts,
+                                  const int is_ghost, FILE *vtufile, int *columns, void **data,
+                                  T8_VTK_KERNEL_MODUS modus)
+{
+  if (modus == T8_VTK_KERNEL_EXECUTE) {
+    fprintf (vtufile, "%i ", ts->t8_element_level (element, 1));
+    *columns += 1;
+  }
+  return 1;
+}
+
+static int
+t8_forest_vtk_cells_level_kernel_2 (t8_forest_t forest, const t8_locidx_t ltree_id, const t8_tree_t tree,
+                                  const t8_locidx_t element_index, const t8_element_t *element, t8_eclass_scheme_c *ts,
+                                  const int is_ghost, FILE *vtufile, int *columns, void **data,
+                                  T8_VTK_KERNEL_MODUS modus)
+{
+  if (modus == T8_VTK_KERNEL_EXECUTE) {
+    fprintf (vtufile, "%i ", ts->t8_element_level (element, 2));
     *columns += 1;
   }
   return 1;
@@ -1012,6 +961,7 @@ t8_forest_vtk_write_cell_data (t8_forest_t forest, FILE *vtufile, const char *da
                                const char *component_string, const int max_columns,
                                t8_forest_vtk_cell_data_kernel kernel, const int write_ghosts, void *udata)
 {
+  t8_global_productionf ("t8_forest_vtk_write_cell_data \n ");
   int freturn;
   int countcols;
   t8_tree_t tree;
@@ -1054,6 +1004,12 @@ t8_forest_vtk_write_cell_data (t8_forest_t forest, FILE *vtufile, const char *da
     for (element_index = 0; element_index < elems_in_tree; element_index++) {
       /* Get a pointer to the element */
       element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
+      if (forest->set_type == 1) {
+        ts->t8_element_get_variable (element, 0);
+      }
+      else {
+        ts->t8_element_get_variable (element, 0);
+      }
       T8_ASSERT (element != NULL);
       /* Execute the given callback on each element */
       if (!kernel (forest, itree, tree, element_index, element, ts, 0, vtufile, &countcols, &data,
@@ -1126,439 +1082,6 @@ t8_forest_vtk_write_cell_data (t8_forest_t forest, FILE *vtufile, const char *da
   return 1;
 }
 
-/* Iterate over all cells and write cell data to the file using
- * the cell_data_kernel as callback */
-static int
-t8_forest_vtk_write_cell_data_2_5D (t8_forest_t forest, FILE *vtufile, const char *dataname, const char *datatype,
-                               const char *component_string, const int max_columns,
-                               t8_forest_vtk_cell_data_kernel_2_5D kernel, const int write_ghosts, void *udata)
-{
-  int freturn;
-  int countcols;
-  t8_tree_t tree1, tree2;
-  t8_locidx_t itree, ighost;
-  // t8_locidx_t itree2;
-  t8_locidx_t element_index1, element_index2;
-  t8_locidx_t elems_in_tree1, elems_in_tree2;
-  t8_locidx_t num_local_trees, num_ghost_trees;
-  t8_element_t *element1, *element2;
-  t8_eclass_scheme_c *ts, *ts1, *ts2;
-  void *data = NULL;
-
-  /* Write the connectivity information.
-   * Thus for each tree we write the indices of its corner vertices. */
-  freturn = fprintf (vtufile,
-                     "        <DataArray type=\"%s\" "
-                     "Name=\"%s\" %s format=\"ascii\">\n         ",
-                     datatype, dataname, component_string);
-  if (freturn <= 0) {
-    return 0;
-  }
-
-  /* if udata != NULL, use it as the data pointer, in this case, the kernel
-   * should not modify it */
-  if (udata != NULL) {
-    data = udata;
-  }
-
-  /* Call the kernel in initialization modus to possibly initialize the
-   * data pointer */
-  kernel (NULL, 0, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_INIT);
-  /* We iterate over the trees and count each trees vertices,
-   * we add this to the already counted vertices and write it to the file */
-  /* TODO: replace with an element iterator */
-
-  t8_global_productionf ("From here on: difference for 2_5D. \n");
-
-  num_local_trees = t8_forest_get_num_local_trees (forest);
-  for (itree = 0, countcols = 0; itree < num_local_trees; itree+=2) {
-    /* Get the tree1 that stores the elements for eclass1*/
-    tree1 = t8_forest_get_tree (forest, itree);
-    /* Get the tree2 that stores the elements for eclass1*/
-    tree2 = t8_forest_get_tree (forest, itree + 1);
-    /* Get the eclass scheme of the trees */
-    ts = t8_forest_get_eclass_scheme_2_5D (forest, t8_forest_get_tree_class (forest, itree), t8_forest_get_tree_class (forest, itree + 1));
-    elems_in_tree1 = (t8_locidx_t) t8_element_array_get_count (&tree1->elements);
-    elems_in_tree2 = (t8_locidx_t) t8_element_array_get_count (&tree2->elements);
-    for (element_index1 = 0; element_index1 < elems_in_tree1; element_index1++) {
-      t8_global_productionf (" ---------------------------- \n");
-      t8_global_productionf (" element_index1: %i \n", element_index1);
-      /* Get a pointer to the element1 */
-      t8_global_productionf (" tree1->elements_offset: %i \n", tree1->elements_offset);
-      element1 = t8_forest_get_element_2_5D (forest, tree1->elements_offset + element_index1, NULL, 1);
-      t8_global_productionf (" element1->x: %i \n", ts->t8_element_get_variable (element1, 1, 1));
-      t8_global_productionf (" element1->y: %i \n", ts->t8_element_get_variable (element1, 2, 1));
-      T8_ASSERT (element1 != NULL);
-      for (element_index2 = 0; element_index2 < elems_in_tree2; element_index2++){
-        t8_global_productionf (" ---------------------------- \n");
-        t8_global_productionf (" element_index2: %i \n", element_index2);
-        /* Get a pointer to the element of eclass2 */
-        t8_global_productionf (" tree2->elements_offset: %i \n", tree2->elements_offset);
-        element2 = t8_forest_get_element_2_5D (forest, tree2->elements_offset + element_index2, NULL, 2);
-        t8_global_productionf (" element1->x: %i \n", ts->t8_element_get_variable (element2, 1, 2));
-        T8_ASSERT (element2 != NULL);
-      /* Execute the given callback on each combination of elements */
-      if (!kernel (forest, itree, tree1, tree2, element_index1, element_index2, element1, element2, ts, 0, vtufile, &countcols, &data,
-                   T8_VTK_KERNEL_EXECUTE)) {
-        /* call the kernel in clean-up modus */
-        kernel (NULL, 0, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-        return 0;
-      }
-    //   /* After max_columns we break the line */
-    //   if (!(countcols % max_columns)) {
-    //     freturn = fprintf (vtufile, "\n         ");
-    //     if (freturn <= 0) {
-    //       /* call the kernel in clean-up modus */
-    //       kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-    //       return 0;
-    //     }
-    //   }
-      }
-    // } /* element loop ends here */
-    // if (freturn <= 0) {
-    //   /* call the kernel in clean-up modus */
-    //   kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-    //   return 0;
-    }
-  } /* tree loop ends here */
-
-
-
-
-  // // int trees_eclass1 = 0;
-  // // int test = 0;
-  // // float var = 0.0;
-
-  // // int num_children;
-  // t8_locidx_t ltree_id1 = 0;
-
-  // num_local_trees = t8_forest_get_num_local_trees (forest);
-  // for (itree = 0, countcols = 0; itree < num_local_trees; itree += 2) {
-  //   t8_global_productionf (" itree: %i \n", itree);
-
-  //   // if (trees_eclass1 == test){
-  //   // t8_global_productionf ( "trees_eclass1: %i \n", trees_eclass1);
-  //   // tree_eclass1 = t8_cmesh_get_tree_class (forest->cmesh, trees_eclass1);
-  //   // // test+=2;
-  //   // t8_global_productionf ( "test: %i \n", test);
-  //   // num_children1 = t8_forest_num_children_eclass1 (forest, itree1); //ginge hier auch t8_forest_get_tree_element_count (tree)
-    
-  //   /* Get the tree1 that stores the elements */
-  //   tree1 = t8_forest_get_tree (forest, itree);
-  //   /* Get the eclass scheme of the trees */
-  //   ts1 = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-  //   elems_in_tree1 = (t8_locidx_t) t8_element_array_get_count (&tree1->elements);
-  //   t8_global_productionf (" elems_in_tree1: %i \n", elems_in_tree1);
-  //   // }
-  //   t8_eclass_scheme_c *eclass_scheme_tree;
-  //   int num_children_eclass2;
-  //   eclass_scheme_tree = t8_forest_get_eclass_scheme (forest, t8_cmesh_get_tree_class (forest->cmesh, itree1));
-  //   num_children_eclass2 = eclass_scheme_tree->t8_element_count_leaves_from_root (forest->set_level2, 2);
-  //   t8_global_productionf (" itree1: %i \n", itree1);
-  //   for (element_index1 = 0; element_index1 < elems_in_tree1; element_index1++){
-  //     t8_global_productionf (" element_index1: %i \n", element_index1);
-  //     /* Get a pointer to the element of eclass1 */
-  //     t8_global_productionf (" tree1->elements_offset + (element_index1 * num_children_eclass2): %i \n", tree1->elements_offset + (element_index1 * num_children_eclass2));
-  //     element1 = t8_forest_get_element_2_5D (forest, tree1->elements_offset + (element_index1 * num_children_eclass2), NULL, 1);
-  //     // element1 = t8_forest_get_element (forest, 0, NULL);
-  //     t8_global_productionf("element1->x: %li \n", ts1->t8_element_get_variable (const_cast<t8_element*>(element1), 1));
-  //     t8_global_productionf("element1->y: %li \n", ts1->t8_element_get_variable (const_cast<t8_element*>(element1), 2));
-  //     T8_ASSERT (element1 != NULL);
-  //     /* Get the tree2 that stores the elements */ 
-  //     tree2 = t8_forest_get_tree (forest, itree1);
-  //     /* Get the eclass scheme of the trees */
-  //     ts2 = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree1));
-  //     elems_in_tree2 = (t8_locidx_t) t8_element_array_get_count (&tree2->elements);
-  //     for (element_index2 = 0; element_index2 < elems_in_tree2; element_index2++){
-  //       t8_global_productionf (" element_index2: %i \n", element_index2);
-  //     // for (itree2 = 1; itree2 < num_children1 + 1; itree2++) {
-  //       /* Get a pointer to the element of eclass2 */
-  //       element2 = t8_forest_get_element_2_5D (forest, tree2->elements_offset + element_index2, NULL, 2);
-  //       //ts = ...;
-  //       T8_ASSERT (element2 != NULL);
-  //       scheme_2_5D = forest->scheme_comb_cxx->eclass_schemes_comb[t8_forest_get_tree_class (forest, itree1 - 1)][t8_forest_get_tree_class (forest, itree1)];
-  //       t8_global_productionf (" scheme_2_5D %i \n", scheme_2_5D);
-  //       //scheme_2_5D = t8_forest_get_eclass_scheme_2_5D (forest, t8_forest_get_tree_class (forest, itree1), t8_forest_get_tree_class (forest, itree1 + 1));
-  //       t8_eclass_t eclass = scheme_2_5D->t8_element_get_eclass(2);
-  //       t8_global_productionf (" eclass %i \n", eclass);
-  //       t8_global_productionf("element1->x: %li \n", scheme_2_5D->t8_element_get_variable (const_cast<t8_element*>(element1), 1, 1));
-  //       t8_global_productionf("element1->y: %li \n", scheme_2_5D->t8_element_get_variable (const_cast<t8_element*>(element1), 2, 1));
-  //       //t8_global_productionf("element2->x: %li \n", ts2->t8_element_get_variable (const_cast<t8_element*>(element2), 1));
-  //       t8_global_productionf("element2->x: %li \n", scheme_2_5D->t8_element_get_variable (const_cast<t8_element*>(element2), 1, 2));
-  //       /* Execute the given callback on each element */
-  //       if (!kernel (forest, ltree_id1, ltree_id1 + 1 + element_index2,
-  //                   tree1, tree2, element_index1, element_index2, 
-  //                   element1, element2, scheme_2_5D, 0, vtufile, &countcols, &data,
-  //                  T8_VTK_KERNEL_EXECUTE)) {
-  //         /* call the kernel in clean-up modus */
-  //         kernel (NULL, 0, 0, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //         return 0;
-  //       } 
-  //     }
-  //     /* After max_columns we break the line */
-  //     if (!(countcols % max_columns)) {
-  //       freturn = fprintf (vtufile, "\n         ");
-  //       if (freturn <= 0) {
-  //         /* call the kernel in clean-up modus */
-  //         kernel (NULL, 0, 0, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //         return 0;
-  //       }
-  //       t8_global_productionf (" Test \n");
-  //     }
-  //     itree1++;
-  //     t8_global_productionf (" itree1++ %i \n", itree1);
-  //     if (itree1 == elems_in_tree1 + 1) {
-  //       ltree_id1 = itree1;
-  //       t8_global_productionf (" ltree_id1: %i \n", ltree_id1);
-  //     }
-  //   } /* element loop ends here */
-  //   /* Get the tree that stores the elements */
-  //   tree = t8_forest_get_tree (forest, itree);
-  //   /* Get the eclass scheme of the trees */
-  //   ts = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-  //   elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-  //   for (element_index = 0; element_index < elems_in_tree; element_index++) {
-  //     /* Get a pointer to the element */
-  //     element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-  //     T8_ASSERT (element != NULL);
-  //     /* Execute the given callback on each element */
-  //     if (!kernel (forest, itree, tree, element_index, element, ts, 0, vtufile, &countcols, &data,
-  //                  T8_VTK_KERNEL_EXECUTE)) {
-  //       /* call the kernel in clean-up modus */
-  //       kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //       return 0;
-  //     }
-  //     /* After max_columns we break the line */
-  //     if (!(countcols % max_columns)) {
-  //       freturn = fprintf (vtufile, "\n         ");
-  //       if (freturn <= 0) {
-  //         /* call the kernel in clean-up modus */
-  //         kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //         return 0;
-  //       }
-  //     }
-  //   } /* element loop ends here */
-  //   if (freturn <= 0) {
-  //     /* call the kernel in clean-up modus */
-  //     kernel (NULL, 0, 0, NULL, NULL, 0, 0, NULL, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //     return 0;
-  //   }
-  // } /* tree loop ends here */
-
-  // if (write_ghosts) {
-  //   t8_locidx_t num_ghosts_in_tree;
-  //   /* Iterate over the ghost elements */
-  //   /* TODO: replace with an element iterator */
-  //   num_ghost_trees = t8_forest_ghost_num_trees (forest);
-  //   for (ighost = 0; ighost < num_ghost_trees; ighost++) {
-  //     /* Get the eclass scheme of the ghost tree */
-  //     ts = t8_forest_get_eclass_scheme (forest, t8_forest_ghost_get_tree_class (forest, ighost));
-  //     /* The number of ghosts in this tree */
-  //     num_ghosts_in_tree = t8_forest_ghost_tree_num_elements (forest, ighost);
-  //     for (element_index = 0; element_index < num_ghosts_in_tree; element_index++) {
-  //       /* Get a pointer to the element */
-  //       element = t8_forest_ghost_get_element (forest, ighost, element_index);
-  //       /* Execute the given callback on each element */
-  //       if (!kernel (forest, ighost + num_local_trees, NULL, element_index, element, ts, 1, vtufile, &countcols, &data,
-  //                    T8_VTK_KERNEL_EXECUTE)) {
-  //         /* call the kernel in clean-up modus */
-  //         kernel (NULL, 0, NULL, 0, NULL, NULL, 1, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //         return 0;
-  //       }
-  //       /* After max_columns we break the line */
-  //       if (!(countcols % max_columns)) {
-  //         freturn = fprintf (vtufile, "\n         ");
-  //         if (freturn <= 0) {
-  //           /* call the kernel in clean-up modus */
-  //           kernel (NULL, 0, NULL, 0, NULL, NULL, 1, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //           return 0;
-  //         }
-  //       }
-  //     } /* element loop ends here */
-  //     if (freturn <= 0) {
-  //       /* call the kernel in clean-up modus */
-  //       kernel (NULL, 0, NULL, 0, NULL, NULL, 1, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  //       return 0;
-  //     }
-  //   } /* ghost loop ends here */
-  // }   /* write_ghosts ends here */
-  // /* call the kernel in clean-up modus */
-  // kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-  // freturn = fprintf (vtufile, "\n        </DataArray>\n");
-  // if (freturn <= 0) {
-  //   return 0;
-  // }
-
-  return 1;
-}
-
-// /* Iterate over all cells and write cell data to the file using
-//  * the cell_data_kernel as callback */
-// static int
-// t8_forest_vtk_write_cell_data_2_5D (t8_forest_t forest, FILE *vtufile, const char *dataname, const char *datatype,
-//                                const char *component_string, const int max_columns,
-//                                t8_forest_vtk_cell_data_kernel kernel, const int write_ghosts, void *udata)
-// {
-//   int freturn;
-//   int countcols;
-//   t8_tree_t tree1;
-//   t8_tree_t tree2;
-//   t8_tree_t tree;
-//   t8_locidx_t itree, ighost;
-//   t8_locidx_t element_index1, element_index2;
-//   t8_locidx_t elems_in_tree1, elems_in_tree2;
-//   t8_locidx_t num_local_trees, num_ghost_trees;
-//   t8_element_t *element1, *element2;
-//   t8_eclass_scheme_c *ts1, *ts2;
-//   void *data = NULL;
-
-//   /* Write the connectivity information.
-//    * Thus for each tree we write the indices of its corner vertices. */
-//   freturn = fprintf (vtufile,
-//                      "        <DataArray type=\"%s\" "
-//                      "Name=\"%s\" %s format=\"ascii\">\n         ",
-//                      datatype, dataname, component_string);
-//   if (freturn <= 0) {
-//     return 0;
-//   }
-
-//   t8_global_productionf ("freturn: %i \n", freturn);
-
-//   /* if udata != NULL, use it as the data pointer, in this case, the kernel
-//    * should not modify it */
-//   if (udata != NULL) {
-//     data = udata;
-//   }
-
-//   /* Call the kernel in initialization modus to possibly initialize the
-//    * data pointer */
-//   kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_INIT);
-//   /* We iterate over the trees and count each trees vertices,
-//    * we add this to the already counted vertices and write it to the file */
-//   /* TODO: replace with an element iterator */
-
-//   t8_global_productionf ("Done. \n");
-
-//   num_local_trees = t8_forest_get_num_local_trees (forest);
-//   for (itree = 0, countcols = 0; itree < num_local_trees; itree+=2) {
-//     /* Get the tree that stores the elements */
-//     tree1 = t8_forest_get_tree (forest, itree);
-//     tree2 = t8_forest_get_tree (forest, itree + 1);
-//     /* Get the eclass scheme of the tree */
-//     ts1 = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-//     ts2 = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree + 1));
-
-//     //ab hier weiter 
-//     elems_in_tree1 = (t8_locidx_t) t8_element_array_get_count (&tree1->elements);
-//     elems_in_tree2 = (t8_locidx_t) t8_element_array_get_count (&tree2->elements);
-//     for (element_index1 = 0; element_index1 < elems_in_tree1; element_index1++) {
-//       t8_global_productionf ("---------------------- \n");
-//       t8_global_productionf ("element_index1: %i \n", element_index1);
-//       /* Get a pointer to the element in tree 1 */
-//       element1 = t8_forest_get_element_2_5D (forest, tree1->elements_offset + element_index1, NULL, 1); //HIER ist der Fehler
-//       t8_global_productionf("element1->x: %li \n", ts1->t8_element_get_variable (const_cast<t8_element*>(element1), 1, 1));
-//       t8_global_productionf("element1->y: %li \n", ts1->t8_element_get_variable (const_cast<t8_element*>(element1), 2, 1));
-//       t8_global_productionf("element1->type: %i \n", t8_forest_get_tree_class (forest, itree));
-//       T8_ASSERT (element1 != NULL);
-//       // /* Execute the given callback on each element */
-//       if (!kernel (forest, itree, tree1, element_index1, element1, ts1, 0, vtufile, &countcols, &data,
-//                   T8_VTK_KERNEL_EXECUTE)) {
-//         /* call the kernel in clean-up modus */
-//         t8_global_productionf ("Test1. \n");
-//         kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, 
-//         &data, T8_VTK_KERNEL_CLEANUP);
-//         return 0;
-//       }
-//       t8_global_productionf ("Test1. \n");
-//       for (element_index2 = 0; element_index2 < elems_in_tree2; element_index2++) {
-//         t8_global_productionf ("element_index2: %i \n", element_index2);
-//         /* Get a pointer to the element in tree 2 */
-//         element2 = t8_forest_get_element_2_5D (forest, tree2->elements_offset + element_index2, NULL, 2);
-//         T8_ASSERT (element2 != NULL);
-//         //t8_global_productionf ("Test2. \n");
-//         /* Execute the given callback on each element */
-//         if (!kernel (forest, itree + 1, tree2, element_index2, element2, ts2, 0, vtufile, &countcols, &data,
-//                 T8_VTK_KERNEL_EXECUTE)) {
-//         /* call the kernel in clean-up modus */
-//         kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//         return 0;
-//       }
-//       }
-//       // /* Execute the given callback on each element */
-//       // if (!kernel (forest, itree, tree1, element_index1, element1, ts1, 0, vtufile, &countcols, &data,
-//       //           T8_VTK_KERNEL_EXECUTE) && 
-//       //     !kernel (forest, itree + 1, tree2, element_index2, element2, ts2, 0, vtufile, &countcols, &data,
-//       //           T8_VTK_KERNEL_EXECUTE)) {
-//       //   /* call the kernel in clean-up modus */
-//       //   kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//       //   return 0;
-//       // }
-//       /* After max_columns we break the line */
-//       if (!(countcols % max_columns)) {
-//         freturn = fprintf (vtufile, "\n         ");
-//         if (freturn <= 0) {
-//           /* call the kernel in clean-up modus */
-//           kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//           return 0;
-//         }
-//       }
-//       t8_global_productionf ("Test2. \n");
-//     } /* element loop ends here */
-//     if (freturn <= 0) {
-//       /* call the kernel in clean-up modus */
-//       kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//       return 0;
-//     }
-//   } /* tree loop ends here */
-//   t8_global_productionf ("Test3. \n");
-
-//   if (write_ghosts) {
-//     t8_locidx_t num_ghosts_in_tree;
-//     /* Iterate over the ghost elements */
-//     /* TODO: replace with an element iterator */
-//     num_ghost_trees = t8_forest_ghost_num_trees (forest);
-//     // for (ighost = 0; ighost < num_ghost_trees; ighost++) {
-//     //   /* Get the eclass scheme of the ghost tree */
-//     //   ts = t8_forest_get_eclass_scheme (forest, t8_forest_ghost_get_tree_class (forest, ighost));
-//     //   /* The number of ghosts in this tree */
-//     //   num_ghosts_in_tree = t8_forest_ghost_tree_num_elements (forest, ighost);
-//     //   for (element_index = 0; element_index < num_ghosts_in_tree; element_index++) {
-//     //     /* Get a pointer to the element */
-//     //     element = t8_forest_ghost_get_element (forest, ighost, element_index);
-//     //     /* Execute the given callback on each element */
-//     //     if (!kernel (forest, ighost + num_local_trees, NULL, element_index, element, ts, 1, vtufile, &countcols, &data,
-//     //                  T8_VTK_KERNEL_EXECUTE)) {
-//     //       /* call the kernel in clean-up modus */
-//     //       kernel (NULL, 0, NULL, 0, NULL, NULL, 1, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//     //       return 0;
-//     //     }
-//     //     /* After max_columns we break the line */
-//     //     if (!(countcols % max_columns)) {
-//     //       freturn = fprintf (vtufile, "\n         ");
-//     //       if (freturn <= 0) {
-//     //         /* call the kernel in clean-up modus */
-//     //         kernel (NULL, 0, NULL, 0, NULL, NULL, 1, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//     //         return 0;
-//     //       }
-//     //     }
-//     //   } /* element loop ends here */
-//     //   if (freturn <= 0) {
-//     //     /* call the kernel in clean-up modus */
-//     //     kernel (NULL, 0, NULL, 0, NULL, NULL, 1, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//     //     return 0;
-//     //   }
-//     // } /* ghost loop ends here */
-//   }   /* write_ghosts ends here */
-//   /* call the kernel in clean-up modus */
-//   kernel (NULL, 0, NULL, 0, NULL, NULL, 0, NULL, NULL, &data, T8_VTK_KERNEL_CLEANUP);
-//   freturn = fprintf (vtufile, "\n        </DataArray>\n");
-//   if (freturn <= 0) {
-//     return 0;
-//   }
-//   t8_global_productionf ("Test4. \n");
-//   return 1;
-// }
-
 /* Write the cell data to an open file stream.
  * Returns true on success and zero otherwise.
  * After completion the file will remain open, whether writing
@@ -1581,15 +1104,12 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
 
   /* Write the connectivity information.
    * Thus for each tree we write the indices of its corner vertices. */
-  if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "connectivity", T8_VTK_LOCIDX, "", 8,
+  t8_global_productionf ("-------------------. \n");
+  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 1");
+  t8_global_productionf ("-------------------. \n");
+  freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "connectivity", T8_VTK_LOCIDX, "", 8,
                                            t8_forest_vtk_cells_connectivity_kernel, write_ghosts, NULL);
-  }
-  else {
-    t8_global_productionf ("Else case \n");
-    freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "connectivity", T8_VTK_LOCIDX, "", 8,
-                                           t8_forest_vtk_cells_connectivity_kernel_2_5D, write_ghosts, NULL);
-  }
+  
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
@@ -1602,15 +1122,11 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
    * For example if the trees are a square and a triangle, the offsets would
    * be 4 and 7, since indices 0,1,2,3 refer to the vertices of the square
    * and indices 4,5,6 to the indices of the triangle. */
-  if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "offsets", T8_VTK_LOCIDX, "", 8,
+  t8_global_productionf ("-------------------. \n");
+  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 2");
+  t8_global_productionf ("-------------------. \n");
+  freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "offsets", T8_VTK_LOCIDX, "", 8,
                                            t8_forest_vtk_cells_offset_kernel, write_ghosts, NULL);
-  }
-  else {
-    t8_global_productionf ("Else case \n");
-    // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "offsets", T8_VTK_LOCIDX, "", 8,
-                                          //  t8_forest_vtk_cells_offset_kernel, write_ghosts, NULL);
-  }
   
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
@@ -1620,15 +1136,11 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
 
   /* Write the element types. The type specifies the element class, thus
    * square/triangle/tet etc. */
-  if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "types", "Int32", "", 8, t8_forest_vtk_cells_type_kernel,
+  t8_global_productionf ("-------------------. \n");
+  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 3");
+  t8_global_productionf ("-------------------. \n");
+  freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "types", "Int32", "", 8, t8_forest_vtk_cells_type_kernel,
                                            write_ghosts, NULL);
-  }
-  else {
-    t8_global_productionf ("Else case \n");
-    // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "types", "Int32", "", 8, t8_forest_vtk_cells_type_kernel,
-                                          //  write_ghosts, NULL);
-  }
   
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
@@ -1649,15 +1161,11 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   if (write_treeid) {
     /* Write the tree ids. */
     t8_global_productionf ("Write tree ids \n");
-    if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "treeid", T8_VTK_GLOIDX, "", 8,
+    t8_global_productionf ("-------------------. \n");
+    t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 4");
+    t8_global_productionf ("-------------------. \n");
+    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "treeid", T8_VTK_GLOIDX, "", 8,
                                              t8_forest_vtk_cells_treeid_kernel, write_ghosts, NULL);
-    }
-    else {
-      t8_global_productionf ("Else case \n");
-      // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "treeid", T8_VTK_GLOIDX, "", 8,
-                                            //  t8_forest_vtk_cells_treeid_kernel, write_ghosts, NULL);
-    }
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
@@ -1666,15 +1174,9 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
   if (write_mpirank) {
     /* Write the mpiranks. */
-    if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "mpirank", "Int32", "", 8,
+    t8_global_productionf ("Write mpiranks \n");
+    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "mpirank", "Int32", "", 8,
                                              t8_forest_vtk_cells_rank_kernel, write_ghosts, NULL);
-    }
-    else {
-      t8_global_productionf ("Else case \n");
-      // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "mpirank", "Int32", "", 8,
-                                            //  t8_forest_vtk_cells_rank_kernel, write_ghosts, NULL);
-    }
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
@@ -1683,14 +1185,18 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
   if (write_level) {
     /* Write the element refinement levels. */
-    if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
+    t8_global_productionf ("Write element refinement levels \n");
+    if (forest->set_type == 1){
       freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level", "Int32", "", 8, t8_forest_vtk_cells_level_kernel,
                                              write_ghosts, NULL);
     }
-    else {
-      t8_global_productionf ("Else case \n");
-      // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "level", "Int32", "", 8, t8_forest_vtk_cells_level_kernel,
-                                            //  write_ghosts, NULL);
+    else if (forest->set_type == 2){
+      // freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level1, level2", "Int32", "", 8, t8_forest_vtk_cells_level_kernel,
+      //                                        write_ghosts, NULL);
+      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level1", "Int32", "", 8, t8_forest_vtk_cells_level_kernel_1,
+                                             write_ghosts, NULL);
+      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level2", "Int32", "", 8, t8_forest_vtk_cells_level_kernel_2,
+                                             write_ghosts, NULL);
     }
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
@@ -1705,15 +1211,10 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
 
     /* Use 32 bit ints if the global element count fits, 64 bit otherwise. */
     datatype = forest->global_num_elements > T8_LOCIDX_MAX ? T8_VTK_GLOIDX : T8_VTK_LOCIDX;
-    if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "element_id", datatype, "", 8,
+
+    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "element_id", datatype, "", 8,
                                              t8_forest_vtk_cells_elementid_kernel, write_ghosts, NULL);
-    }
-    else {
-      t8_global_productionf ("Else case \n");
-      // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "element_id", datatype, "", 8,
-                                            //  t8_forest_vtk_cells_elementid_kernel, write_ghosts, NULL);
-    }
+
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
@@ -1723,31 +1224,18 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   /* Write the user defined data fields per element */
   for (idata = 0; idata < num_data; idata++) {
     if (data[idata].type == T8_VTK_SCALAR) {
-      if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-        freturn = t8_forest_vtk_write_cell_data (forest, vtufile, data[idata].description, T8_VTK_FLOAT_NAME, "", 8,
+      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, data[idata].description, T8_VTK_FLOAT_NAME, "", 8,
                                                t8_forest_vtk_cells_scalar_kernel, write_ghosts, data[idata].data);
-      }
-      else {
-        t8_global_productionf ("Else case \n");
-        // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, data[idata].description, T8_VTK_FLOAT_NAME, "", 8,
-        //                                        t8_forest_vtk_cells_scalar_kernel, write_ghosts, data[idata].data);
-      }
+
     }
     else {
       char component_string[BUFSIZ];
       T8_ASSERT (data[idata].type == T8_VTK_VECTOR);
       snprintf (component_string, BUFSIZ, "NumberOfComponents=\"3\"");
-      if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-        freturn = t8_forest_vtk_write_cell_data (forest, vtufile, data[idata].description, T8_VTK_FLOAT_NAME,
+      freturn = t8_forest_vtk_write_cell_data (forest, vtufile, data[idata].description, T8_VTK_FLOAT_NAME,
                                                component_string, 8 * forest->dimension,
                                                t8_forest_vtk_cells_vector_kernel, write_ghosts, data[idata].data);
-      }
-      else {
-        t8_global_productionf ("Else case \n");
-        // freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, data[idata].description, T8_VTK_FLOAT_NAME,
-        //                                        component_string, 8 * forest->dimension,
-        //                                        t8_forest_vtk_cells_vector_kernel, write_ghosts, data[idata].data);
-      }
+
     }
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
@@ -1775,6 +1263,7 @@ static int
 t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_ghosts, const int num_data,
                             t8_vtk_data_field_t *data)
 {
+  t8_global_productionf ("t8_forest_vtk_write_points \n");
   int freturn;
   int sreturn;
   int idata;
@@ -1788,18 +1277,12 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
   if (freturn <= 0) {
     goto t8_forest_vtk_cell_failure;
   }
-
-  if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-    freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "Position", T8_VTK_FLOAT_NAME, "NumberOfComponents=\"3\"",
+  t8_global_productionf ("-------------------. \n");
+  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write points -- 1");
+  t8_global_productionf ("-------------------. \n");
+  freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "Position", T8_VTK_FLOAT_NAME, "NumberOfComponents=\"3\"",
                                            8, t8_forest_vtk_cells_vertices_kernel, write_ghosts, NULL);
-  }
-  else {
-    t8_global_productionf ("Else case \n");
-    freturn = t8_forest_vtk_write_cell_data_2_5D (forest, vtufile, "Position", T8_VTK_FLOAT_NAME, "NumberOfComponents=\"3\"",
-                                           8, t8_forest_vtk_cells_vertices_kernel_2_5D, write_ghosts, NULL);
-  }
   
-  t8_global_productionf ("t8_forest_vtk_write_cell_data");
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
@@ -1821,6 +1304,9 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
           /* The output was truncated */
           t8_debugf ("Warning: Truncated vtk point data description to '%s'\n", description);
         }
+        t8_global_productionf ("-------------------. \n");
+        t8_global_productionf ("t8_forest_vtk_write_cell_data -- write points -- 2");
+        t8_global_productionf ("-------------------. \n");
         freturn = t8_forest_vtk_write_cell_data (forest, vtufile, description, T8_VTK_FLOAT_NAME, "", 8,
                                                  t8_forest_vtk_vertices_scalar_kernel, write_ghosts, data[idata].data);
       }
@@ -1837,7 +1323,9 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
            * do not check the return value of snprintf. */
           t8_debugf ("Warning: Truncated vtk point data description to '%s'\n", description);
         }
-
+        t8_global_productionf ("-------------------. \n");
+        t8_global_productionf ("t8_forest_vtk_write_cell_data -- write points -- 3");
+        t8_global_productionf ("-------------------. \n");
         freturn = t8_forest_vtk_write_cell_data (forest, vtufile, description, T8_VTK_FLOAT_NAME, component_string,
                                                  8 * forest->dimension, t8_forest_vtk_vertices_vector_kernel,
                                                  write_ghosts, data[idata].data);
@@ -1877,10 +1365,19 @@ t8_forest_vtk_write_ASCII (t8_forest_t forest, const char *fileprefix, const int
 
   /* process 0 creates the .pvtu file */
   if (forest->mpirank == 0) {
-    if (t8_write_pvtu (fileprefix, forest->mpisize, write_treeid, write_mpirank, write_level, write_element_id,
+    if (forest->set_type == 2 && write_level == 1) {
+      if (t8_write_pvtu (fileprefix, forest->mpisize, write_treeid, write_mpirank, write_level + 1, write_element_id,
                        num_data, data)) {
-      t8_errorf ("Error when writing file %s.pvtu\n", fileprefix);
-      goto t8_forest_vtk_failure;
+        t8_errorf ("Error when writing file %s.pvtu\n", fileprefix);
+        goto t8_forest_vtk_failure;
+      }
+    }
+    else {
+      if (t8_write_pvtu (fileprefix, forest->mpisize, write_treeid, write_mpirank, write_level, write_element_id,
+                        num_data, data)) {
+        t8_errorf ("Error when writing file %s.pvtu\n", fileprefix);
+        goto t8_forest_vtk_failure;
+      }
     }
   }
 
@@ -1915,7 +1412,6 @@ t8_forest_vtk_write_ASCII (t8_forest_t forest, const char *fileprefix, const int
   if (freturn <= 0) {
     goto t8_forest_vtk_failure;
   }
-  t8_global_productionf ("Test8");
 #ifdef SC_IS_BIGENDIAN
   freturn = fprintf (vtufile, " byte_order=\"BigEndian\">\n");
 #else
@@ -1933,13 +1429,12 @@ t8_forest_vtk_write_ASCII (t8_forest_t forest, const char *fileprefix, const int
   if (freturn <= 0) {
     goto t8_forest_vtk_failure;
   }
-  t8_global_productionf ("Test9");
   /* write the point data */
   if (!t8_forest_vtk_write_points (forest, vtufile, write_ghosts, num_data, data)) {
     /* writings points was not successful */
     goto t8_forest_vtk_failure;
   }
-  t8_global_productionf ("Test10");
+  t8_global_productionf ("Next.");
   /* write the cell data */
   if (!t8_forest_vtk_write_cells (forest, vtufile, write_treeid, write_mpirank, write_level, write_element_id,
                                   write_ghosts, num_data, data)) {                                
@@ -2250,254 +1745,6 @@ t8_cmesh_vtk_write_file_ext (const t8_cmesh_t cmesh, const char *fileprefix, con
     fclose (vtufile);
   }
   return 1;
-}
-
-static int
-t8_cmesh_vtk_write_file_ext_2_5D (t8_cmesh_t cmesh, const char *fileprefix, int write_ghosts)
-{
-  T8_ASSERT (cmesh != NULL);
-  T8_ASSERT (t8_cmesh_is_committed (cmesh));
-  T8_ASSERT (fileprefix != NULL);
-
-  if (cmesh->mpirank == 0) {
-    /* Write the pvtu header file. */
-    int num_ranks_that_write = cmesh->set_partition ? cmesh->mpisize : 1;
-    if (t8_write_pvtu (fileprefix, num_ranks_that_write, 1, 1, 0, 0, 0, NULL)) {
-      SC_ABORTF ("Error when writing file %s.pvtu\n", fileprefix);
-    }
-  }
-  /* If the cmesh is replicated only rank 0 prints it,
-   * otherwise each process prints its part of the cmesh.*/
-  if (cmesh->mpirank == 0 || cmesh->set_partition) {
-    char vtufilename[BUFSIZ];
-    FILE *vtufile;
-    t8_locidx_t num_vertices, ivertex;
-    t8_locidx_t num_trees;
-    t8_ctree_t tree;
-    double x, y, z;
-    double *vertices, *vertex;
-    int k, sk;
-    long long offset, count_vertices;
-    t8_locidx_t ighost, num_ghosts = 0, num_loc_trees;
-#ifdef T8_ENABLE_DEBUG
-    t8_cghost_t ghost;
-#endif
-    t8_eclass_t eclass;
-
-    num_vertices = t8_cmesh_get_num_vertices (cmesh, write_ghosts);
-    num_trees = t8_cmesh_get_num_local_trees (cmesh);
-    if (write_ghosts) {
-      num_trees += t8_cmesh_get_num_ghosts (cmesh);
-    }
-
-    snprintf (vtufilename, BUFSIZ, "%s_%04d.vtu", fileprefix, cmesh->mpirank);
-    vtufile = fopen (vtufilename, "wb");
-    if (vtufile == NULL) {
-      t8_global_errorf ("Could not open file %s for output.\n", vtufilename);
-      return -1;
-    }
-    fprintf (vtufile, "<?xml version=\"1.0\"?>\n");
-    fprintf (vtufile, "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\"");
-#ifdef SC_IS_BIGENDIAN
-    fprintf (vtufile, " byte_order=\"BigEndian\">\n");
-#else
-    fprintf (vtufile, " byte_order=\"LittleEndian\">\n");
-#endif
-    fprintf (vtufile, "  <UnstructuredGrid>\n");
-    fprintf (vtufile, "    <Piece NumberOfPoints=\"%lld\" NumberOfCells=\"%lld\">\n", (long long) num_vertices,
-             (long long) num_trees);
-    fprintf (vtufile, "      <Points>\n");
-
-    /* write point position data */
-    fprintf (vtufile,
-             "        <DataArray type=\"%s\" Name=\"Position\""
-             " NumberOfComponents=\"3\" format=\"%s\">\n",
-             T8_VTK_FLOAT_NAME, T8_VTK_FORMAT_STRING);
-
-    for (tree = t8_cmesh_get_first_tree (cmesh); tree != NULL; tree = t8_cmesh_get_next_tree (cmesh, tree)) {
-      /*  TODO: Use new geometry here. Need cmesh_get_reference coords function. */
-      vertices = t8_cmesh_get_tree_vertices (cmesh, tree->treeid);
-      for (ivertex = 0; ivertex < t8_eclass_num_vertices[tree->eclass]; ivertex++) {
-        vertex = vertices + 3 * t8_eclass_t8_to_vtk_corner_number[tree->eclass][ivertex];
-        x = vertex[0];
-        y = vertex[1];
-        z = vertex[2];
-#ifdef T8_VTK_DOUBLES
-        fprintf (vtufile, "     %24.16e %24.16e %24.16e\n", x, y, z);
-#else
-        fprintf (vtufile, "          %16.8e %16.8e %16.8e\n", x, y, z);
-#endif
-      }
-    } /* end tree loop */
-    if (write_ghosts) {
-
-      /* Write the vertices of the ghost trees */
-      num_ghosts = t8_cmesh_get_num_ghosts (cmesh);
-      num_loc_trees = t8_cmesh_get_num_local_trees (cmesh);
-      for (ighost = 0; ighost < num_ghosts; ighost++) {
-        /* Get the eclass of this ghost */
-        eclass = t8_cmesh_get_ghost_class (cmesh, ighost);
-        /* Get a pointer to this ghosts vertices */
-        vertices = (double *) t8_cmesh_get_attribute (cmesh, t8_get_package_id (), 0, ighost + num_loc_trees);
-        T8_ASSERT (vertices != NULL);
-        /* TODO: This code is duplicated above */
-        for (ivertex = 0; ivertex < t8_eclass_num_vertices[eclass]; ivertex++) {
-          vertex = vertices + 3 * t8_eclass_vtk_to_t8_corner_number[eclass][ivertex];
-          x = vertex[0];
-          y = vertex[1];
-          z = vertex[2];
-#ifdef T8_VTK_DOUBLES
-          fprintf (vtufile, "     %24.16e %24.16e %24.16e\n", x, y, z);
-#else
-          fprintf (vtufile, "          %16.8e %16.8e %16.8e\n", x, y, z);
-#endif
-        }
-      } /* end ghost loop */
-    }
-    fprintf (vtufile, "        </DataArray>\n");
-    fprintf (vtufile, "      </Points>\n");
-    fprintf (vtufile, "      <Cells>\n");
-
-    /* write connectivity data */
-    fprintf (vtufile,
-             "        <DataArray type=\"%s\" Name=\"connectivity\""
-             " format=\"%s\">\n",
-             T8_VTK_LOCIDX, T8_VTK_FORMAT_STRING);
-    for (tree = t8_cmesh_get_first_tree (cmesh), count_vertices = 0; tree != NULL;
-         tree = t8_cmesh_get_next_tree (cmesh, tree)) {
-      fprintf (vtufile, "         ");
-      for (k = 0; k < t8_eclass_num_vertices[tree->eclass]; ++k, count_vertices++) {
-        fprintf (vtufile, " %lld", count_vertices);
-      }
-      fprintf (vtufile, "\n");
-    }
-    if (write_ghosts) {
-      /* Write the ghost connectivity */
-      for (ighost = 0; ighost < num_ghosts; ighost++) {
-        eclass = t8_cmesh_get_ghost_class (cmesh, ighost);
-        fprintf (vtufile, "         ");
-        for (k = 0; k < t8_eclass_num_vertices[eclass]; ++k, count_vertices++) {
-          fprintf (vtufile, " %lld", count_vertices);
-        }
-        fprintf (vtufile, "\n");
-      }
-    }
-    fprintf (vtufile, "        </DataArray>\n");
-
-    /* write offset data */
-    fprintf (vtufile,
-             "        <DataArray type=\"%s\" Name=\"offsets\""
-             " format=\"%s\">\n",
-             T8_VTK_LOCIDX, T8_VTK_FORMAT_STRING);
-    fprintf (vtufile, "         ");
-    for (tree = t8_cmesh_get_first_tree (cmesh), sk = 1, offset = 0; tree != NULL;
-         tree = t8_cmesh_get_next_tree (cmesh, tree), ++sk) {
-      offset += t8_eclass_num_vertices[tree->eclass];
-      fprintf (vtufile, " %lld", offset);
-      if (!(sk % 8))
-        fprintf (vtufile, "\n         ");
-    }
-    if (write_ghosts) {
-      /* ghost offset data */
-      for (ighost = 0; ighost < num_ghosts; ighost++, ++sk) {
-        eclass = t8_cmesh_get_ghost_class (cmesh, ighost);
-        offset += t8_eclass_num_vertices[eclass];
-        fprintf (vtufile, " %lld", offset);
-        if (!(sk % 8))
-          fprintf (vtufile, "\n         ");
-      }
-    }
-    fprintf (vtufile, "\n");
-    fprintf (vtufile, "        </DataArray>\n");
-    /* write type data */
-    fprintf (vtufile,
-             "        <DataArray type=\"UInt8\" Name=\"types\""
-             " format=\"%s\">\n",
-             T8_VTK_FORMAT_STRING);
-    fprintf (vtufile, "         ");
-    for (tree = t8_cmesh_get_first_tree (cmesh), sk = 1; tree != NULL;
-         tree = t8_cmesh_get_next_tree (cmesh, tree), ++sk) {
-      fprintf (vtufile, " %d", t8_eclass_vtk_type[tree->eclass]);
-      if (!(sk % 20) && tree->treeid != (cmesh->num_local_trees - 1))
-        fprintf (vtufile, "\n         ");
-    }
-    if (write_ghosts) {
-      /* ghost offset types */
-      for (ighost = 0; ighost < num_ghosts; ighost++, ++sk) {
-        eclass = t8_cmesh_get_ghost_class (cmesh, ighost);
-        fprintf (vtufile, " %d", t8_eclass_vtk_type[eclass]);
-        if (!(sk % 20) && ighost != (num_ghosts - 1))
-          fprintf (vtufile, "\n         ");
-      }
-    }
-    fprintf (vtufile, "\n");
-    fprintf (vtufile, "        </DataArray>\n");
-    fprintf (vtufile, "      </Cells>\n");
-    /* write treeif data */
-    fprintf (vtufile, "      <CellData Scalars=\"treeid,mpirank\">\n");
-    fprintf (vtufile,
-             "        <DataArray type=\"%s\" Name=\"treeid\""
-             " format=\"%s\">\n",
-             T8_VTK_GLOIDX, T8_VTK_FORMAT_STRING);
-    fprintf (vtufile, "         ");
-    for (tree = t8_cmesh_get_first_tree (cmesh), sk = 1, offset = 0; tree != NULL;
-         tree = t8_cmesh_get_next_tree (cmesh, tree), ++sk) {
-      /* Since tree_id is actually 64 Bit but we store it as 32, we have to check
-       * that we do not get into conversion errors */
-      /* TODO: We switched to 32 Bit because Paraview could not handle 64 well enough.
-       */
-      T8_ASSERT (tree->treeid + cmesh->first_tree == (t8_gloidx_t) ((long) tree->treeid + cmesh->first_tree));
-      fprintf (vtufile, " %ld", (long) tree->treeid + cmesh->first_tree);
-      if (!(sk % 8))
-        fprintf (vtufile, "\n         ");
-    }
-    if (write_ghosts) {
-      /* ghost offset types */
-      for (ighost = 0; ighost < num_ghosts; ighost++, ++sk) {
-#ifdef T8_ENABLE_DEBUG
-        ghost = t8_cmesh_trees_get_ghost (cmesh->trees, ighost);
-        /* Check for conversion errors */
-        T8_ASSERT (ghost->treeid == (t8_gloidx_t) ((long) ghost->treeid));
-#endif
-        /* Write -1 as tree_id so that we can distinguish ghosts from normal trees
-         * in the vtk file */
-        fprintf (vtufile, " %ld", (long) -1);
-        if (!(sk % 8))
-          fprintf (vtufile, "\n         ");
-      }
-    }
-    fprintf (vtufile, "\n");
-    fprintf (vtufile, "        </DataArray>\n");
-    /* write mpirank data */
-    fprintf (vtufile,
-             "        <DataArray type=\"%s\" Name=\"mpirank\""
-             " format=\"%s\">\n",
-             "Int32", T8_VTK_FORMAT_STRING);
-    fprintf (vtufile, "         ");
-    for (tree = t8_cmesh_get_first_tree (cmesh), sk = 1, offset = 0; tree != NULL;
-         tree = t8_cmesh_get_next_tree (cmesh, tree), ++sk) {
-      fprintf (vtufile, " %i", cmesh->mpirank);
-      if (!(sk % 8))
-        fprintf (vtufile, "\n         ");
-    }
-    if (write_ghosts) {
-      /* write our rank for each ghost */
-      for (ighost = 0; ighost < num_ghosts; ighost++, ++sk) {
-        fprintf (vtufile, " %i", cmesh->mpirank);
-        if (!(sk % 8))
-          fprintf (vtufile, "\n         ");
-      }
-    }
-    fprintf (vtufile, "\n");
-    fprintf (vtufile, "        </DataArray>\n");
-    fprintf (vtufile, "      </CellData>\n");
-    /* write type data */
-    fprintf (vtufile, "    </Piece>\n");
-    fprintf (vtufile, "  </UnstructuredGrid>\n");
-    fprintf (vtufile, "</VTKFile>\n");
-    fclose (vtufile);
-  }
-  return 0;
 }
 
 int

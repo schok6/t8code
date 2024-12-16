@@ -28,28 +28,11 @@
 #define T8_2_5D_HXX
 
 #include <t8_element.h>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
 
-// /** Compute the linear id of a given element in a hypothetical uniform
-//  * refinement of given level for eclass1 and eclass2.
-//  * \param [in] elem     The element whose id we compute.
-//  * \param [in] level1   The level of eclass1 of the uniform refinement to consider.
-//  * \param [in] level2   The level of eclass2 of the uniform refinement to consider.
-//  * \return              The linear id of the element.
-//  * 
-//  */
-// int
-// t8_2_5D_get_linear_id (const t8_element_t *elem, int level1, int level2)
-
-// typedef struct t8_2_5D
-// {
-//   int8_t level;
-//   t8_dline_coord_t x;
-//   t8_dline_coord_t y;
-//   t8_dline_coord_t z;
-// } t8_2_5D_t;
-
-// void
-// t8_2_5D_init (t8_2_5D_t *el);
+typedef struct t8_2_5D
+{
+  t8_element_t *elem1;
+  t8_element_t *elem2;
+} t8_2_5D_t;
 
 #endif /* T8_2_5D_HXX */

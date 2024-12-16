@@ -72,6 +72,7 @@ typedef struct t8_forest
   int set_level;          /**< Level to use in new construction. */
   int set_level1;        /**< Level1 to use in new 2_5D construction. */
   int set_level2;        /**< Level2 to use in new 2_5D construction. */
+  int set_type;          /**< 2 for 2_5D, 1 for default*/
   int set_for_coarsening; /**< Change partition to allow
                                                      for one round of coarsening */
 
@@ -101,6 +102,7 @@ typedef struct t8_forest
                                              is set to T8_FOREST_FROM_ADAPT. */
   int set_adapt_recursive;        /**< Flag to decide whether coarsen and refine
                                                 are carried out recursive */
+  int set_adapt_direction;        /**< Set the direction to adapt for 2.5dimensions*/
   int set_balance;                /**< Flag to decide whether to forest will be balance in \ref t8_forest_commit.
                                              See \ref t8_forest_set_balance.
                                              If 0, no balance. If 1 balance with repartitioning, if 2 balance without

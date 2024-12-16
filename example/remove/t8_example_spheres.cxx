@@ -111,8 +111,8 @@ t8_construct_spheres (const int initial_level, const double radius_inner, const 
   struct t8_adapt_data adapt_data = { num_spheres, radius_inner, radius_outer, midpoints };
 
   forest = t8_forest_new_uniform (cmesh, t8_scheme_new_default_cxx (), initial_level, 0, sc_MPI_COMM_WORLD);
-  forest = t8_forest_new_adapt (forest, t8_adapt_callback_refine, 0, 0, &adapt_data);
-  forest = t8_forest_new_adapt (forest, t8_adapt_callback_remove, 0, 0, &adapt_data);
+  forest = t8_forest_new_adapt (forest, t8_adapt_callback_refine, 0, 0, 0, &adapt_data);
+  forest = t8_forest_new_adapt (forest, t8_adapt_callback_remove, 0, 0, 0, &adapt_data);
 
   t8_forest_write_vtk (forest, *vtuname);
   t8_debugf ("Output to %s\n", *vtuname);

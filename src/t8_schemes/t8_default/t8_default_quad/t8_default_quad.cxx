@@ -31,7 +31,7 @@ T8_EXTERN_C_BEGIN ();
 /* This function is used by other element functions and we thus need to
  * declare it up here */
 t8_linearidx_t
-t8_element_get_linear_id (const t8_element_t *elem, int level, int dir);
+t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir);
 
 #ifdef T8_ENABLE_DEBUG
 
@@ -241,32 +241,32 @@ t8_default_scheme_quad_c::t8_element_is_family (t8_element_t *const *fam) const
 }
 
 void
-t8_default_scheme_quad_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
+t8_default_scheme_quad_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
-  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << P4EST_DIM * level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
+  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << P4EST_DIM * levels[0]);
 
-  p4est_quadrant_set_morton ((p4est_quadrant_t *) elem, level, id);
+  p4est_quadrant_set_morton ((p4est_quadrant_t *) elem, levels[0], id);
   T8_QUAD_SET_TDIM ((p4est_quadrant_t *) elem, 2);
 }
 
 t8_linearidx_t
-t8_default_scheme_quad_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
+t8_default_scheme_quad_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
 
-  return p4est_quadrant_linear_id ((p4est_quadrant_t *) elem, level);
+  return p4est_quadrant_linear_id ((p4est_quadrant_t *) elem, levels[0]);
 }
 
 void
-t8_default_scheme_quad_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_quad_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
-  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
-  p4est_quadrant_first_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
+  p4est_quadrant_first_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, levels[0]);
   T8_QUAD_SET_TDIM ((p4est_quadrant_t *) desc, 2);
 }
 
@@ -705,7 +705,7 @@ t8_default_scheme_quad_c::t8_element_reference_coords (const t8_element_t *elem,
 }
 
 void
-t8_default_scheme_quad_c::t8_element_new (int length, t8_element_t **elem, int dir) const
+t8_default_scheme_quad_c::t8_element_new (int length, t8_element_t **elem) const
 {
   /* allocate memory for a quad */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -720,31 +720,8 @@ t8_default_scheme_quad_c::t8_element_new (int length, t8_element_t **elem, int d
   }
 }
 
-void
-t8_default_scheme_quad_c::t8_element_set_type (t8_element_t *elem, int dir) const
-{
-  if (dir == 1) {
-    p4est_quadrant_t *el1 = (p4est_quadrant_t *) elem;
-    el1->level = el1->x =  el1->y = 0;
-  }
-  else if (dir == 2) {
-    p4est_quadrant_t *el2 = (p4est_quadrant_t *) elem;
-    el2->level = el2->x =  el2->y = 0;
-  }
-  else {
-    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-  }
-}
-
-void
-t8_default_scheme_quad_c::t8_element_get_type (t8_element_t *elem) const
-{
-  p4est_quadrant_t *el = (p4est_quadrant_t *) elem;
-  // return el
-}
-
 int
-t8_default_scheme_quad_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+t8_default_scheme_quad_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   p4est_quadrant_t *el = (p4est_quadrant_t *) elem;
   //t8_element_init (1, elem);

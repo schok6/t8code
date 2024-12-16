@@ -82,7 +82,7 @@ class element_is_leaf: public testing::TestWithParam<std::tuple<int, cmesh_examp
     //const int maxlevel = t8_forest_get_maxlevel (forest);
     int maxlevel = 7;
     const int recursive_adapt = 1;
-    forest_adapt = t8_forest_new_adapt (forest, t8_test_adapt_first_child, recursive_adapt, 0, &maxlevel);
+    forest_adapt = t8_forest_new_adapt (forest, t8_test_adapt_first_child, recursive_adapt, 0, 0, &maxlevel);
   }
 
   void

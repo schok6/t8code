@@ -26,6 +26,9 @@
  * without the need of compiling it with C++.
  */
 
+#include <iostream>
+#include <vector>
+
 #include <t8_element.h>
 #include <t8_element.hxx>
 #include <t8_element_c_interface.h>
@@ -302,10 +305,13 @@ t8_element_last_descendant_face (const t8_eclass_scheme_c *ts, const t8_element_
 
 void
 t8_element_set_linear_id (const t8_eclass_scheme_c *ts, t8_element_t *elem, int level, t8_linearidx_t id)
+// t8_element_set_linear_id (const t8_eclass_scheme_c *ts, t8_element_t *elem, std::vector<int>& level, t8_linearidx_t id)
 {
   T8_ASSERT (ts != NULL);
 
-  ts->t8_element_set_linear_id (elem, level, id);
+  std::vector<int> levels = {level};
+
+  ts->t8_element_set_linear_id (elem, levels, id);
 }
 
 int
@@ -338,7 +344,9 @@ t8_element_get_linear_id (const t8_eclass_scheme_c *ts, const t8_element_t *elem
 {
   T8_ASSERT (ts != NULL);
 
-  return ts->t8_element_get_linear_id (elem, level);
+  std::vector<int> levels = {level};
+
+  return ts->t8_element_get_linear_id (elem, levels);
 }
 
 void
@@ -346,7 +354,9 @@ t8_element_first_descendant (const t8_eclass_scheme_c *ts, const t8_element_t *e
 {
   T8_ASSERT (ts != NULL);
 
-  ts->t8_element_first_descendant (elem, desc, level);
+  std::vector<int> levels = {level};
+
+  ts->t8_element_first_descendant (elem, desc, levels);
 }
 
 void

@@ -29,6 +29,9 @@
 #ifndef T8_FOREST_GENERAL_H
 #define T8_FOREST_GENERAL_H
 
+// #include <iostream>
+// #include <vector>
+
 #include <t8_cmesh.h>
 #include <t8_element.h>
 #include <t8_data/t8_containers.h>
@@ -738,11 +741,11 @@ t8_forest_get_cmesh (t8_forest_t forest);
 t8_element_t *
 t8_forest_get_element (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid);
 
-/**
- * TODO
-*/
-t8_element_t *
-t8_forest_get_element_2_5D (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid, int dir);
+// /**
+//  * TODO
+// */
+// t8_element_t *
+// t8_forest_get_element_2_5D (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid, int dir);
 
 /** Return an element of a local tree in a forest.
  * \param [in]      forest      The forest.
@@ -907,6 +910,8 @@ t8_forest_element_points_inside (t8_forest_t forest, t8_locidx_t ltreeid, const 
  * \ref t8_forest_set_scheme, \ref t8_forest_set_level, and \ref t8_forest_commit.
  */
 t8_forest_t
+// t8_forest_new_uniform (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const std::vector<int>& level, const int do_face_ghost,
+//                        sc_MPI_Comm comm);
 t8_forest_new_uniform (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int level, const int do_face_ghost,
                        sc_MPI_Comm comm);
 
@@ -914,15 +919,24 @@ t8_forest_new_uniform (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int leve
  * TODO
 */
 t8_forest_t
-t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh,  t8_scheme_cxx_t *scheme, t8_scheme_comb_cxx_t *scheme_comb, const int level1, 
+t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme,t8_scheme_comb_cxx_t *scheme_comb, const int level1, 
+                            const int level2, const int do_face_ghost, sc_MPI_Comm comm);
+
+/**
+ * TODO
+*/
+t8_forest_t
+t8_forest_new_uniform_2_5D_2 (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int level1, 
                             const int level2, const int do_face_ghost, sc_MPI_Comm comm);
 
 /** Build a adapted forest from another forest.
  * \param [in]    forest_from The forest to refine
- * \param [in]    adapt_fn    Adapt function to use
+ * \param [in]    adapt_fn    Adapt function to use 
  * \param [in]    replace_fn  Replace function to use
  * \param [in]    recursive   If true adptation is recursive
  * \param [in]    do_face_ghost If true, a layer of ghost elements is created for the forest.
+ * \param [in]    direction   zero for default scheme, for 2_5D_scheme: one if adaption done in x-y direction,
+ *                            two if adaption is done in columns
  * \param [in]    user_data   If not NULL, the user data pointer of the forest is set to this value.
  * \return        A new forest that is adapted from \a forest_from.
  * \note This is equivalent to calling \ref t8_forest_init, \ref t8_forest_set_adapt,
@@ -931,7 +945,7 @@ t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh,  t8_scheme_cxx_t *scheme, t8_schem
 /* TODO: make user_data const. */
 t8_forest_t
 t8_forest_new_adapt (t8_forest_t forest_from, t8_forest_adapt_t adapt_fn, int recursive, int do_face_ghost,
-                     void *user_data);
+                     int direction, void *user_data);
 
 /** Increase the reference counter of a forest.
  * \param [in,out] forest       On input, this forest must exist with positive

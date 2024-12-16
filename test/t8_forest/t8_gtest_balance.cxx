@@ -139,7 +139,7 @@ t8_gtest_obtain_forest_for_balance_tests (const std::vector<t8_gloidx_t> &trees_
   adapt_data.trees_to_refine = trees_to_refine;
   adapt_data.max_refinement_level = 2 + additional_refinement;
 
-  return t8_forest_new_adapt (forest, t8_gtest_balance_refine_certain_trees, 1, 0, &adapt_data);
+  return t8_forest_new_adapt (forest, t8_gtest_balance_refine_certain_trees, 1, 0, 0, &adapt_data);
 }
 
 /**

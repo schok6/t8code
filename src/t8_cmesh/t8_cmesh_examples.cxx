@@ -908,6 +908,8 @@ t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Co
     t8_cmesh_init (&cmesh);
     for (i = 0; i <= num_trees_for_eclass[eclasses[0]]; i+=2) {
     // for (i = 0; i < num_trees_for_2_5D[eclasses[0]][eclasses[1]]; i++) {
+      // t8_global_productionf ("eclasses[0] %i\n", eclasses[0]);
+      // t8_global_productionf ("eclasses[1] %i\n", eclasses[1]);
       t8_cmesh_set_tree_class_2_5D_1 (cmesh, i, eclasses[0], eclasses[1]);
       t8_cmesh_set_tree_class_2_5D_2 (cmesh, i + 1, eclasses[0], eclasses[1]);
     }
@@ -1027,6 +1029,10 @@ t8_cmesh_new_hypercube_2_5D (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Co
 
   /* Commit the constructed cmesh */
   t8_cmesh_commit (cmesh, comm);
+
+  // for (int eclass_it = T8_ECLASS_VERTEX; eclass_it < T8_ECLASS_COUNT; eclass_it++) {
+  //   t8_global_productionf ("cmesh->num_trees_per_eclass[eclass_it] %li\n", cmesh->num_trees_per_eclass[eclass_it]);
+  // }
   return cmesh;
 }
 

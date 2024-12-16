@@ -122,7 +122,7 @@ t8_example_netcdf_adapt (t8_forest_t forest)
   };
 
   /* Create the adapted forest with the given adapt_function. */
-  forest_adapt = t8_forest_new_adapt (forest, t8_example_netcdf_adapt_fn, 0, 0, &adapt_data);
+  forest_adapt = t8_forest_new_adapt (forest, t8_example_netcdf_adapt_fn, 0, 0, 0, &adapt_data);
 
   return forest_adapt;
 }

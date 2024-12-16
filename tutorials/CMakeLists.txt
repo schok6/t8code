@@ -43,9 +43,16 @@ add_t8_tutorial( NAME t8_step6_stencil                  SOURCES general/t8_step6
 add_t8_tutorial( NAME t8_step7_interpolation            SOURCES general/t8_step7_main.cxx general/t8_step7_interpolation.cxx )
 add_t8_tutorial( NAME t8_tutorial_build_cmesh           SOURCES general/t8_tutorial_build_cmesh.cxx general/t8_tutorial_build_cmesh_main.cxx)
 add_t8_tutorial( NAME t8_tutorial_search                SOURCES general/t8_tutorial_search.cxx general/t8_step3_adapt_forest.cxx )
+
 add_t8_tutorial( NAME t8_features_curved_meshes         SOURCES features/t8_features_curved_meshes.cxx)
 
 copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_hex.geo)
 copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_quad.geo)
 copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_tet.geo)
 copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_tri.geo)
+
+add_t8_tutorial( NAME t8_2_5D_cmesh                     SOURCES 2_5D/t8_2_5D_cmesh.cxx )
+add_t8_tutorial( NAME t8_2_5D_uniform_forest            SOURCES 2_5D/t8_2_5D_uniform_forest.cxx )
+add_t8_tutorial( NAME t8_2_5D_adapt_forest              SOURCES 2_5D/t8_2_5D_adapt_main.cxx 2_5D/t8_2_5D_adapt_forest.cxx )
+add_t8_tutorial( NAME t8_2_5D_adapt_forest_recursive    SOURCES 2_5D/t8_2_5D_adapt_main.cxx 2_5D/t8_2_5D_adapt_forest_recursive.cxx )
+

@@ -24,11 +24,15 @@
 #ifndef T8_2_5DIMENSION_ELEMENT_CXX_HXX
 #define T8_2_5DIMENSION_ELEMENT_CXX_HXX
 
+#include <iostream>
+#include <vector>
+
 #include <t8_element.h>
-#include <t8_element_cxx.hxx>
+#include <t8_element.hxx>
 #include <t8_eclass.h>
 //#include <sc.h>
 #include <sc_functions.h>
+#include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 //#include <t8_element_c_interface.h>
 
 //#include <t8_schemes/t8_standalone/t8_standalone_cxx.hxx>
@@ -40,6 +44,7 @@
 struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 {
  public:
+ //private unten
   t8_eclass_scheme_c *scheme1;
   t8_eclass_scheme_c *scheme2;
   /** The table for a particular implementation of an element class. */
@@ -48,12 +53,6 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   t8_2_5dimension_scheme_c (t8_eclass_scheme_c *scheme1, t8_eclass_scheme_c *scheme2);
 
   ~t8_2_5dimension_scheme_c ();
-
-  // /**
-  //  * TODO
-  // *
-  // virtual t8_eclass_scheme_c
-  // t8_element_get_eclass_scheme (int dir = 0);
 
   // /**
   //  * TODO
@@ -504,7 +503,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
     *  \return              The shape of the element as an eclass
    */
   virtual t8_element_shape_t
-  t8_element_shape (const t8_element_t *elem, int dir = 0) const;
+  t8_element_shape (const t8_element_t *elem) const;
 
   /** Initialize the entries of an allocated element according to a
    *  given linear id in a uniform refinement.
@@ -514,7 +513,17 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    *                      id must fulfil 0 <= id < 'number of leafs in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir = 0) const;
+  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir = 0) const;
+
+  /** Initialize the entries of an allocated element according to a
+   *  given linear id in a uniform refinement.
+   * \param [in,out] elem The element whose entries will be set.
+   * \param [in] level    The level of the uniform refinement to consider.
+   * \param [in] id       The linear id.
+   *                      id must fulfil 0 <= id < 'number of leafs in the uniform refinement'
+   */
+  virtual void
+  t8_element_set_linear_id_2_5D (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
@@ -523,18 +532,11 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, int level, int dir = 0) const;
+  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir = 0) const;
 
-  /** Compute the linear id of a given element in a hypothetical uniform
-  * refinement of given level for eclass1 and eclass2.
-  * \param [in] elem     The element whose id we compute.
-  * \param [in] level1   The level of eclass1 of the uniform refinement to consider.
-  * \param [in] level2   The level of eclass2 of the uniform refinement to consider.
-  * \return              The linear id of the element.
-  * 
-  */
-  virtual t8_linearidx_t
-  t8_element_get_linear_id_2_5D (const t8_element_t *elem1, const t8_element_t *elem2, int level1, int level2) const; 
+  /* TODO */
+  int
+  t8_element_column_check (const t8_element_t *elem) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -543,7 +545,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir = 0) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -682,25 +684,13 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   /* TODO: would it be better to directly allocate an array of elements,
    *       not element pointers? */
   virtual void
-  t8_element_new (int length, t8_element_t **elem, int dir = 0) const;
-
-   /**
-   * TODO
-  */
-  virtual void
-  t8_element_set_type (t8_element_t *elem, int dir = 0) const;
-
-  /**
-   * TODO
-  */
-  virtual void
-  t8_element_get_type (t8_element_t *elem) const;
+  t8_element_new (int length, t8_element_t **elem) const;
 
   /**
   * TODO
   */
   virtual int
-  t8_element_get_variable (t8_element_t *elem, int var, int dir = 0) const;
+  t8_element_get_variable (const t8_element_t *elem, int var, int dir = 0) const;
 
   /**
   * TODO
@@ -725,8 +715,8 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   virtual void
   t8_element_init (int length, t8_element_t *elem) const;
 
-  // void
-  // t8_2_5D_init (t8_2_5D_t *el) const;
+  void
+  t8_2_5D_init (t8_2_5D_t *el) const;
 
   /** Deinitialize an array of allocated elements.
    * \param [in] length   The number of elements to be deinitialized.
@@ -747,7 +737,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    *                      \b elem itself will not be freed by this function.
    */
   virtual void
-  t8_element_destroy (int length, t8_element_t **elem, int dir = 0) const;
+  t8_element_destroy (int length, t8_element_t **elem) const;
 
   /** create the root element
    * \param [in,out] elem The element that is filled with the root
@@ -788,6 +778,12 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
                          const unsigned int count, sc_MPI_Comm comm) const;
 };
 
+// typedef struct t8_2_5D
+// {
+//   t8_element_t *elem1;
+//   t8_element_t *elem2;
+// } t8_2_5D_t;
+
 // typedef int32_t t8_2_5D_coord_t;
 // typedef int32_t t8_1_5D_coord_t;
 // typedef int8_t t8_2_5D_type_t;
@@ -795,11 +791,11 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 
 //Hier auskommentieren?
 
-typedef struct t8_2_5D
-{
-  t8_element_t *elem1;
-  t8_element_t *elem2;
-} t8_2_5D_t;
+// typedef struct t8_2_5D
+// {
+//   t8_element_t *elem1;
+//   t8_element_t *elem2;
+// } t8_2_5D_t;
 
 // typedef struct t8_2_5Dnew
 // {

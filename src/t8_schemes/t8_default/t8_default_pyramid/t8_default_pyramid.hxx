@@ -28,6 +28,9 @@
 
 #pragma once
 
+#include <iostream>
+#include <vector>
+
 #include <t8_element.hxx>
 #include <t8_schemes/t8_default/t8_default_common/t8_default_common.hxx>
 
@@ -62,25 +65,13 @@ struct t8_default_scheme_pyramid_c: public t8_default_scheme_common_c
    * \see t8_element_is_valid
    */
   virtual void
-  t8_element_new (int length, t8_element_t **elem, int dir = 0) const;
-
-  /**
-   * TODO
-  */
-  void
-  t8_element_set_type(t8_element_t *elem, int dir = 0) const;
-
-  /**
-   * TODO
-  */
-  void
-  t8_element_get_type (t8_element_t *elem) const;
+  t8_element_new (int length, t8_element_t **elem) const;
 
   /**
   * TODO
   */
   virtual int
-  t8_element_get_variable (t8_element_t *elem, int var, int dir = 0) const;
+  t8_element_get_variable (const t8_element_t *elem, int var, int dir = 0) const;
 
   /**
   * TODO
@@ -298,7 +289,7 @@ struct t8_default_scheme_pyramid_c: public t8_default_scheme_common_c
    * \return              The shape of the element as an eclass
    */
   virtual t8_element_shape_t
-  t8_element_shape (const t8_element_t *elem, int dir = 0) const;
+  t8_element_shape (const t8_element_t *elem) const;
 
   /** Compute the shape of the face of an element.
    * \param [in] elem   The element.
@@ -462,7 +453,7 @@ struct t8_default_scheme_pyramid_c: public t8_default_scheme_common_c
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir = 0) const;
+  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir = 0) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform refinement of a given level.
    * \param [in] elem     The element whose id we compute.
@@ -470,7 +461,7 @@ struct t8_default_scheme_pyramid_c: public t8_default_scheme_common_c
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, int level, int dir = 0) const;
+  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir = 0) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -478,7 +469,7 @@ struct t8_default_scheme_pyramid_c: public t8_default_scheme_common_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir = 0) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.

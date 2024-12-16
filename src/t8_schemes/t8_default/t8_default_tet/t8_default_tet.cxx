@@ -394,22 +394,22 @@ t8_default_scheme_tet_c::t8_element_face_neighbor_inside (const t8_element_t *el
 }
 
 void
-t8_default_scheme_tet_c::t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir) const
+t8_default_scheme_tet_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
 {
-  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
-  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << 3 * level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
+  T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << 3 * levels[0]);
   T8_ASSERT (t8_element_is_valid (elem));
 
-  t8_dtet_init_linear_id ((t8_default_tet_t *) elem, id, level);
+  t8_dtet_init_linear_id ((t8_default_tet_t *) elem, id, levels[0]);
 }
 
 t8_linearidx_t
-t8_default_scheme_tet_c::t8_element_get_linear_id (const t8_element_t *elem, int level, int dir) const
+t8_default_scheme_tet_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
 
-  return t8_dtet_linear_id ((t8_default_tet_t *) elem, level);
+  return t8_dtet_linear_id ((t8_default_tet_t *) elem, levels[0]);
 }
 
 void
@@ -423,12 +423,12 @@ t8_default_scheme_tet_c::t8_element_successor (const t8_element_t *elem1, t8_ele
 }
 
 void
-t8_default_scheme_tet_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_tet_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
-  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
-  t8_dtet_first_descendant ((t8_dtet_t *) elem, (t8_dtet_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
+  t8_dtet_first_descendant ((t8_dtet_t *) elem, (t8_dtet_t *) desc, levels[0]);
 }
 
 void
@@ -511,7 +511,7 @@ t8_default_scheme_tet_c::t8_element_to_string (const t8_element_t *elem, char *d
 #endif
 
 void
-t8_default_scheme_tet_c::t8_element_new (int length, t8_element_t **elem, int dir) const
+t8_default_scheme_tet_c::t8_element_new (int length, t8_element_t **elem) const
 {
   /* allocate memory for a tet */
   t8_default_scheme_common_c::t8_element_new (length, elem);
@@ -527,20 +527,8 @@ t8_default_scheme_tet_c::t8_element_new (int length, t8_element_t **elem, int di
 #endif
 }
 
-void
-t8_default_scheme_tet_c::t8_element_set_type (t8_element_t *elem, int dir) const
-{
-  T8_ASSERT( "Not implemented." );
-}
-
-void
-t8_default_scheme_tet_c::t8_element_get_type (t8_element_t *elem) const
-{
-  T8_ASSERT( "Not implemented." );
-}
-
 int
-t8_default_scheme_tet_c::t8_element_get_variable (t8_element_t *elem, int var, int dir) const
+t8_default_scheme_tet_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   T8_ASSERT( "Not implemented." );
 }

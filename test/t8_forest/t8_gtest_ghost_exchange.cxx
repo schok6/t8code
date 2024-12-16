@@ -72,7 +72,8 @@ t8_test_exchange_adapt (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
 {
   /* refine every second element up to the maximum level */
   int level = ts->t8_element_level (elements[0]);
-  t8_linearidx_t eid = ts->t8_element_get_linear_id (elements[0], level);
+  std::vector<int> level_vec {level};
+  t8_linearidx_t eid = ts->t8_element_get_linear_id (elements[0], level_vec);
   int maxlevel = *(int *) t8_forest_get_user_data (forest);
 
   if (eid % 2 && level < maxlevel) {
@@ -105,7 +106,8 @@ t8_test_ghost_exchange_data_id (t8_forest_t forest)
       /* Get a pointer to this element */
       const t8_element_t *elem = t8_forest_get_element_in_tree (forest, itree, ielem);
       /* Compute the linear id of this element */
-      t8_linearidx_t elem_id = ts->t8_element_get_linear_id (elem, ts->t8_element_level (elem));
+      std::vector<int> level {ts->t8_element_level (elem)};
+      t8_linearidx_t elem_id = ts->t8_element_get_linear_id (elem, level);
       /* Store this id at the element's index in the array */
       *(t8_linearidx_t *) sc_array_index (&element_data, array_pos) = elem_id;
       array_pos++;
@@ -124,7 +126,8 @@ t8_test_ghost_exchange_data_id (t8_forest_t forest)
       /* Get a pointer to this ghost */
       const t8_element_t *elem = t8_forest_ghost_get_element (forest, itree, ielem);
       /* Compute its ghost_id */
-      t8_linearidx_t ghost_id = ts->t8_element_get_linear_id (elem, ts->t8_element_level (elem));
+      std::vector<int> level {ts->t8_element_level (elem)};
+      t8_linearidx_t ghost_id = ts->t8_element_get_linear_id (elem, level);
       /* Compare this id with the entry in the element_data array */
       t8_linearidx_t ghost_entry = *(t8_linearidx_t *) sc_array_index (&element_data, array_pos);
       ASSERT_EQ (ghost_id, ghost_entry) << "Error when exchanging ghost data. Received wrong element id.\n";
@@ -187,7 +190,7 @@ TEST_P (forest_ghost_exchange, test_ghost_exchange)
     t8_test_ghost_exchange_data_id (forest);
     /* Adapt the forest and exchange data again */
     int maxlevel = level + 2;
-    t8_forest_t forest_adapt = t8_forest_new_adapt (forest, t8_test_exchange_adapt, 1, 1, &maxlevel);
+    t8_forest_t forest_adapt = t8_forest_new_adapt (forest, t8_test_exchange_adapt, 1, 1, 0, &maxlevel);
     t8_test_ghost_exchange_data_int (forest_adapt);
     t8_test_ghost_exchange_data_id (forest_adapt);
     t8_forest_unref (&forest_adapt);

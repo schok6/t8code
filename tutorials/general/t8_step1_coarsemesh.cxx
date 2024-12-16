@@ -61,6 +61,7 @@ t8_step1_build_tetcube_coarse_mesh (sc_MPI_Comm comm)
    *   periodic     - If non-zero the cube will have periodic boundaries. That is, i.e. the left face is connected to the right face.
    */
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_TET, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
 
   return cmesh;
 }
@@ -95,6 +96,7 @@ main (int argc, char **argv)
   t8_cmesh_t cmesh;
   /* The prefix for our output files. */
   const char prefix[BUFSIZ] = "t8_step1_tetcube";
+  // const char prefix[BUFSIZ] = "t8_step1_hybrid";
   t8_locidx_t local_num_trees;
   t8_gloidx_t global_num_trees;
 

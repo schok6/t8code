@@ -43,7 +43,8 @@ class nca: public testing::TestWithParam<t8_eclass> {
     ts->t8_element_new (1, &desc_a);
     ts->t8_element_new (1, &desc_b);
     ts->t8_element_new (1, &check);
-    ts->t8_element_set_linear_id (correct_nca, 0, 0);
+    std::vector<int> null {0};
+    ts->t8_element_set_linear_id (correct_nca, null, 0);
   }
   void
   TearDown () override
@@ -111,8 +112,10 @@ TEST_P (nca, nca_check_deep)
       /* Compute first and last descendant at every level up to elem_max_lvl. 
        * They have the correct_nca as the nca */
       for (check_lvl_a = lvl + 1; check_lvl_a < elem_max_level; check_lvl_a++) {
-        ts->t8_element_first_descendant (correct_nca, desc_a, check_lvl_a);
+        std::vector<int> check_lvl_a_vec {check_lvl_a};
+        ts->t8_element_first_descendant (correct_nca, desc_a, check_lvl_a_vec);
         for (check_lvl_b = lvl + 1; check_lvl_b < elem_max_level; check_lvl_b++) {
+          //std::vector<int> check_lvl_b_vec {check_lvl_b};
           ts->t8_element_last_descendant (correct_nca, desc_b, check_lvl_b);
           /* Compute the nca of desc_a and desc_b */
           ts->t8_element_nca (desc_a, desc_b, check);
@@ -189,21 +192,26 @@ t8_recursive_nca_check (t8_element_t *check_nca, t8_element_t *desc_a, t8_elemen
          * This makes debugging a lot easier, as one can reconstruct the descendants
          * via t8_element_set_linear_id and can directly test them instead of waiting
          * until the recursion reaches the faulty computation. */
-        t8_debugf ("id of desc_a: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_a, level_a)),
+        std::vector<int> level_a_vec {level_a};
+        t8_debugf ("id of desc_a: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_a, level_a_vec)),
                    level_a);
-        t8_debugf ("id of desc_b: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_b, level_b)),
+        std::vector<int> level_b_vec {level_b};
+        t8_debugf ("id of desc_b: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_b, level_b_vec)),
                    level_b);
 
         for (int k = SC_MAX (level_a, level_b); k >= 0; k--) {
-          t8_debugf ("id of desc_a: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_a, k)), k);
-          t8_debugf ("id of desc_b: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_b, k)), k);
+          std::vector<int> k_vec {k};
+          t8_debugf ("id of desc_a: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_a, k_vec)), k);
+          t8_debugf ("id of desc_b: %li, level: %i\n", static_cast<long> (ts->t8_element_get_linear_id (desc_b, k_vec)), k);
         }
 
+        std::vector<int> level_c_vec {level_c};
         t8_debugf ("id of the correct nca: %li, level: %i\n",
-                   static_cast<long> (ts->t8_element_get_linear_id (check_nca, level_c)), level_c);
+                   static_cast<long> (ts->t8_element_get_linear_id (check_nca, level_c_vec)), level_c);
 
+        std::vector<int> level_nca_vec {level_nca};
         t8_debugf ("id of the computed nca: %li, level: %i\n",
-                   static_cast<long> (ts->t8_element_get_linear_id (check, level_nca)), level_nca);
+                   static_cast<long> (ts->t8_element_get_linear_id (check, level_nca_vec)), level_nca);
 
         SC_ABORT ("Computed nca is not the correct nca!\n");
       }
@@ -276,7 +284,8 @@ TEST_P (nca, recursive_check_higher_level)
   for (i = recursion_depth; i < max_lvl; i++) {
     leaves_on_level = ts->t8_element_count_leaves (correct_nca, i - recursion_depth);
     /* middle = leaves/2 */
-    ts->t8_element_set_linear_id (correct_nca_high_level, i - recursion_depth, leaves_on_level / 2);
+    std::vector<int> level_vec {i - recursion_depth};
+    ts->t8_element_set_linear_id (correct_nca_high_level, level_vec, leaves_on_level / 2);
 
     /* Initialization for recursive_nca_check */
     num_children = ts->t8_element_num_children (correct_nca_high_level);

@@ -146,6 +146,9 @@ target_sources( T8 PRIVATE
     t8_schemes/t8_default/t8_default_tri/t8_dtri_connectivity.c
     t8_schemes/t8_default/t8_default_vertex/t8_default_vertex.cxx
     t8_schemes/t8_default/t8_default_vertex/t8_dvertex_bits.c
+    t8_schemes/t8_2_5dimension/t8_2_5D_functions.cxx
+    t8_schemes/t8_2_5dimension/t8_2_5dimension_cxx.cxx
+    t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.cxx
     t8_vtk/t8_vtk_polydata.cxx 
     t8_vtk/t8_vtk_unstructured.cxx 
     t8_vtk/t8_vtk_parallel.cxx 

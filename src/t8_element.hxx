@@ -29,6 +29,9 @@
 
 #pragma once
 
+#include <iostream>
+#include <vector>
+
 #include <sc_refcount.h>
 #include <t8_eclass.h>
 #include <t8_element.h>
@@ -515,7 +518,7 @@ struct t8_eclass_scheme
     *  \return              The shape of the element as an eclass
    */
   virtual t8_element_shape_t
-  t8_element_shape (const t8_element_t *elem, int dir = 0) const
+  t8_element_shape (const t8_element_t *elem) const
     = 0;
 
   /** Initialize the entries of an allocated element according to a
@@ -526,7 +529,7 @@ struct t8_eclass_scheme
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, int level, t8_linearidx_t id, int dir = 0) const
+  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir = 0) const
     = 0;
 
   /** Compute the linear id of a given element in a hypothetical uniform
@@ -536,7 +539,7 @@ struct t8_eclass_scheme
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, int level, int dir = 0) const
+  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir = 0) const
     = 0;
 
   /** Compute the first descendant of a given element.
@@ -546,7 +549,7 @@ struct t8_eclass_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir = 0) const
     = 0;
 
   /** Compute the last descendant of a given element.
@@ -698,28 +701,14 @@ struct t8_eclass_scheme
    * \see t8_element_is_valid
    */
   virtual void
-  t8_element_new (int length, t8_element_t **elem, int dir = 0) const
-    = 0;
-
-  /**
-  * TODO
-  */
-  virtual void
-  t8_element_set_type (t8_element_t *elem, int dir = 0) const
-    = 0;
-
-  /**
-  * TODO
-  */
-  virtual void
-  t8_element_get_type (t8_element_t *elem) const
+  t8_element_new (int length, t8_element_t **elem) const
     = 0;
 
   /**
   * TODO
   */
   virtual int
-  t8_element_get_variable (t8_element_t *elem, int var, int dir = 0) const
+  t8_element_get_variable (const t8_element_t *elem, int var, int dir = 0) const
     = 0;
 
   /**
@@ -768,7 +757,7 @@ struct t8_eclass_scheme
    * \see t8_element_new
    */
   virtual void
-  t8_element_destroy (int length, t8_element_t **elem, int dir = 0) const
+  t8_element_destroy (int length, t8_element_t **elem) const
     = 0;
 
   /** create the root element
@@ -814,7 +803,7 @@ struct t8_eclass_scheme
     = 0;
 };
 
-/** Destroy an implementation of a particular element class. 
+/** Destroy an implementation of a particular element class. //whole scheme?
   * param [in] scheme           Defines the implementation of the element class. */
 void
 t8_scheme_cxx_destroy (t8_scheme_cxx_t *s);
