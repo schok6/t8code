@@ -496,7 +496,27 @@ t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int len
   //   }
   // }
   // else if (dir == 2) {
-  if (dir == 2) {
+
+
+  if (dir == 1) {
+    t8_element_t **c1 = T8_ALLOC(t8_element_t *, length); // LUKAS: Speichermanagement -> muss ich das wieder frei geben?
+    scheme1->t8_element_new (length, c1);
+    scheme1->t8_element_children (el->elem1, length, c1); //---
+    for (int i = 0; i < length; i++)
+    {
+      scheme2->t8_element_copy(el->elem2, children[i]->elem2);
+      scheme1->t8_element_copy (c1[i], children[i]->elem1);
+      int x = scheme1->t8_element_get_variable (children[i]->elem1, 1);
+      int y = scheme1->t8_element_get_variable (children[i]->elem1, 2);
+      int z = scheme2->t8_element_get_variable (children[i]->elem2, 1);
+      t8_global_productionf ("------------------------------\n");
+      t8_global_productionf ("child %i coordinates: (%i, %i) x %i\n", i, x, y, z);
+    }
+
+    scheme1->t8_element_destroy (length, c1);
+    T8_FREE(c1);
+  }
+  else if (dir == 2) {
 
     t8_element_t **c2 = T8_ALLOC(t8_element_t *, length); // LUKAS: Speichermanagement -> muss ich das wieder frei geben?
     scheme2->t8_element_new (length, c2);
@@ -827,11 +847,11 @@ t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, std::vec
     t8_linearidx_t id_scheme;
     int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(levels[1], 2);
     t8_global_productionf ("num_elems_per_column: %i\n", num_elems_per_column);
-    id_scheme = id % num_elems_per_column;
+    id_scheme = id / num_elems_per_column;
     level = {levels[0]};
     t8_global_productionf ("id for eclass1: %li\n", id_scheme);
     scheme1->t8_element_set_linear_id (el->elem1, level, id_scheme);
-    id_scheme = id / num_elems_per_column;
+    id_scheme = id % num_elems_per_column;
     level = {levels[1]};
     t8_global_productionf ("id for eclass2: %li\n", id_scheme);
     scheme2->t8_element_set_linear_id (el->elem2, level, id_scheme);
@@ -1012,28 +1032,28 @@ t8_2_5dimension_scheme_c::t8_element_successor (const t8_element_t *t, t8_elemen
     t8_global_productionf ("level1: %i\n", level1);
     int level2 = t8_element_level (t, 2);
     t8_global_productionf ("level2: %i\n", level2);
-    int level3 = scheme2->t8_element_level(sel->elem1);
-    t8_global_productionf ("level3: %i\n", level3);
+    // int level3 = scheme2->t8_element_level(sel->elem1);
+    // t8_global_productionf ("level3: %i\n", level3);
     std::vector<int> levels = {level1, level2};
     t8_linearidx_t lin_id = t8_element_get_linear_id (t, levels, 3);
     int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(levels[1], 2);
-    if (lin_id == 0) { // || lin_id % num_elems_per_column != 0){
-      scheme1->t8_element_copy (tel->elem1, sel->elem1);
-      scheme2->t8_element_successor (tel->elem2, sel->elem2);
-      // int x1 = scheme1->t8_element_get_variable (sel->elem1, 1);
-      // int y1 = scheme1->t8_element_get_variable (sel->elem1, 2);
-      // t8_global_productionf ("succesor coordinates x1: %i", x1);
-      // t8_global_productionf ("succesor coordinates y1: %i", y1);
-    }
-    else if (num_elems_per_column == 0) {
-      //langt das ??
-      scheme1->t8_element_successor (tel->elem1, sel->elem1);
-    }
-    else if ((lin_id + 1) % num_elems_per_column != 0) {
+    if ((lin_id + 1) % num_elems_per_column != 0) {
       scheme1->t8_element_copy (tel->elem1, sel->elem1);
       scheme2->t8_element_successor (tel->elem2, sel->elem2);
 
     }
+    else if (num_elems_per_column == 1) {
+      //langt das ??
+      scheme1->t8_element_successor (tel->elem1, sel->elem1);
+    }
+    // else if (lin_id == 0) { // || lin_id % num_elems_per_column != 0){
+    //   scheme1->t8_element_copy (tel->elem1, sel->elem1);
+    //   scheme2->t8_element_successor (tel->elem2, sel->elem2);
+    //   // int x1 = scheme1->t8_element_get_variable (sel->elem1, 1);
+    //   // int y1 = scheme1->t8_element_get_variable (sel->elem1, 2);
+    //   // t8_global_productionf ("succesor coordinates x1: %i", x1);
+    //   // t8_global_productionf ("succesor coordinates y1: %i", y1);
+    // }
     else {
       // t8_element_t *root;
       // scheme2->t8_element_new (1, &root);
@@ -1085,23 +1105,30 @@ t8_2_5dimension_scheme_c::t8_element_reference_coords (const t8_element_t *elem,
   int dim1, dim2;
   dim1 = t8_eclass_to_dimension[scheme1->eclass]; //t8_element_get_eclass löschen
   dim2 = t8_eclass_to_dimension[scheme2->eclass];
-  t8_global_productionf ("dimensions: %i x %i \n", dim1, dim2);
+  // t8_global_productionf ("dimensions: %i x %i \n", dim1, dim2);
   for (size_t coord = 0; coord < num_coords; ++coord) {
     scheme1->t8_element_reference_coords (el->elem1, (ref_coords + (coord * (dim1 + dim2))), num_coords, (out_coords + (coord * (dim1 + dim2))));
     scheme2->t8_element_reference_coords (el->elem2, ref_coords + (coord * (dim1 + dim2) + dim1), num_coords, out_coords + (coord * (dim1 + dim2) + dim1));
   }
   size_t size = (dim1 + dim2)*num_coords;
-  t8_global_productionf ("-------------------. \n");
-  for (size_t i = 0; i < size; i++) {
-    t8_global_productionf ("out_coords[%li]: %f\n", i, out_coords[i]);
-  }
+  // t8_global_productionf ("-------------------. \n");
+  // for (size_t i = 0; i < size; i++) {
+  //   t8_global_productionf ("out_coords[%li]: %f\n", i, out_coords[i]);
+  // }
 }
 
 t8_gloidx_t
 t8_2_5dimension_scheme_c::t8_element_count_leaves (const t8_element_t *elem, int level, int dir) const
 { 
-  // t8_global_productionf ("Test.");
-  SC_ABORT ("Waiting for scheme interface.\n");
+  if (dir == 1) {
+    return scheme1->t8_element_count_leaves (elem, level);
+  }
+  else if (dir == 2) {
+    return scheme2->t8_element_count_leaves (elem, level);
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
 }
 
 t8_gloidx_t
@@ -1109,12 +1136,9 @@ t8_2_5dimension_scheme_c::t8_element_count_leaves_from_root (int level, int dir)
 {
   if (dir == 1) {
     return scheme1->t8_element_count_leaves_from_root (level);
-    // t8_global_productionf( "eclass1 %i \n", scheme1->eclass);
-    // t8_global_productionf( "t8_eclass_to_dimension[T8_ECLASS_QUAD] %i \n", t8_eclass_to_dimension[T8_ECLASS_QUAD]);
   }
   else if (dir == 2) {
     return scheme2->t8_element_count_leaves_from_root (level);
-    // t8_global_productionf( "eclass2 %i \n", scheme2->eclass);
   }
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");

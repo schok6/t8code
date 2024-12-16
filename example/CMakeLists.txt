@@ -39,6 +39,8 @@ function( add_t8_example )
     install( TARGETS ${ADD_T8_EXAMPLE_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
 endfunction()
 
+add_t8_example( NAME t8_2_5D                            SOURCES 2_5dimension/t8_2_5D.cxx )
+
 add_t8_example( NAME t8_advection                       SOURCES advect/t8_advection.cxx )
 
 add_t8_example( NAME t8_cmesh_partition                 SOURCES cmesh/t8_cmesh_partition.cxx )

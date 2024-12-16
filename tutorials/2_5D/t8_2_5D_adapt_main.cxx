@@ -1,7 +1,7 @@
 /*
   This file is part of t8code.
   t8code is a C library to manage a collection (a forest) of multiple
-  connected adaptive space-trees of general element classes in parallel.
+  connected adaptive space-trees of general element types in parallel.
 
   Copyright (C) 2015 the developers
 
@@ -20,19 +20,15 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef T8_2_5DIMENSION_CXX_HXX
-#define T8_2_5DIMENSION_CXX_HXX
+/* This file is part of the adapt example of 2_5D in t8code.
+ * Here, we only wrap the main function. See t8_2_5D_adapt_forest.cxx for the documentation of 
+ * the step3 example.
+ */
 
-#include <new>
-#include <t8_refcount.h>
-#include <t8_eclass.h>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
-#include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
-#include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
-#include <t8_schemes/t8_default/t8_default_tri/t8_default_tri.hxx>
-#include <t8_schemes/t8_default/t8_default_pyramid/t8_default_pyramid.hxx>
+#include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
-t8_scheme_cxx_t *
-t8_scheme_new_2_5dimension_cxx (void);
-
-#endif /* !T8_2_5DIMENSION_CXX_HXX */
+int
+main (int argc, char **argv)
+{
+  return t8_2_5D_adapt_main (argc, argv);
+}

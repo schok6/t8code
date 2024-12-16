@@ -147,7 +147,7 @@ t8_forest_partition_test_desc (t8_forest_t forest)
     int x1_elem = ts->t8_element_get_variable (element, 1, 1);
     int y1_elem = ts->t8_element_get_variable (element, 2, 1);
     int x2_elem = ts->t8_element_get_variable (element, 1, 2);
-    t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1_elem, y1_elem, x2_elem);
+    t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1_elem, x2_elem, y1_elem);
     if (forest->set_type == 1) {
       std::vector<int> maxlevels = {forest->maxlevel};
       ts->t8_element_first_descendant (element, elem_desc, maxlevels);
@@ -354,20 +354,45 @@ t8_forest_partition_test_boundary_element (const t8_forest_t forest)
     = t8_forest_get_element_in_tree (forest, itree, t8_forest_get_tree_element_count (tree) - 1);
   T8_ASSERT (ts->t8_element_is_valid (element_last));
   /* last and finest possiple element of current rank */
-  ts->t8_element_last_descendant (element_last, element_last_desc, forest->maxlevel);
+  if (forest->set_type == 1) {
+    ts->t8_element_last_descendant (element_last, element_last_desc, forest->maxlevel);
+  }
+  else if (forest->set_type == 2) {
+    ts->t8_element_last_descendant (element_last, element_last_desc, forest->maxlevel, 3);
+  }
   T8_ASSERT (ts->t8_element_is_valid (element_last_desc));
-  const int level = ts->t8_element_level (element_last_desc);
-  T8_ASSERT (level == ts->t8_element_level (element_last_desc));
-  T8_ASSERT (level == forest->maxlevel);
-  std::vector<int> levels = {level};
-  const t8_linearidx_t last_desc_id = ts->t8_element_get_linear_id (element_last_desc, levels);
-  /* Get the first descendant id of rank+1 */
-  const t8_linearidx_t first_desc_id
-    = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank + 1);
-  /* The following inequality must apply, if our last element is on the same tree :
-   * last_desc_id of last element of rank < first_desc_id of first element of rank+1 */
-  /** TODO: This assertion might still be wrong, when our last element is the last element of the tree*/
-  T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
+    if (forest->set_type == 1) {
+    const int level = ts->t8_element_level (element_last_desc);
+    T8_ASSERT (level == ts->t8_element_level (element_last_desc));
+    T8_ASSERT (level == forest->maxlevel);
+    std::vector<int> levels = {level};
+    const t8_linearidx_t last_desc_id = ts->t8_element_get_linear_id (element_last_desc, levels);
+    /* Get the first descendant id of rank+1 */
+    const t8_linearidx_t first_desc_id
+      = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank + 1);
+    /* The following inequality must apply, if our last element is on the same tree :
+    * last_desc_id of last element of rank < first_desc_id of first element of rank+1 */
+    /** TODO: This assertion might still be wrong, when our last element is the last element of the tree*/
+    T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
+  }
+  else if (forest->set_type == 2) {
+    const int level0 = ts->t8_element_level (element_last_desc, 1);
+    T8_ASSERT (level0 == ts->t8_element_level (element_last_desc, 1)); //Wozu braucht man das hier? @Lukas
+    T8_ASSERT (level0 == forest->maxlevel);
+    const int level1 = ts->t8_element_level (element_last_desc, 2);
+    T8_ASSERT (level1 == ts->t8_element_level (element_last_desc, 2)); //Wozu braucht man das hier? @Lukas
+    T8_ASSERT (level1 == forest->maxlevel);
+    std::vector<int> levels = {level0, level1};
+    const t8_linearidx_t last_desc_id = ts->t8_element_get_linear_id (element_last_desc, levels, 3);  
+    /* Get the first descendant id of rank+1 */
+    const t8_linearidx_t first_desc_id
+      = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank + 1);
+    /* The following inequality must apply, if our last element is on the same tree :
+    * last_desc_id of last element of rank < first_desc_id of first element of rank+1 */
+    /** TODO: This assertion might still be wrong, when our last element is the last element of the tree*/
+    T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
+  }
+
   /* clean up */
   ts->t8_element_destroy (1, &element_last_desc);
 #endif

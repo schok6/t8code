@@ -763,29 +763,15 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, int level, const t8_scheme_cxx_t *ts,
  * \param [in]    level1        The uniform refinement level1 to be created.
  * \param [in]    level2        The uniform refinement level2 to be created.
  * \param [in]    ts            The 2_5D element scheme for which to compute the bounds.
- * \param [out]   first_local_tree1  The first tree that contains elements belonging to the calling processor for eclass1.
- * \param [out]   first_local_tree2  The first tree that contains elements belonging to the calling processor for eclass2.
- * \param [out]   child_in_tree_begin1 The global index of the first element of eclass1 belonging to the calling processor. Not computed if NULL.
- * \param [out]   child_in_tree_begin2 The global index of the first element of eclass2 belonging to the calling processor. Not computed if NULL.
- * \param [out]   last_local_tree1  The last tree that contains elements belonging to the calling processor for eclass1.
- * \param [out]   last_local_tree2  The last tree that contains elements belonging to the calling processor for eclass2.
- * \param [out]   child_in_tree_end1 The global index of the first element of eclass1 that does not belonging to
+ * \param [out]   first_local_tree  The first tree that contains elements belonging to the calling processor.
+ * \param [out]   child_in_tree_begin The global index of the first element belonging to the calling processor. Not computed if NULL.
+ * \param [out]   last_local_tree  The last tree that contains elements belonging to the calling processor.
+ * \param [out]   child_in_tree_end The global index of the first element of the last tree that does not belong to
  *                                  the calling processor anymore. Not computed if NULL.
- * \param [out]   child_in_tree_end2 The global index of the first element of eclass2 that does not belonging to
- *                                  the calling processor anymore. Not computed if NULL.
- * \param [out]   first_tree_shared1 If not NULL, 1 or 0 is stored here depending on whether \a first_local_tree1 is the
- *                                 same as \a last_local_tree1 on the next process.
- * \param [out]   first_tree_shared2 If not NULL, 1 or 0 is stored here depending on whether \a first_local_tree2 is the
- *                                 same as \a last_local_tree2 on the next process.
+ * \param [out]   first_tree_shared If not NULL, 1 or 0 is stored here depending on whether \a first_local_tree is the
+ *                                 same as \a last_local_tree on the next process.
  * \a cmesh must be committed before calling this function. *
  */
-void
-t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, int level1, int level2, t8_scheme_comb_cxx_t *ts, t8_gloidx_t *first_local_tree,
-                              t8_gloidx_t *child_in_tree_begin, t8_gloidx_t *last_local_tree, t8_gloidx_t *child_in_tree_end,
-                              int8_t *first_tree_shared);
-// t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, int level1, int level2, t8_scheme_comb_cxx_t *ts, t8_gloidx_t *first_local_tree1,
-//                               t8_gloidx_t *first_local_tree2, t8_gloidx_t *child_in_tree_begin1, t8_gloidx_t *child_in_tree_begin2, t8_gloidx_t *last_local_tree1,
-//                               t8_gloidx_t *last_local_tree2, t8_gloidx_t *child_in_tree_end1, t8_gloidx_t *child_in_tree_end2, int8_t *first_tree_shared);
 
 void
 t8_cmesh_uniform_bounds_2_5D_2 (t8_cmesh_t cmesh, const int level1, const int level2, const t8_scheme_cxx_t *ts,

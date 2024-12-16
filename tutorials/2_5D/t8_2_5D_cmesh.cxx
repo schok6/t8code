@@ -31,7 +31,7 @@
  * \return            The coarse mesh.
  */
 static t8_cmesh_t
-t8_2_5D_build_hypercube_coarse_mesh (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Comm comm)
+t8_2_5D_build_hypercube_coarse_mesh (sc_MPI_Comm comm)
 {
   t8_cmesh_t cmesh;
 
@@ -46,7 +46,9 @@ t8_2_5D_build_hypercube_coarse_mesh (t8_eclass_t eclass1, t8_eclass_t eclass2, s
    *   do_partition - If non-zero the cmesh will be partitioned among the processes. If 0 each process has a copy of the whole cmesh.
    *   periodic     - If non-zero the cube will have periodic boundaries. That is, i.e. the left face is connected to the right face.
    */
-  cmesh = t8_cmesh_new_hypercube_2_5D(eclass1, eclass2, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
+
+  //cmesh = t8_cmesh_new_bigmesh (T8_ECLASS_HEX, 1, comm);
 
   t8_global_productionf (" [2_5D] Constructed coarse mesh.\n");
 
@@ -83,8 +85,8 @@ main (int argc, char **argv)
   t8_cmesh_t cmesh;
   /* The prefix for our output files. */
   // const char prefix[BUFSIZ] = "t8_1_5D_CMESH__LINE_LINE";
-  // const char prefix[BUFSIZ] = "t8_2_5D_CMESH__QUAD_LINE";
-  const char prefix[BUFSIZ] = "t8_2_5D_CMESH_TRI_LINE";
+  const char prefix[BUFSIZ] = "t8_2_5D_CMESH__QUAD_LINE";
+  //const char prefix[BUFSIZ] = "t8_2_5D_CMESH_TRI_LINE";
   t8_locidx_t local_num_trees;
   t8_gloidx_t global_num_trees;
 
@@ -105,9 +107,8 @@ main (int argc, char **argv)
   t8_global_productionf (" [2_5D] \n");
 
   /* Build the coarse mesh */
-  // cmesh = t8_2_5D_build_hypercube_coarse_mesh (T8_ECLASS_LINE, T8_ECLASS_LINE, sc_MPI_COMM_WORLD);
-  // cmesh = t8_2_5D_build_hypercube_coarse_mesh (T8_ECLASS_QUAD, T8_ECLASS_LINE, sc_MPI_COMM_WORLD);
-  cmesh = t8_2_5D_build_hypercube_coarse_mesh (T8_ECLASS_TRIANGLE, T8_ECLASS_LINE, sc_MPI_COMM_WORLD);
+  cmesh = t8_2_5D_build_hypercube_coarse_mesh (sc_MPI_COMM_WORLD);
+
   /* Compute local and global number of trees. */
   local_num_trees = t8_cmesh_get_num_local_trees (cmesh);
   global_num_trees = t8_cmesh_get_num_trees (cmesh);

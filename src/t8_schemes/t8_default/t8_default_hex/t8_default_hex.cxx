@@ -608,13 +608,32 @@ t8_default_scheme_hex_c::t8_element_new (int length, t8_element_t **elem) const
 int
 t8_default_scheme_hex_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
-  T8_ASSERT( "Not implemented." );
+  p8est_quadrant_t *el = (p8est_quadrant_t *) elem;
+  if (dir == 1){
+    if (var == 1) {
+      return el->x;
+    }
+    else if(var == 2) {
+      return el->y;
+    }
+    else {
+      SC_ABORT ("Hex is 3D.\n");
+    }
+  }
+  else if (dir==2){
+    if (var == 1) {
+      return el->z;
+    }
+  }
+  else {
+    SC_ABORT ("Hex is 3D.\n");
+  }
 }
 
 t8_eclass_scheme_c *
 t8_default_scheme_hex_c::t8_element_get_scheme (int dir) const
 {
-  T8_ASSERT( "Not implemented." );
+  T8_ASSERT( "Not implemented. - Just to test 2.5D." );
 }
 
 void

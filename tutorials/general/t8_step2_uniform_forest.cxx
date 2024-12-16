@@ -126,9 +126,9 @@ main (int argc, char **argv)
   t8_cmesh_t cmesh;
   t8_forest_t forest;
   /* The prefix for our output files. */
-  const char *prefix = "t8_step2_uniform_forest_hex_level2";
+  const char *prefix = "t8_step2_uniform_forest_hex_level4";
   /* The uniform refinement level of the forest. */
-  const int level = 2;
+  const int level = 4;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
 

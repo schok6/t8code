@@ -605,7 +605,7 @@ t8_forest_vtk_cells_vertices_kernel (t8_forest_t forest, const t8_locidx_t ltree
                                      t8_eclass_scheme_c *ts, const int is_ghost, FILE *vtufile, int *columns,
                                      void **data, T8_VTK_KERNEL_MODUS modus)
 {
-  t8_global_productionf ("t8_forest_vtk_cells_vertices_kernel \n");
+  //t8_global_productionf ("t8_forest_vtk_cells_vertices_kernel \n");
   double element_coordinates[3];
   int num_el_vertices, ivertex;
   int freturn;
@@ -1004,12 +1004,12 @@ t8_forest_vtk_write_cell_data (t8_forest_t forest, FILE *vtufile, const char *da
     for (element_index = 0; element_index < elems_in_tree; element_index++) {
       /* Get a pointer to the element */
       element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-      if (forest->set_type == 1) {
-        ts->t8_element_get_variable (element, 0);
-      }
-      else {
-        ts->t8_element_get_variable (element, 0);
-      }
+      // if (forest->set_type == 1) {
+      //   ts->t8_element_get_variable (element, 0);
+      // }
+      // else {
+      //   ts->t8_element_get_variable (element, 0);
+      // }
       T8_ASSERT (element != NULL);
       /* Execute the given callback on each element */
       if (!kernel (forest, itree, tree, element_index, element, ts, 0, vtufile, &countcols, &data,
@@ -1218,7 +1218,7 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
-
+    t8_global_productionf ("Done with writing the element ids \n");
     /* Done with writing the element ids */
   }
   /* Write the user defined data fields per element */
@@ -1248,6 +1248,7 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
 
   /* Function completed successfully */
+  t8_global_productionf ("Success: return 1 \n");
   return 1;
 t8_forest_vtk_cell_failure:
   /* Something went wrong */

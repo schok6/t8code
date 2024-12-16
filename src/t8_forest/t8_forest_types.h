@@ -78,12 +78,8 @@ typedef struct t8_forest
 
   sc_MPI_Comm mpicomm; /**< MPI communicator to use. */
   t8_cmesh_t cmesh;    /**< Coarse mesh to use. */
-  //t8_scheme_t        *scheme;        /**< Scheme for element types. */
   t8_scheme_cxx_t *scheme_cxx; /**< Scheme for element types. */
-  //t8_scheme_2_5D_cxx_t *scheme_2_5D;
-  // t8_scheme_cxx_t *scheme1_cxx; /**< Scheme for element types of eclass1. */
-  // t8_scheme_cxx_t *scheme2_cxx; /**< Scheme for element types of eclass2. */
-  t8_scheme_comb_cxx_t *scheme_comb_cxx; /**< Scheme for combined element types. */
+  // t8_scheme_comb_cxx_t *scheme_comb_cxx; /**< Scheme for combined element types. */
   int maxlevel;                /**< The maximum allowed refinement level for elements in this forest. */
   // int maxlevel1;                /**< The maximum allowed refinement level1 for elements in this 2_5D forest. */
   // int maxlevel2;                /**< The maximum allowed refinement level2 for elements in this 2_5D forest. */

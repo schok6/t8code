@@ -76,12 +76,6 @@ t8_forest_populate (t8_forest_t forest);
  * TODO
 */
 void
-t8_forest_populate_2_5D (t8_forest_t forest);
-
-/**
- * TODO
-*/
-void
 t8_forest_populate_2_5D_2 (t8_forest_t forest);
 
 /** Return the eclass scheme of a given element class associated to a forest.
@@ -96,12 +90,6 @@ t8_forest_populate_2_5D_2 (t8_forest_t forest);
 t8_eclass_scheme_c *
 t8_forest_get_eclass_scheme_before_commit (t8_forest_t forest, t8_eclass_t eclass);
 
-/**
- * TODO
-*/
-t8_eclass_scheme_c *
-t8_forest_get_eclass_scheme_before_commit_2_5D (t8_forest_t forest, t8_eclass_t eclass1, t8_eclass_t eclass2);
-
 /** Compute the maximum possible refinement level in a forest.
  * This is the minimum over all maximum refinement level of the present element
  * classes.
@@ -109,12 +97,6 @@ t8_forest_get_eclass_scheme_before_commit_2_5D (t8_forest_t forest, t8_eclass_t 
  */
 void
 t8_forest_compute_maxlevel (t8_forest_t forest);
-
-/**
- * TODO
-*/
-void
-t8_forest_compute_maxlevel_2_5D (t8_forest_t forest);
 
 /** Compute the minimum possible uniform refinement level on a cmesh such
  * that no process is empty. Returns -1, if cmesh contains a vertex tree.

@@ -447,7 +447,15 @@ t8_forest_adapt (t8_forest_t forest)
        * array which could be coarsened recursively. */
       el_coarsen = 0;
       t8_global_productionf ("forest->set_adapt_direction: %i \n", forest->set_adapt_direction);
-      if (forest->set_adapt_direction == 2){
+      if (forest->set_adapt_direction == 1){
+        num_children = tscheme->t8_element_num_children (first_element_from, 1);
+        curr_size_elements = num_children;
+        curr_size_elements_from = tscheme->t8_element_num_siblings (first_element_from, 1);
+        //num_siblings: num_children of parent
+        t8_global_productionf ("curr_size_elements: %i \n", curr_size_elements);
+        t8_global_productionf ("curr_size_elements_from: %i \n", curr_size_elements_from);
+      }
+      else if (forest->set_adapt_direction == 2){
         num_children = tscheme->t8_element_num_children (first_element_from, 2);
         curr_size_elements = num_children;
         curr_size_elements_from = tscheme->t8_element_num_siblings (first_element_from, 2);
@@ -471,7 +479,10 @@ t8_forest_adapt (t8_forest_t forest)
          * a family.
          * At the end is_family will be true, if these elements form a family.
          */
-        if (forest->set_adapt_direction == 2){
+        if (forest->set_adapt_direction == 1){
+          num_siblings = tscheme->t8_element_num_siblings (t8_element_array_index_locidx (telements_from, el_considered), 1);
+        }
+        else if (forest->set_adapt_direction == 2){
           num_siblings = tscheme->t8_element_num_siblings (t8_element_array_index_locidx (telements_from, el_considered), 2);
         }
         else {
@@ -499,7 +510,10 @@ t8_forest_adapt (t8_forest_t forest)
            * are 0, 1, 2, ... zz, ... num_siblings-1).
            * This check is however not sufficient - therefore, we call is_family later. */
           int child_id;
-          if (forest->set_adapt_direction == 2){
+          if (forest->set_adapt_direction == 1){
+            child_id = tscheme->t8_element_child_id (elements_from[zz], 1);
+          }
+          else if (forest->set_adapt_direction == 2){
             child_id = tscheme->t8_element_child_id (elements_from[zz], 2);
           }
           else {
@@ -545,7 +559,7 @@ t8_forest_adapt (t8_forest_t forest)
          * The output will be  1 if the element should be refined
          *                     0 if the element should remain as is
          *                    -1 if we passed a family and it should get coarsened
-         *                    -2 if the element should be removed.
+         *                    -2 if the element should be removed. @Lukas??
          */
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, el_considered, tscheme, is_family,
                                        num_elements_to_adapt_callback, elements_from);
@@ -554,7 +568,10 @@ t8_forest_adapt (t8_forest_t forest)
 
         T8_ASSERT (is_family || refine != -1);
         int level;
-        if (forest->set_adapt_direction == 2) {
+        if (forest->set_adapt_direction == 1) {
+          level = tscheme->t8_element_level (elements_from[0], 1);
+        }
+        else if (forest->set_adapt_direction == 2) {
           level = tscheme->t8_element_level (elements_from[0], 2);
         }
         else{
@@ -566,7 +583,10 @@ t8_forest_adapt (t8_forest_t forest)
         }
         if (refine == 1) { //nothing done so far
           /* The first element is to be refined */
-          if (forest->set_adapt_direction == 2) {
+          if (forest->set_adapt_direction == 1) {
+            num_children = tscheme->t8_element_num_children (elements_from[0], 1);
+          }
+          else if (forest->set_adapt_direction == 2) {
             num_children = tscheme->t8_element_num_children (elements_from[0], 2);
           }
           else {
@@ -579,7 +599,10 @@ t8_forest_adapt (t8_forest_t forest)
           if (forest->set_adapt_recursive) {
             /* Create the children of this element */
             tscheme->t8_element_new (num_children, elements);
-            if (forest->set_adapt_direction == 2) {
+            if (forest->set_adapt_direction == 1) {
+              tscheme->t8_element_children (elements_from[0], num_children, elements, 1);
+            }
+            else if (forest->set_adapt_direction == 2) {
               tscheme->t8_element_children (elements_from[0], num_children, elements, 2);
             }
             else {
@@ -602,7 +625,10 @@ t8_forest_adapt (t8_forest_t forest)
               /* TODO: In a future version elements_from[zz] should be const and we should call t8_element_array_index_locidx (the const version). */
               elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
             }
-            if (forest->set_adapt_direction == 2) {
+            if (forest->set_adapt_direction == 1) {
+              tscheme->t8_element_children (elements_from[0], num_children, elements, 1);
+            }
+            else if (forest->set_adapt_direction == 2) {
       
               tscheme->t8_element_children (elements_from[0], num_children, elements, 2);
 
@@ -633,7 +659,10 @@ t8_forest_adapt (t8_forest_t forest)
           /* Compute the parent of the current family.
            * This parent is now inserted in telements. */
           T8_ASSERT (level > 0);
-          if (forest->set_adapt_direction == 2) {
+          if (forest->set_adapt_direction == 1) {
+            tscheme->t8_element_parent (elements_from[0], elements[0], 1);
+          }
+          else if (forest->set_adapt_direction == 2) {
             tscheme->t8_element_parent (elements_from[0], elements[0], 2);
           }
           else {
@@ -652,7 +681,14 @@ t8_forest_adapt (t8_forest_t forest)
              * We check whether the just generated parent is the last in its
              * family (and not the only one).
              * If so, we check this family for recursive coarsening. */
-            if (forest->set_adapt_direction == 2) {
+            if (forest->set_adapt_direction == 1) {
+              const int child_id = tscheme->t8_element_child_id (elements[0], 1);
+              if (child_id > 0 && child_id == num_children - 1) {
+                t8_forest_adapt_coarsen_recursive (forest, ltree_id, el_considered, tscheme, telements, el_coarsen,
+                                                 &el_inserted, elements);
+              }
+            }
+            else if (forest->set_adapt_direction == 2) {
               const int child_id = tscheme->t8_element_child_id (elements[0], 2);
               if (child_id > 0 && child_id == num_children - 1) {
                 t8_forest_adapt_coarsen_recursive (forest, ltree_id, el_considered, tscheme, telements, el_coarsen,

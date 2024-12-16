@@ -808,9 +808,4 @@ struct t8_eclass_scheme
 void
 t8_scheme_cxx_destroy (t8_scheme_cxx_t *s);
 
-/** Destroy an implementation of a particular combined element class for 2_5D. 
-  * param [in] scheme           Defines the implementation of the combined element class. */
-void
-t8_scheme_comb_cxx_destroy (t8_scheme_comb_cxx_t *s);
-
 T8_EXTERN_C_END ();

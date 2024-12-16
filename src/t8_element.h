@@ -62,31 +62,6 @@ struct t8_scheme_cxx
   t8_eclass_scheme_c *eclass_schemes[T8_ECLASS_COUNT];
 };
 
-/** This typedef holds virtual functions for a particular combinations of two element classes. */
-// typedef struct t8_eclass_scheme_comb t8_eclass_scheme_comb_c;
-
-typedef struct t8_scheme_comb_cxx t8_scheme_comb_cxx_t;
-
-/** The scheme holds implementations for one or more combinations of two element classes. */
-struct t8_scheme_comb_cxx
-{
-  /** Reference counter for this scheme. */
-  sc_refcount_t rc;
-
-  /** This matrix holds one virtual table per combination of two element classes. */
-  //t8_eclass_scheme_comb_c *eclass_schemes_comb[T8_ECLASS_COUNT][T8_ECLASS_COUNT];
-  t8_eclass_scheme_c *eclass_schemes_comb[T8_ECLASS_COUNT][T8_ECLASS_COUNT]; //2dimensional array
-};
-
-// typedef struct t8_scheme_2_5D_cxx t8_scheme_2_5D_cxx_t;
-
-// struct t8_scheme_2_5D_cxx
-// {
-//   t8_scheme_cxx_t *scheme_1_cxx;
-
-//   t8_scheme_cxx_t *scheme_2_cxx;
-// }
-
 /** This array holds the reference coordinates of each vertex of each element.
  *  It can e.g. be used with the \ref t8_element_reference_coords function.
  *  Usage: t8_element_corner_ref_coords[eclass][vertex][dimension]
@@ -106,12 +81,6 @@ extern const double t8_element_centroid_ref_coords[T8_ECLASS_COUNT][3];
 void
 t8_scheme_cxx_ref (t8_scheme_cxx_t *scheme);
 
-/**
- * TODO
-*/
-void
-t8_scheme_comb_cxx_ref (t8_scheme_comb_cxx_t *scheme);
-
 /** Decrease the reference counter of a scheme.
  * If the counter reaches zero, this scheme is destroyed.
  * \param [in,out] pscheme      On input, the scheme pointed to must exist
@@ -124,21 +93,9 @@ t8_scheme_comb_cxx_ref (t8_scheme_comb_cxx_t *scheme);
 void
 t8_scheme_cxx_unref (t8_scheme_cxx_t **pscheme);
 
-/**
- * TODO
-*/
-void
-t8_scheme_comb_cxx_unref (t8_scheme_comb_cxx_t **pscheme);
-
 /* TODO: document, see t8_element.hxx */
 extern void
 t8_scheme_cxx_destroy (t8_scheme_cxx_t *s);
-
-/**
- * TODO
-*/
-extern void
-t8_scheme_comb_cxx_destroy (t8_scheme_comb_cxx_t *s);
 
 T8_EXTERN_C_END ();
 
