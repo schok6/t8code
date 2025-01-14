@@ -67,13 +67,6 @@ struct t8_eclass_scheme
    */
   virtual size_t
   t8_element_size (void) const;
-
-  // /**
-  //  * TODO
-  // */
-  virtual t8_eclass_t
-  t8_element_get_eclass (int dir = 0) const
-   = 0;
   
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.
@@ -144,6 +137,11 @@ struct t8_eclass_scheme
    */
   virtual void
   t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const
+    = 0;
+
+  //Needed for 2_5D
+  virtual void
+  t8_element_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
     = 0;
 
   /** Compute the number of siblings of an element. That is the number of 
@@ -294,7 +292,7 @@ struct t8_eclass_scheme
    * \note level 0 elements do not form a family.
    */
   virtual int
-  t8_element_is_family (t8_element_t *const *fam) const
+  t8_element_is_family (t8_element_t *const *fam, int dir = 0) const
     = 0;
 
   /** Compute the nearest common ancestor of two elements. That is,
@@ -529,7 +527,7 @@ struct t8_eclass_scheme
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir = 0) const
+  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
     = 0;
 
   /** Compute the linear id of a given element in a hypothetical uniform
@@ -539,7 +537,7 @@ struct t8_eclass_scheme
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir = 0) const
+  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
     = 0;
 
   /** Compute the first descendant of a given element.
@@ -549,7 +547,7 @@ struct t8_eclass_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir = 0) const
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
     = 0;
 
   /** Compute the last descendant of a given element.
@@ -559,7 +557,7 @@ struct t8_eclass_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const
+  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
     = 0;
 
   /** Construct the successor in a uniform refinement of a given element.
@@ -567,7 +565,7 @@ struct t8_eclass_scheme
    * \param [in,out] elem2  The element whose entries will be set.
    */
   virtual void
-  t8_element_successor (const t8_element_t *t, t8_element_t *s, int dir = 0) const
+  t8_element_successor (const t8_element_t *t, t8_element_t *s) const
     = 0;
 
   /** Compute the coordinates of a given element vertex inside a reference tree
@@ -709,13 +707,6 @@ struct t8_eclass_scheme
   */
   virtual int
   t8_element_get_variable (const t8_element_t *elem, int var, int dir = 0) const
-    = 0;
-
-  /**
-  * TODO
-  */
-  virtual t8_eclass_scheme_c *
-  t8_element_get_scheme (int dir = 0) const
     = 0;
 
   /** Initialize an array of allocated elements.

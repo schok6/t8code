@@ -364,7 +364,9 @@ t8_element_last_descendant (const t8_eclass_scheme_c *ts, const t8_element_t *el
 {
   T8_ASSERT (ts != NULL);
 
-  ts->t8_element_last_descendant (elem, desc, level);
+  std::vector<int> levels = {level};
+
+  ts->t8_element_last_descendant (elem, desc, levels);
 }
 
 void

@@ -76,6 +76,43 @@ t8_vec_copy (const double vec_in[3], double vec_out[3])
  *                     Equivalent to norm (X-Y).
  */
 static inline double
+t8_vec_dist_horizontal (const double vec_x[3], const double vec_y[3])
+{
+  double dist = 0;
+
+  for (int i = 0; i < 2; i++) {
+    dist += SC_SQR (vec_x[i] - vec_y[i]);
+  }
+  return sqrt (dist);
+}
+
+static inline double
+t8_vec_dist_vertical (const double vec_x[3], const double vec_y[3])
+{
+  double dist = 0;
+
+  dist += SC_SQR (vec_x[2] - vec_y[2]);
+  return sqrt (dist);
+}
+
+static inline double
+t8_vec_dist_yz (const double vec_x[3], const double vec_y[3])
+{
+  double dist = 0;
+
+  for (int i = 1; i < 3; i++) {
+    dist += SC_SQR (vec_x[i] - vec_y[i]);
+  }
+  return sqrt (dist);
+}
+
+/** Euclidean distance of X and Y.
+ * \param [in]  vec_x  A 3D vector.
+ * \param [in]  vec_y  A 3D vector.
+ * \return             The euclidean distance.
+ *                     Equivalent to norm (X-Y).
+ */
+static inline double
 t8_vec_dist (const double vec_x[3], const double vec_y[3])
 {
   double dist = 0;
