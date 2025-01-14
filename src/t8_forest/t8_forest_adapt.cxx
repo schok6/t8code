@@ -393,6 +393,12 @@ t8_forest_adapt (t8_forest_t forest)
   int is_family;
   int element_removed = 0;
 
+  int num_children1;
+  int num_children2;
+  int num_siblings2;
+  int level2;
+  int elems_dir2;
+
   T8_ASSERT (forest != NULL);
   T8_ASSERT (forest->set_from != NULL);
   T8_ASSERT (forest->set_adapt_recursive != -1);
@@ -429,9 +435,15 @@ t8_forest_adapt (t8_forest_t forest)
     tree = t8_forest_get_tree (forest, ltree_id);
     tree_from = t8_forest_get_tree (forest_from, ltree_id);
     telements = &tree->elements;
+
+    /* Number of elements in the telements */
+    t8_locidx_t num_telements = (t8_locidx_t) t8_element_array_get_count (telements);
+    t8_global_productionf("t8_element_array_get_count (telements): %li \n", t8_element_array_get_count (telements));
+
     telements_from = &tree_from->elements;
     /* Number of elements in the old tree */
     num_el_from = (t8_locidx_t) t8_element_array_get_count (telements_from);
+    t8_global_productionf("t8_element_array_get_count (telements_from): %i", num_el_from);
     T8_ASSERT (num_el_from == t8_forest_get_tree_num_elements (forest_from, ltree_id));
     /* Continue only if tree_from is not empty.
      * Otherwise there is nothing to adapt, since elements can't be inserted. */
@@ -448,12 +460,22 @@ t8_forest_adapt (t8_forest_t forest)
       el_coarsen = 0;
       t8_global_productionf ("forest->set_adapt_direction: %i \n", forest->set_adapt_direction);
       if (forest->set_adapt_direction == 1){
+        num_children2 = tscheme->t8_element_num_children (first_element_from, 2);
+        level2 = tscheme->t8_element_level(first_element_from, 2);
+        num_children1 = tscheme->t8_element_num_children (first_element_from, 1) / pow(num_children2, level2);
+        // num_siblings2 = tscheme->t8_element_num_siblings (first_element_from, 2); //needed for break criterion to find the elements for refinement
+        // //num_children = tscheme->t8_element_num_children (first_element_from, 1);
+        // curr_size_elements = num_children1*pow(num_children2,level2);
+        // num_children = curr_size_elements;
+        // curr_size_elements_from = tscheme->t8_element_num_siblings (first_element_from, 1) * pow(tscheme->t8_element_num_siblings (first_element_from, 2), level2);
+
+        num_siblings2 = tscheme->t8_element_num_siblings (first_element_from, 2); //needed for break criterion to find the elements for refinement
         num_children = tscheme->t8_element_num_children (first_element_from, 1);
         curr_size_elements = num_children;
         curr_size_elements_from = tscheme->t8_element_num_siblings (first_element_from, 1);
         //num_siblings: num_children of parent
-        t8_global_productionf ("curr_size_elements: %i \n", curr_size_elements);
-        t8_global_productionf ("curr_size_elements_from: %i \n", curr_size_elements_from);
+        t8_global_productionf ("curr_size_elements direction 1: %i \n", curr_size_elements);
+        t8_global_productionf ("curr_size_elements_from direction 1: %i \n", curr_size_elements_from);
       }
       else if (forest->set_adapt_direction == 2){
         num_children = tscheme->t8_element_num_children (first_element_from, 2);
@@ -469,10 +491,13 @@ t8_forest_adapt (t8_forest_t forest)
         curr_size_elements_from = tscheme->t8_element_num_siblings (first_element_from);
       }
       /* Buffer for a family of new elements */
+      T8_ASSERT (num_children > 0);
       elements = T8_ALLOC (t8_element_t *, num_children); //num_children = curr_size_elements
       /* Buffer for a family of old elements */
       elements_from = T8_ALLOC (t8_element_t *, curr_size_elements_from);
       /* We now iterate over all elements in this tree and check them for refinement/coarsening. */
+      t8_global_productionf("el_considered: %i",el_considered);
+      t8_global_productionf("num_el_from: %i",num_el_from);
       while (el_considered < num_el_from) {
         /* Load the current element and at most num_siblings-1 many others into
          * the elements_from buffer. Stop when we are certain that they cannot form
@@ -480,7 +505,11 @@ t8_forest_adapt (t8_forest_t forest)
          * At the end is_family will be true, if these elements form a family.
          */
         if (forest->set_adapt_direction == 1){
+          // num_siblings = tscheme->t8_element_num_siblings (t8_element_array_index_locidx (telements_from, el_considered), 1)
+          //   * pow(tscheme->t8_element_num_siblings (t8_element_array_index_locidx (telements_from, el_considered), 2),
+          //   tscheme->t8_element_level (t8_element_array_index_locidx (telements_from, el_considered), 2));
           num_siblings = tscheme->t8_element_num_siblings (t8_element_array_index_locidx (telements_from, el_considered), 1);
+          t8_global_productionf("num_siblings: %i",num_siblings);
         }
         else if (forest->set_adapt_direction == 2){
           num_siblings = tscheme->t8_element_num_siblings (t8_element_array_index_locidx (telements_from, el_considered), 2);
@@ -501,8 +530,30 @@ t8_forest_adapt (t8_forest_t forest)
         }
 #endif
         for (zz = 0; zz < num_siblings && el_considered + (t8_locidx_t) zz < num_el_from; zz++) {
+
+          t8_global_productionf("el_considered: %i \n", el_considered);
+          t8_global_productionf("----------------");
+          t8_global_productionf("el_inserted: %i \n", el_inserted);
+          t8_global_productionf("----------------");
           /* TODO: In a future version elements_from[zz] should be const and we should call t8_element_array_index_locidx (the const version). */
-          elements_from[zz] = t8_element_array_index_locidx_mutable (telements_from, el_considered + (t8_locidx_t) zz);
+          if (forest->set_adapt_direction == 1){
+            /*Assumption: forest is uniform refined in z-direction given the level of the first element*/
+            // if (zz == 0){
+            //   elements_from[0] = t8_element_array_index_locidx_mutable (telements_from, el_considered);
+            // }
+            // else{
+            //   level2 = tscheme->t8_element_level (elements_from[0], 2);
+              elems_dir2 = tscheme->t8_element_count_leaves_from_root (level2, 2);
+              //t8_global_productionf("elems_dir2: %i", elems_dir2);
+            //   elements_from[zz] = t8_element_array_index_locidx_mutable (telements_from, el_considered + (t8_locidx_t) zz);
+            // }
+          }
+          // else{
+            elements_from[zz] = t8_element_array_index_locidx_mutable (telements_from, el_considered + (t8_locidx_t) zz);
+            // //Print coordinates
+            // t8_productionf("elements_from[zz] coordinates:");
+            // tscheme->t8_element_debug_print (elements_from[zz]);
+          // }
           /* This is a quick check whether we build up a family here and could
            * abort early if not.
            * If the child id of the current element is not zz, then it cannot
@@ -512,14 +563,35 @@ t8_forest_adapt (t8_forest_t forest)
           int child_id;
           if (forest->set_adapt_direction == 1){
             child_id = tscheme->t8_element_child_id (elements_from[zz], 1);
+            t8_global_productionf("child_id: %i", child_id);
           }
           else if (forest->set_adapt_direction == 2){
             child_id = tscheme->t8_element_child_id (elements_from[zz], 2);
           }
           else {
             child_id = tscheme->t8_element_child_id (elements_from[zz]);
+            t8_global_productionf("child_id: %i", child_id);
           }
-          if (!forest_from->incomplete_trees && child_id != zz) {
+          if (!forest_from->incomplete_trees && child_id != zz && forest->set_adapt_direction != 1) {
+            t8_global_productionf("What happens here?");
+            break;
+          }
+
+          // int i = zz / 4 != child_id;
+          // t8_global_productionf(" zz / 4 != child_id: %i", i);
+          // bool k = (zz == 3 && (zz / 4) != child_id);
+          // t8_global_productionf(" (zz == 3 && zz / 4 != child_id): %i", k);
+          // int i = zz / (pow(num_siblings2, level2));
+          // t8_global_productionf(" zz / (pow(num_siblings2, level2)): %i \n", i);
+          // int j = (pow(num_siblings2, level2));
+          // t8_global_productionf(" (pow(num_siblings2, level2)): %i \n", j);
+          //[TODO] break criterion for horizontal direction
+          // if (!forest_from->incomplete_trees && (zz == 3 && (zz / 4) != child_id) && forest->set_adapt_direction == 1) {
+          int test1 = pow(num_siblings2, level2) - 1;
+          int test2 = test1 + 1;
+          // if (!forest_from->incomplete_trees && (zz == (pow(num_siblings2, level2) - 1) && (zz / (pow(num_siblings2, level2))) != child_id) && forest->set_adapt_direction == 1) {
+          if (!forest_from->incomplete_trees && (zz == test1 && (zz / test2) != child_id) && forest->set_adapt_direction == 1) {
+            t8_global_productionf("What happens here?");
             break;
           }
         }
@@ -537,10 +609,31 @@ t8_forest_adapt (t8_forest_t forest)
             is_family = 1;
           }
         }
-        else if (zz == num_siblings && tscheme->t8_element_is_family (elements_from)) {
-          /* We will pass a full family to the adapt callback */
-          is_family = 1;
-          num_elements_to_adapt_callback = num_siblings;
+        else if (forest->set_adapt_direction == 1) {
+          //int test = tscheme->t8_element_is_family (elements_from, 1);
+          //t8_global_productionf("tscheme->t8_element_is_family (elements_from, 1): %i \n", test);
+          if (zz == num_siblings && tscheme->t8_element_is_family (elements_from, 1)) {
+            t8_global_productionf("full family is passed to callback \n");
+            /* We will pass a full family to the adapt callback */
+            is_family = 1;
+            num_elements_to_adapt_callback = num_siblings;
+            t8_global_productionf("num_siblings: %i", num_siblings);
+            t8_global_productionf("Next.\n");
+          }
+        }
+        else if (forest->set_adapt_direction == 2) {
+          if (zz == num_siblings && tscheme->t8_element_is_family (elements_from, 2)) {
+            /* We will pass a full family to the adapt callback */
+            is_family = 1;
+            num_elements_to_adapt_callback = num_siblings;
+          }
+        }
+        else if (forest->set_adapt_direction != 1 && forest->set_adapt_direction != 2) {
+          if (zz == num_siblings && tscheme->t8_element_is_family (elements_from)) {
+            /* We will pass a full family to the adapt callback */
+            is_family = 1;
+            num_elements_to_adapt_callback = num_siblings;
+          }
         }
         T8_ASSERT (num_elements_to_adapt_callback <= num_siblings);
 #if T8_ENABLE_DEBUG
@@ -551,7 +644,15 @@ t8_forest_adapt (t8_forest_t forest)
         }
         else {
           T8_ASSERT (forest_from->incomplete_trees == 0);
-          T8_ASSERT (!is_family || tscheme->t8_element_is_family (elements_from));
+          if (forest->set_adapt_direction == 1) {
+            T8_ASSERT (!is_family || tscheme->t8_element_is_family (elements_from, 1));
+          }
+          else if (forest->set_adapt_direction == 2) {
+            T8_ASSERT (!is_family || tscheme->t8_element_is_family (elements_from, 2));
+          }
+          else{
+            T8_ASSERT (!is_family || tscheme->t8_element_is_family (elements_from));
+          }
         }
 #endif
         t8_global_productionf ("Test - adapt");
@@ -564,7 +665,7 @@ t8_forest_adapt (t8_forest_t forest)
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, el_considered, tscheme, is_family,
                                        num_elements_to_adapt_callback, elements_from);
 
-        t8_global_productionf ("refine: %i", refine);                           
+        t8_global_productionf ("refine: %i \n \n", refine);                           
 
         T8_ASSERT (is_family || refine != -1);
         int level;
@@ -585,6 +686,11 @@ t8_forest_adapt (t8_forest_t forest)
           /* The first element is to be refined */
           if (forest->set_adapt_direction == 1) {
             num_children = tscheme->t8_element_num_children (elements_from[0], 1);
+
+            // num_children = tscheme->t8_element_num_children (elements_from[0], 1)
+            // * pow(tscheme->t8_element_num_children (elements_from[0], 2),
+            // tscheme->t8_element_level (elements_from[0], 2));
+            
           }
           else if (forest->set_adapt_direction == 2) {
             num_children = tscheme->t8_element_num_children (elements_from[0], 2);
@@ -593,10 +699,11 @@ t8_forest_adapt (t8_forest_t forest)
             num_children = tscheme->t8_element_num_children (elements_from[0]);
           }
           if (num_children > curr_size_elements) {
+            t8_global_productionf("THIS HAPPENS.\n");
             elements = T8_REALLOC (elements, t8_element_t *, num_children);
             curr_size_elements = num_children;
           }
-          if (forest->set_adapt_recursive) {
+          if (forest->set_adapt_recursive) { //TODO
             /* Create the children of this element */
             tscheme->t8_element_new (num_children, elements);
             if (forest->set_adapt_direction == 1) {
@@ -608,6 +715,7 @@ t8_forest_adapt (t8_forest_t forest)
             else {
               tscheme->t8_element_children (elements_from[0], num_children, elements);
             }
+            // t8_global_productionf("num_children - 1: %i\n", num_children - 1);
             for (ci = num_children - 1; ci >= 0; ci--) {
               /* Prepend the children to the refine_list.
                * These should now be the only elements in the list.
@@ -620,58 +728,94 @@ t8_forest_adapt (t8_forest_t forest)
             el_coarsen = el_inserted;
           }
           else {
+            t8_global_productionf("num_children: %i \n", num_children);
+            /* Number of elements in the telements */
+            num_telements = (t8_locidx_t) t8_element_array_get_count (telements);
+            t8_global_productionf("t8_element_array_get_count (telements): %li \n", t8_element_array_get_count (telements));
             (void) t8_element_array_push_count (telements, num_children);
+            t8_global_productionf("t8_element_array_get_count (telements): %li \n", t8_element_array_get_count (telements));
             for (zz = 0; zz < num_children; zz++) {
               /* TODO: In a future version elements_from[zz] should be const and we should call t8_element_array_index_locidx (the const version). */
               elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
             }
             if (forest->set_adapt_direction == 1) {
               tscheme->t8_element_children (elements_from[0], num_children, elements, 1);
+                // for (t8_gloidx_t i = 0; i < num_children; i++) {
+                //   t8_global_productionf ("---------------------\n");
+                //   //Print coordinates
+                //   const t8_element_t *elem_test = elements[i];
+                //   t8_global_productionf("elements[%i]:", i);
+                //   tscheme->t8_element_get_variable (elem_test, 0, 0);
+                  
+                //   // int x1 = tscheme->t8_element_get_variable (elem_test, 1, 1);
+                //   // int y1 = tscheme->t8_element_get_variable (elem_test, 2, 1);
+                //   // int x2 = tscheme->t8_element_get_variable (elem_test, 1, 2);
+                //   // t8_global_productionf ("test coordinates???: (%i,%i) x %i\n", x1, y1, x2);
+                //   t8_global_productionf ("---------------------\n");
+                //   //T8_FREE(elem_test);
+                // }
             }
             else if (forest->set_adapt_direction == 2) {
-      
               tscheme->t8_element_children (elements_from[0], num_children, elements, 2);
-
-
-              // for (int i = 0; i < num_children; i++) {
-              //   t8_global_productionf ("---------------------\n");
-              //   const t8_element_t *elem_test = elements[i];
-              //   int x1 = tscheme->t8_element_get_variable (elem_test, 1, 1);
-              //   int y1 = tscheme->t8_element_get_variable (elem_test, 2, 1);
-              //   int x2 = tscheme->t8_element_get_variable (elem_test, 1, 2);
-              //   t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1, y1, x2);
-              //   t8_global_productionf ("---------------------\n");
-              //   T8_FREE(elem_test);
-              // }
-
             }
             else {
               tscheme->t8_element_children (elements_from[0], num_children, elements);
             }
             el_inserted += (t8_locidx_t) num_children;
           }
-          el_considered++;
+          if (forest->set_adapt_direction == 1) {
+            el_considered += (t8_locidx_t) elems_dir2;
+          }
+          else {
+            el_considered++;
+          }
         }
         else if (refine == -1) {
           /* The elements form a family and are to be coarsened. */
-          /* Make room for one more new element. */
-          elements[0] = t8_element_array_push (telements);
-          /* Compute the parent of the current family.
-           * This parent is now inserted in telements. */
-          T8_ASSERT (level > 0);
+
           if (forest->set_adapt_direction == 1) {
-            tscheme->t8_element_parent (elements_from[0], elements[0], 1);
-          }
-          else if (forest->set_adapt_direction == 2) {
-            tscheme->t8_element_parent (elements_from[0], elements[0], 2);
+            /* Make room for one new column of elements and insert the parent column. */
+            t8_global_productionf ("CASE: elements form family and parent is computed \n");
+
+            /* Number of elements in the telements */
+            num_telements = (t8_locidx_t) t8_element_array_get_count (telements);
+            t8_global_productionf("t8_element_array_get_count (telements): %li \n", t8_element_array_get_count (telements));
+            (void) t8_element_array_push_count (telements, elems_dir2);
+            t8_global_productionf("t8_element_array_get_count (telements): %li \n", t8_element_array_get_count (telements));
+            for (zz = 0; zz < elems_dir2; zz++) {
+              /* TODO: In a future version elements_from[zz] should be const and we should call t8_element_array_index_locidx (the const version). */
+              elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
+            }
+            
+            //Print coordinates
+            t8_productionf("elements_from[0] coordinates:");
+            tscheme->t8_element_debug_print (elements_from[0]);
+            tscheme->t8_element_parent_2_5D (elements_from[0], elements);
+                
+            //(void) t8_element_array_push_count (telements, elems_dir2 - 1);
           }
           else {
-            tscheme->t8_element_parent (elements_from[0], elements[0]);
+            /* Make room for one more new element. */
+            elements[0] = t8_element_array_push (telements);
+            /* Compute the parent of the current family.
+            * This parent is now inserted in telements. */
+            T8_ASSERT (level > 0);
+            if (forest->set_adapt_direction == 2) {
+              tscheme->t8_element_parent (elements_from[0], elements[0], 2);
+            }
+            else {
+              tscheme->t8_element_parent (elements_from[0], elements[0]);
+            }
           }
           /* num_siblings is now equivalent to the number of children of elements[0],
            * as num_siblings is always associated with elements_from*/
           num_children = num_siblings;
-          el_inserted++;
+          if (forest->set_adapt_direction == 1) {
+            el_inserted += (t8_locidx_t) elems_dir2;
+          }
+          else {
+            el_inserted++;
+          }
           if (num_children > curr_size_elements) {
             elements = T8_REALLOC (elements, t8_element_t *, num_children);
             curr_size_elements = num_children;
@@ -702,14 +846,14 @@ t8_forest_adapt (t8_forest_t forest)
                                                  &el_inserted, elements);
               }
             }
-            //in cases if const int for child_id -> braucht man das? LUKAS
 
-            // if (child_id > 0 && child_id == num_children - 1) {
-            //   t8_forest_adapt_coarsen_recursive (forest, ltree_id, el_considered, tscheme, telements, el_coarsen,
-            //                                      &el_inserted, elements);
-            // }
           }
-          el_considered += (t8_locidx_t) num_elements_to_adapt_callback;
+          // if (forest->set_adapt_direction == 1) {
+          //   el_considered += (t8_locidx_t) (num_elements_to_adapt_callback * elems_dir2);
+          // }
+          // else {
+            el_considered += (t8_locidx_t) num_elements_to_adapt_callback;
+          // }
         }
         else if (refine == 0) {
           /* The considered elements are neither to be coarsened nor is the first
@@ -717,7 +861,26 @@ t8_forest_adapt (t8_forest_t forest)
            * We copy the element to the new element array. */
           elements[0] = t8_element_array_push (telements);
           tscheme->t8_element_copy (elements_from[0], elements[0]);
-          el_inserted++;
+          if (forest->set_adapt_direction == 1) {
+            // (void) t8_element_array_push_count (telements, elems_dir2 - 1);
+            t8_global_productionf("elems_dir2: %i", elems_dir2);
+            // (void) t8_element_array_push_count (telements, elems_dir2 - 1);
+            for (int elem_z = 1; elem_z < elems_dir2; elem_z++){
+              elements[elem_z] = t8_element_array_push (telements);
+              tscheme->t8_element_copy (elements_from[elem_z], elements[elem_z]);
+              //Print coordinates
+              t8_productionf("elements[elem_z] coordinates:");
+              tscheme->t8_element_debug_print (elements[elem_z]);
+              //t8_global_productionf("Test");
+              //tscheme->t8_element_get_variable (elements_from[elem_z], 0, 0);
+              //tscheme->t8_element_get_variable (elements[elem_z], 0, 0);
+              //el_inserted ++;
+            }
+            el_inserted+= (t8_locidx_t) elems_dir2;
+          }
+          else {
+            el_inserted++;
+          }
           if (forest->set_adapt_recursive) {
             /* Adaptation is recursive.
              * If adaptation is recursive and this was the last element in its family
@@ -728,7 +891,12 @@ t8_forest_adapt (t8_forest_t forest)
                                                  &el_inserted, elements);
             }
           }
-          el_considered++;
+          if (forest->set_adapt_direction == 1) {
+            el_considered += (t8_locidx_t) elems_dir2;
+          }
+          else {
+            el_considered++;
+          }
         }
         else {
           /* Remove the element */
@@ -757,6 +925,57 @@ t8_forest_adapt (t8_forest_t forest)
                        ltree_id);
 
       /* clean up */
+      // if (forest->set_adapt_direction == 1) {
+      //   tscheme->t8_element_destroy(elems_dir2, elements);
+      // }
+
+      // for (int i = 0; i < num_children; i++) {
+      //   t8_global_productionf ("---------------------\n");
+      //   t8_element_t *elem_test = elements[i];
+      //   int x1 = tscheme->t8_element_get_variable (elem_test, 1, 1);
+      //   int y1 = tscheme->t8_element_get_variable (elem_test, 2, 1);
+      //   int x2 = tscheme->t8_element_get_variable (elem_test, 1, 2);
+      //   t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1, y1, x2);
+      //   t8_global_productionf ("---------------------\n");
+      //   T8_FREE(elem_test);
+      // }
+      int length_test = t8_element_array_get_count (telements);
+      t8_global_productionf("t8_element_array_get_count (telements): %li \n", t8_element_array_get_count (telements));
+
+      for (t8_gloidx_t i = 0; i < length_test; i++) {
+        t8_global_productionf ("---------------------\n");
+        //Print coordinates
+        const t8_element_t *elem_test = t8_element_array_index_locidx (telements, i);
+        t8_global_productionf("telements @%i:", i);
+        tscheme->t8_element_get_variable (elem_test, 0, 0);
+
+        // int x1 = tscheme->t8_element_get_variable (elem_test, 1, 1);
+        // int y1 = tscheme->t8_element_get_variable (elem_test, 2, 1);
+        // int x2 = tscheme->t8_element_get_variable (elem_test, 1, 2);
+        // t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1, y1, x2);
+        t8_global_productionf ("---------------------\n");
+        //T8_FREE(elem_test);
+      }
+
+      t8_global_productionf("num_children2: %li \n", num_children2);
+      for (t8_gloidx_t i = 0; i < num_children2; i++) {
+        t8_global_productionf ("---------------------\n");
+        //Print coordinates
+        const t8_element_t *elem_test = elements[i];
+        t8_global_productionf("elements[%i]:", i);
+        tscheme->t8_element_get_variable (elem_test, 0, 0);
+                  
+        // int x1 = tscheme->t8_element_get_variable (elem_test, 1, 1);
+        // int y1 = tscheme->t8_element_get_variable (elem_test, 2, 1);
+        // int x2 = tscheme->t8_element_get_variable (elem_test, 1, 2);
+        // t8_global_productionf ("test coordinates???: (%i,%i) x %i\n", x1, y1, x2);
+        t8_global_productionf ("---------------------\n");
+        //T8_FREE(elem_test);
+      }
+
+      // tscheme->t8_element_destroy(num_children, elements);
+      // t8_global_productionf("Test");
+
       T8_FREE (elements);
       T8_FREE (elements_from);
     } /* End if (num_el_from > 0) */

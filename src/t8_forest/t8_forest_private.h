@@ -76,7 +76,7 @@ t8_forest_populate (t8_forest_t forest);
  * TODO
 */
 void
-t8_forest_populate_2_5D_2 (t8_forest_t forest);
+t8_forest_populate_2_5D (t8_forest_t forest);
 
 /** Return the eclass scheme of a given element class associated to a forest.
  * This function does not check whether the given forest is committed, use with

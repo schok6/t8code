@@ -908,7 +908,7 @@ t8_forest_new_uniform (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int leve
  * TODO
 */
 t8_forest_t
-t8_forest_new_uniform_2_5D_2 (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int level1, 
+t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int level1, 
                             const int level2, const int do_face_ghost, sc_MPI_Comm comm);
 
 /** Build a adapted forest from another forest.
