@@ -76,12 +76,6 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
   virtual int
   t8_element_get_variable (const t8_element_t *elem, int var, int dir = 0) const;
 
-  /**
-  * TODO
-  */
-  virtual t8_eclass_scheme_c *
-  t8_element_get_scheme (int dir = 0) const;
-
   /** Initialize an array of allocated prism elements.
    * \param [in] length     The number of prism elements to be initialized.
    * \param [in,out] elems  On input an array of \b length many allocated
@@ -154,7 +148,17 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    */
   virtual void
   t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const;
-
+  
+  /**
+   * For 2_5D
+  */
+  virtual void
+  t8_element_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
+  {
+    SC_ABORT ("Needed for 2_5D.\n");
+    return; /* suppresses compiler warning */
+  }
+  
   /** Compute a specific sibling of a given prism element \b elem and store it in \b sibling.
    * \b sibling needs to be an existing element. No memory is allocated by this function.
    * \b elem and \b sibling can point to the same element, then the entries of
@@ -266,7 +270,7 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    * \note level 0 elements do not form a family.
    */
   virtual int
-  t8_element_is_family (t8_element_t *const *fam) const;
+  t8_element_is_family (t8_element_t *const *fam, int dir = 0) const;
 
   /** Compute the nearest common ancestor of two elements. That is, the element with highest level that still has 
    * both given elements as descendants.
@@ -460,7 +464,7 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    * \param [in] id       The linear id. id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir = 0) const;
+  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
@@ -469,7 +473,7 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir = 0) const;
+  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -477,7 +481,7 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir = 0) const;
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -485,7 +489,7 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
+  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
 
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
@@ -493,7 +497,7 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
    * \param [in] level    The level of the uniform refinement to consider.
    */
   virtual void
-  t8_element_successor (const t8_element_t *elem, t8_element_t *succ, int dir = 0) const;
+  t8_element_successor (const t8_element_t *elem, t8_element_t *succ) const;
 
   /** Get the integer coordinates of the anchor node of an element. The default scheme implements the Morton type SFCs.
    * In these SFCs the elements are positioned in a cube [0,1]^(dL) with dimension d (=0,1,2,3) and  L the maximum 
@@ -541,12 +545,6 @@ struct t8_default_scheme_prism_c: public t8_default_scheme_common_c
   virtual void
   t8_element_reference_coords (const t8_element_t *elem, const double *ref_coords, const size_t num_coords,
                                double *out_coords) const;
-
-  // /**
-  //  * TODO
-  // */
-  virtual t8_eclass_t
-  t8_element_get_eclass (int dir = 0) const;
   
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.

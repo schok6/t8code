@@ -149,7 +149,7 @@ t8_default_scheme_vertex_c::t8_element_ancestor_id (const t8_element_t *elem, in
 }
 
 int
-t8_default_scheme_vertex_c::t8_element_is_family (t8_element_t *const *fam) const
+t8_default_scheme_vertex_c::t8_element_is_family (t8_element_t *const *fam, int dir) const
 {
 #ifdef T8_ENABLE_DEBUG
   int i;
@@ -195,7 +195,7 @@ t8_default_scheme_vertex_c::t8_element_is_root_boundary (const t8_element_t *ele
 }
 
 void
-t8_default_scheme_vertex_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
+t8_default_scheme_vertex_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
 {
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DVERTEX_MAXLEVEL);
   T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << 3 * levels[0]);
@@ -205,7 +205,7 @@ t8_default_scheme_vertex_c::t8_element_set_linear_id (t8_element_t *elem, std::v
 }
 
 t8_linearidx_t
-t8_default_scheme_vertex_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
+t8_default_scheme_vertex_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DVERTEX_MAXLEVEL);
@@ -214,7 +214,7 @@ t8_default_scheme_vertex_c::t8_element_get_linear_id (const t8_element_t *elem, 
 }
 
 void
-t8_default_scheme_vertex_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
+t8_default_scheme_vertex_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
@@ -223,12 +223,12 @@ t8_default_scheme_vertex_c::t8_element_first_descendant (const t8_element_t *ele
 }
 
 void
-t8_default_scheme_vertex_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_vertex_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
-  T8_ASSERT (0 <= level && level <= T8_DVERTEX_MAXLEVEL);
-  t8_dvertex_last_descendant ((const t8_dvertex_t *) elem, (t8_dvertex_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DVERTEX_MAXLEVEL);
+  t8_dvertex_last_descendant ((const t8_dvertex_t *) elem, (t8_dvertex_t *) desc, levels[0]);
 }
 
 void
@@ -285,12 +285,6 @@ t8_default_scheme_vertex_c::t8_element_to_string (const t8_element_t *elem, char
 }
 #endif
 
-t8_eclass_t
-t8_default_scheme_vertex_c::t8_element_get_eclass (int dir) const
-{
-  SC_ABORT ("Not implemented.\n");
-}
-
 int
 t8_default_scheme_vertex_c::t8_element_refines_irregular () const
 {
@@ -319,12 +313,7 @@ int
 t8_default_scheme_vertex_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   T8_ASSERT( "Not implemented." );
-}
-
-t8_eclass_scheme_c *
-t8_default_scheme_vertex_c::t8_element_get_scheme (int dir) const
-{
-  T8_ASSERT( "Not implemented." );
+  return 0;
 }
 
 void

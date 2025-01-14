@@ -174,7 +174,7 @@ t8_default_scheme_tri_c::t8_element_ancestor_id (const t8_element_t *elem, int l
 }
 
 int
-t8_default_scheme_tri_c::t8_element_is_family (t8_element_t *const *fam) const
+t8_default_scheme_tri_c::t8_element_is_family (t8_element_t *const *fam, int dir) const
 {
 #ifdef T8_ENABLE_DEBUG
   {
@@ -411,7 +411,7 @@ t8_default_scheme_tri_c::t8_element_face_neighbor_inside (const t8_element_t *el
 }
 
 void
-t8_default_scheme_tri_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
+t8_default_scheme_tri_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
@@ -421,7 +421,7 @@ t8_default_scheme_tri_c::t8_element_set_linear_id (t8_element_t *elem, std::vect
 }
 
 t8_linearidx_t
-t8_default_scheme_tri_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
+t8_default_scheme_tri_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
@@ -430,7 +430,7 @@ t8_default_scheme_tri_c::t8_element_get_linear_id (const t8_element_t *elem, std
 }
 
 void
-t8_default_scheme_tri_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
+t8_default_scheme_tri_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
@@ -439,16 +439,16 @@ t8_default_scheme_tri_c::t8_element_first_descendant (const t8_element_t *elem, 
 }
 
 void
-t8_default_scheme_tri_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_tri_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
-  T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
-  t8_dtri_last_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
+  t8_dtri_last_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, levels[0]);
 }
 
 void
-t8_default_scheme_tri_c::t8_element_successor (const t8_element_t *elem1, t8_element_t *elem2, int dir) const
+t8_default_scheme_tri_c::t8_element_successor (const t8_element_t *elem1, t8_element_t *elem2) const
 {
   T8_ASSERT (t8_element_is_valid (elem1));
   T8_ASSERT (t8_element_is_valid (elem2));
@@ -489,12 +489,6 @@ t8_default_scheme_tri_c::t8_element_reference_coords (const t8_element_t *elem, 
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dtri_compute_reference_coords ((const t8_dtri_t *) elem, ref_coords, num_coords, 0, out_coords);
-}
-
-t8_eclass_t
-t8_default_scheme_tri_c::t8_element_get_eclass (int dir) const
-{
-  SC_ABORT ("Not implemented.\n");
 }
 
 int
@@ -543,23 +537,26 @@ int
 t8_default_scheme_tri_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   t8_dtri_t *el = (t8_dtri_t *) elem;
-  if (var == 1) {
-    // t8_global_productionf("el_tri->x: %i \n", el->x);
-    return el->x;
-  }
-  else if (var == 2) {
-    // t8_global_productionf("el_tri->y: %i \n", el->y);
-    return el->y;
-  }
-  else {
-    SC_ABORT ("Tri is 2D.\n");
-  }
-}
-
-t8_eclass_scheme_c *
-t8_default_scheme_tri_c::t8_element_get_scheme (int dir) const
-{
-  T8_ASSERT( "Not implemented." );
+  // if (dir == 0){
+  //   int x = el->x;
+  //   int y = el->y;
+  //   int type = el->type;
+  //   t8_global_productionf ("element coordinates tri: (%i,%i), type: %i \n", x, y, type);
+  // }
+  // else {
+    if (var == 1) {
+      // t8_global_productionf("el_tri->x: %i \n", el->x);
+      return el->x;
+    }
+    else if (var == 2) {
+      // t8_global_productionf("el_tri->y: %i \n", el->y);
+      return el->y;
+    }
+    else {
+      SC_ABORT ("Tri is 2D.\n");
+    }
+  // }
+  return 0;
 }
 
 void

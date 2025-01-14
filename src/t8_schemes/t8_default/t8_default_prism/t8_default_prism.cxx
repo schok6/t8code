@@ -50,17 +50,35 @@ int
 t8_default_scheme_prism_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   const t8_default_prism_t *p = (const t8_default_prism_t *) elem;
-  int x = p->tri.x;
-  int y = p->tri.y;
-  int z = p->line.x;
-  int type = p->tri.type;
-  t8_global_productionf ("element coordinates prism: (%i,%i,%i) & type: %i \n", x, y, z, type);
-}
-
-t8_eclass_scheme_c *
-t8_default_scheme_prism_c::t8_element_get_scheme (int dir) const
-{
-  T8_ASSERT( "Not implemented." );
+  if (dir == 0){
+    int x = p->tri.x;
+    int y = p->tri.y;
+    int z = p->line.x;
+    int type = p->tri.type;
+    t8_global_productionf ("element coordinates prism: (%i,%i,%i) & type: %i \n", x, y, z, type);
+  }
+  else if (dir == 1){
+    if (var == 1) {
+      int type = p->tri.type;
+      t8_global_productionf ("prism type: %i \n", type);
+      return p->tri.x;
+    }
+    else if(var == 2) {
+      return p->tri.y;
+    }
+    else {
+      SC_ABORT ("Hex is 3D.\n");
+    }
+  }
+  else if (dir==2){
+    if (var == 1) {
+      return p->line.x;
+    }
+  }
+  else {
+    SC_ABORT ("Prism is 3D.\n");
+  }
+  return 0;
 }
 
 void
@@ -257,7 +275,7 @@ t8_default_scheme_prism_c::t8_element_extrude_face (const t8_element_t *face, co
 }
 
 int
-t8_default_scheme_prism_c::t8_element_is_family (t8_element_t *const *fam) const
+t8_default_scheme_prism_c::t8_element_is_family (t8_element_t *const *fam, int dir) const
 {
 #ifdef T8_ENABLE_DEBUG
   int i;
@@ -356,7 +374,7 @@ t8_default_scheme_prism_c::t8_element_face_neighbor_inside (const t8_element_t *
 }
 
 void
-t8_default_scheme_prism_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
+t8_default_scheme_prism_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
 {
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DPRISM_MAXLEVEL);
   T8_ASSERT (0 <= id && id < ((t8_linearidx_t) 1) << 3 * levels[0]);
@@ -367,7 +385,7 @@ t8_default_scheme_prism_c::t8_element_set_linear_id (t8_element_t *elem, std::ve
 }
 
 void
-t8_default_scheme_prism_c::t8_element_successor (const t8_element_t *elem, t8_element_t *s, int dir) const
+t8_default_scheme_prism_c::t8_element_successor (const t8_element_t *elem, t8_element_t *s) const
 {
   T8_ASSERT (1 <= t8_element_level (elem) && t8_element_level (elem) <= T8_DPRISM_MAXLEVEL);
   T8_ASSERT (t8_element_is_valid (elem));
@@ -377,7 +395,7 @@ t8_default_scheme_prism_c::t8_element_successor (const t8_element_t *elem, t8_el
 }
 
 void
-t8_default_scheme_prism_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
+t8_default_scheme_prism_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DPRISM_MAXLEVEL);
   T8_ASSERT (t8_element_is_valid (elem));
@@ -386,11 +404,11 @@ t8_default_scheme_prism_c::t8_element_first_descendant (const t8_element_t *elem
 }
 
 void
-t8_default_scheme_prism_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_prism_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
-  T8_ASSERT (0 <= level && level <= T8_DPRISM_MAXLEVEL);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DPRISM_MAXLEVEL);
   T8_ASSERT (t8_element_is_valid (elem));
-  t8_dprism_last_descendant ((const t8_default_prism_t *) elem, (t8_default_prism_t *) desc, level);
+  t8_dprism_last_descendant ((const t8_default_prism_t *) elem, (t8_default_prism_t *) desc, levels[0]);
   T8_ASSERT (t8_element_is_valid (desc));
 }
 
@@ -426,25 +444,19 @@ t8_default_scheme_prism_c::t8_element_reference_coords (const t8_element_t *elem
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dprism_compute_reference_coords ((const t8_dprism_t *) elem, ref_coords, num_coords, out_coords);
 
-  size_t size = 3 * num_coords;
-  t8_global_productionf ("-------------------. \n");
-  for (size_t i = 0; i < size; i++) {
-    t8_global_productionf ("out_coords[%i]: %f\n", i, out_coords[i]);
-  }
-  t8_global_productionf ("-------------------. \n");
+  // size_t size = 3 * num_coords;
+  // t8_global_productionf ("-------------------. \n");
+  // for (size_t i = 0; i < size; i++) {
+  //   t8_global_productionf ("out_coords[%i]: %f\n", i, out_coords[i]);
+  // }
+  // t8_global_productionf ("-------------------. \n");
 }
 
 t8_linearidx_t
-t8_default_scheme_prism_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
+t8_default_scheme_prism_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dprism_linear_id ((const t8_dprism_t *) elem, levels[0]);
-}
-
-t8_eclass_t
-t8_default_scheme_prism_c::t8_element_get_eclass (int dir) const
-{
-  SC_ABORT ("Not implemented.\n");
 }
 
 int

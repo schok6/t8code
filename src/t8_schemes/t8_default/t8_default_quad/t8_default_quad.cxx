@@ -31,7 +31,7 @@ T8_EXTERN_C_BEGIN ();
 /* This function is used by other element functions and we thus need to
  * declare it up here */
 t8_linearidx_t
-t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir);
+t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels);
 
 #ifdef T8_ENABLE_DEBUG
 
@@ -229,7 +229,7 @@ t8_default_scheme_quad_c::t8_element_ancestor_id (const t8_element_t *elem, int 
 }
 
 int
-t8_default_scheme_quad_c::t8_element_is_family (t8_element_t *const *fam) const
+t8_default_scheme_quad_c::t8_element_is_family (t8_element_t *const *fam, int dir) const
 {
 #ifdef T8_ENABLE_DEBUG
   int i;
@@ -241,7 +241,7 @@ t8_default_scheme_quad_c::t8_element_is_family (t8_element_t *const *fam) const
 }
 
 void
-t8_default_scheme_quad_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
+t8_default_scheme_quad_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
@@ -252,7 +252,7 @@ t8_default_scheme_quad_c::t8_element_set_linear_id (t8_element_t *elem, std::vec
 }
 
 t8_linearidx_t
-t8_default_scheme_quad_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
+t8_default_scheme_quad_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
@@ -261,7 +261,7 @@ t8_default_scheme_quad_c::t8_element_get_linear_id (const t8_element_t *elem, st
 }
 
 void
-t8_default_scheme_quad_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir) const
+t8_default_scheme_quad_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
@@ -271,17 +271,17 @@ t8_default_scheme_quad_c::t8_element_first_descendant (const t8_element_t *elem,
 }
 
 void
-t8_default_scheme_quad_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_quad_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (desc));
-  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
-  p4est_quadrant_last_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, level);
+  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
+  p4est_quadrant_last_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, levels[0]);
   T8_QUAD_SET_TDIM ((p4est_quadrant_t *) desc, 2);
 }
 
 void
-t8_default_scheme_quad_c::t8_element_successor (const t8_element_t *elem1, t8_element_t *elem2, int dir) const
+t8_default_scheme_quad_c::t8_element_successor (const t8_element_t *elem1, t8_element_t *elem2) const
 {
   T8_ASSERT (t8_element_is_valid (elem1));
   T8_ASSERT (t8_element_is_valid (elem2));
@@ -724,24 +724,25 @@ int
 t8_default_scheme_quad_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   p4est_quadrant_t *el = (p4est_quadrant_t *) elem;
-  //t8_element_init (1, elem);
-  if (var == 1) {
-    // t8_global_productionf("el_quad->x: %i \n", el->x);
-    return el->x;
-  }
-  else if (var == 2) {
-    // t8_global_productionf("el_quad->y: %i \n", el->y);
-    return el->y;
-  }
-  else {
-    SC_ABORT ("Quad is 2D.\n");
-  }
-}
-
-t8_eclass_scheme_c *
-t8_default_scheme_quad_c::t8_element_get_scheme (int dir) const
-{
-  T8_ASSERT( "Not implemented." );
+  // // if (dir == 0){
+  //   int x = el->x;
+  //   int y = el->y;
+  //   t8_global_productionf ("element coordinates quad: (%i,%i) \n", x, y);
+  // // }
+  // else {
+    if (var == 1) {
+      // t8_global_productionf("el_quad->x: %i \n", el->x);
+      return el->x;
+    }
+    else if (var == 2) {
+      // t8_global_productionf("el_quad->y: %i \n", el->y);
+      return el->y;
+    }
+    else {
+      SC_ABORT ("Quad is 2D.\n");
+    }
+  // }
+  return 0;
 }
 
 void
@@ -756,12 +757,6 @@ t8_default_scheme_quad_c::t8_element_init (int length, t8_element_t *elem) const
     T8_ASSERT (p4est_quadrant_is_extended (quads + i));
   }
 #endif
-}
-
-t8_eclass_t
-t8_default_scheme_quad_c::t8_element_get_eclass (int dir) const
-{
-  SC_ABORT ("Not implemented.\n");
 }
 
 /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.

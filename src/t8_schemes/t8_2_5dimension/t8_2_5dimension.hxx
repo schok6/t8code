@@ -20,13 +20,13 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef T8_2_5DIMENSION_CXX_HXX
-#define T8_2_5DIMENSION_CXX_HXX
+#ifndef T8_2_5DIMENSION_HXX
+#define T8_2_5DIMENSION_HXX
 
 #include <new>
 #include <t8_refcount.h>
 #include <t8_eclass.h>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
 #include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
 #include <t8_schemes/t8_default/t8_default_tri/t8_default_tri.hxx>
@@ -35,4 +35,4 @@
 t8_scheme_cxx_t *
 t8_scheme_new_2_5dimension_cxx (void);
 
-#endif /* !T8_2_5DIMENSION_CXX_HXX */
+#endif /* !T8_2_5DIMENSION_HXX */

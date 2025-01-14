@@ -54,13 +54,6 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 
   ~t8_2_5dimension_scheme_c ();
 
-  // /**
-  //  * TODO
-  // */
-  virtual t8_eclass_t
-  t8_element_get_eclass (int dir = 0) const;
-
-
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.
    * \return                    non-zero if there is one element in the tree that does not refine into 2^dim children.
@@ -124,19 +117,12 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    */
   virtual void
   t8_element_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const;
-  
 
-  /**
-   * TODO: Declaration
-  */
-  int32_t
-  t8_element_get_coord (const t8_element_t *elem, int dir_coord) const;
-
-  /**
-   * TODO: Declaration
-  */
-  virtual int8_t
-  t8_element_get_level(const t8_element_t *elem, int dir) const;
+  // /**
+  //  * TODO: Declaration
+  // */
+  virtual void
+  t8_element_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const;
 
   /** Compute the number of siblings of an element. That is the number of 
    * Children of its parent.
@@ -284,7 +270,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \note level 0 elements do not form a family.
    */
   virtual int
-  t8_element_is_family (t8_element_t *const *fam) const;
+  t8_element_is_family (t8_element_t *const *fam, int dir = 0) const;
 
   /** Compute the nearest common ancestor of two elements. That is,
    * the element with highest level that still has both given elements as
@@ -513,17 +499,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    *                      id must fulfil 0 <= id < 'number of leafs in the uniform refinement'
    */
   virtual void
-  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir = 0) const;
-
-  /** Initialize the entries of an allocated element according to a
-   *  given linear id in a uniform refinement.
-   * \param [in,out] elem The element whose entries will be set.
-   * \param [in] level    The level of the uniform refinement to consider.
-   * \param [in] id       The linear id.
-   *                      id must fulfil 0 <= id < 'number of leafs in the uniform refinement'
-   */
-  virtual void
-  t8_element_set_linear_id_2_5D (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const;
+  t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
@@ -532,7 +508,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \return              The linear id of the element.
    */
   virtual t8_linearidx_t
-  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir = 0) const;
+  t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const;
 
   /* TODO */
   int
@@ -545,7 +521,7 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels, int dir = 0) const;
+  t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -554,14 +530,14 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
    * \param [in] level    The level, at which the descendant is computed.
    */
   virtual void
-  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir = 0) const;
+  t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
 
     /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
    * \param [in,out] elem2  The element whose entries will be set.
    */
   virtual void
-  t8_element_successor (const t8_element_t *t, t8_element_t *s, int dir = 0) const;
+  t8_element_successor (const t8_element_t *t, t8_element_t *s) const;
 
   /** Compute the coordinates of a given element vertex inside a reference tree
    *  that is embedded into [0,1]^d (d = dimension).
@@ -691,12 +667,6 @@ struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
   */
   virtual int
   t8_element_get_variable (const t8_element_t *elem, int var, int dir = 0) const;
-
-  /**
-  * TODO
-  */
-  virtual t8_eclass_scheme_c *
-  t8_element_get_scheme (int dir = 0) const;
 
   /** Initialize an array of allocated elements.
    * \param [in] length   The number of elements to be initialized.

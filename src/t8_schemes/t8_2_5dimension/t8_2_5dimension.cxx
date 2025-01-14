@@ -23,7 +23,7 @@
 #include <new>
 #include <t8_refcount.h>
 #include <t8_eclass.h>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element_cxx.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
 #include <t8_schemes/t8_default/t8_default.hxx>
 #include <t8_schemes/t8_default/t8_default_vertex/t8_default_vertex.hxx>
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>

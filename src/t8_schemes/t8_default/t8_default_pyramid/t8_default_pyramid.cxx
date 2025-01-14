@@ -52,12 +52,7 @@ int
 t8_default_scheme_pyramid_c::t8_element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   T8_ASSERT( "Not implemented." );
-}
-
-t8_eclass_scheme_c *
-t8_default_scheme_pyramid_c::t8_element_get_scheme (int dir) const
-{
-  T8_ASSERT( "Not implemented." );
+  return 0;
 }
 
 void
@@ -217,8 +212,7 @@ t8_default_scheme_pyramid_c::t8_element_face_parent_face (const t8_element_t *el
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels,
-                                                          int dir) const
+t8_default_scheme_pyramid_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_first_descendant ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) desc, levels[0]);
@@ -249,14 +243,14 @@ t8_default_scheme_pyramid_c::t8_element_level (const t8_element_t *elem, int dir
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id, int dir) const
+t8_default_scheme_pyramid_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
 {
   t8_dpyramid_init_linear_id ((t8_dpyramid_t *) elem, levels[0], id);
   T8_ASSERT (t8_element_is_valid (elem));
 }
 
 int
-t8_default_scheme_pyramid_c::t8_element_is_family (t8_element_t *const *fam) const
+t8_default_scheme_pyramid_c::t8_element_is_family (t8_element_t *const *fam, int dir) const
 {
 #if T8_ENABLE_DEBUG
   int num_siblings = t8_element_num_siblings (fam[0]);
@@ -314,17 +308,17 @@ t8_default_scheme_pyramid_c::t8_element_num_face_children (const t8_element_t *e
 }
 
 t8_linearidx_t
-t8_default_scheme_pyramid_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels, int dir) const
+t8_default_scheme_pyramid_c::t8_element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   return t8_dpyramid_linear_id ((const t8_dpyramid_t *) elem, levels[0]);
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, int level, int dir) const
+t8_default_scheme_pyramid_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
-  t8_dpyramid_last_descendant ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) desc, level);
+  t8_dpyramid_last_descendant ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) desc, levels[0]);
   T8_ASSERT (t8_element_is_valid (desc));
 }
 
@@ -346,7 +340,7 @@ t8_default_scheme_pyramid_c::t8_element_parent (const t8_element_t *elem, t8_ele
 }
 
 void
-t8_default_scheme_pyramid_c::t8_element_successor (const t8_element_t *elem, t8_element_t *s, int dir) const
+t8_default_scheme_pyramid_c::t8_element_successor (const t8_element_t *elem, t8_element_t *s) const
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_successor ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) s, t8_element_level (elem));
@@ -397,12 +391,6 @@ t8_default_scheme_pyramid_c::t8_element_reference_coords (const t8_element_t *el
 {
   T8_ASSERT (t8_element_is_valid (elem));
   t8_dpyramid_compute_reference_coords ((const t8_dpyramid_t *) elem, ref_coords, num_coords, out_coords);
-}
-
-t8_eclass_t
-t8_default_scheme_pyramid_c::t8_element_get_eclass (int dir) const
-{
-  SC_ABORT ("Not implemented.\n");
 }
 
 int
