@@ -57,7 +57,7 @@
 #include <t8_forest/t8_forest_general.h>        /* forest definition and basic interface. */
 #include <t8_forest/t8_forest_io.h>             /* save forest */
 #include <t8_forest/t8_forest_geometrical.h>    /* geometrical information of the forest */
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_cxx.hxx> /* 2_5D refinement scheme. */
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
 #include <t8_vec.h>                             /* Basic operations on 3D vectors. */
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
@@ -90,7 +90,7 @@ T8_EXTERN_C_BEGIN ();
  * \param [in] elements     The element or family of elements to consider for refinement/coarsening.
  */
 int
-t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
+t8_2_5D_adapt_callback_horizontal (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
                          t8_eclass_scheme_c *ts, const int is_family, const int num_elements, t8_element_t *elements[])
 {
   /* Our adaptation criterion is to look at the midpoint coordinates of the current element and if
@@ -113,7 +113,8 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
   t8_forest_element_centroid (forest_from, which_tree, elements[0], centroid);
 
   /* Compute the distance to our sphere midpoint. */
-  dist = t8_vec_dist (centroid, adapt_data->midpoint);
+  dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
+  //dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
   if (dist < adapt_data->refine_if_inside_radius) {
     /* Refine this element. */
     return 1;
@@ -130,14 +131,22 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
 /* Adapt a forest according to our t8_2_5D_adapt_callback function.
  * This will create a new forest and return it. */
 t8_forest_t
-t8_2_5D_adapt_forest (t8_forest_t forest)
+t8_2_5D_adapt_forest_horizontal (t8_forest_t forest)
 {
   t8_forest_t forest_adapt;
+  // struct t8_2_5D_adapt_data adapt_data = {
+  //   { 0.0, 0.5, 0.0 }, /* Midpoints of the sphere. */
+  //   // 0.1,             /* Refine if inside this radius. */
+  //   0.1,             /* Refine if inside this radius. */
+  //   0.3             /* Coarsen if outside this radius. */
+  // };
   struct t8_2_5D_adapt_data adapt_data = {
-    { 0.0, 0.5, 0 }, /* Midpoints of the sphere. */
+    { 0, 0, 0.0 }, /* Midpoints of the sphere. */
+    // { 1, 0.1, 0.0 }, /* Midpoints of the sphere. */
+    // { 1, 0.9, 0.0 }, /* Midpoints of the sphere. */
     // 0.1,             /* Refine if inside this radius. */
-    0.3,             /* Refine if inside this radius. */
-    0.6             /* Coarsen if outside this radius. */
+    0.5,             /* Refine if inside this radius. */
+    0.7//0.4             /* Coarsen if outside this radius. */
   };
 
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -154,7 +163,105 @@ t8_2_5D_adapt_forest (t8_forest_t forest)
    *   do_face_ghost - If non-zero additionally a layer of ghost elements is created for the forest.
    *                   We will discuss ghost in later steps of the tutorial.
    */
-  forest_adapt = t8_forest_new_adapt (forest, t8_2_5D_adapt_callback, 0, 0, 1, &adapt_data);
+  forest_adapt = t8_forest_new_adapt (forest, t8_2_5D_adapt_callback_horizontal, 0, 0, 1, &adapt_data);
+
+  return forest_adapt;
+}
+
+/* The adaptation callback function. This function will be called once for each element
+ * and the return value decides whether this element should be refined or not.
+ *   return > 0 -> This element should get refined.
+ *   return = 0 -> This element should not get refined.
+ * If the current element is the first element of a family (= all level l elements that arise from refining
+ * the same level l-1 element) then this function is called with the whole family of elements
+ * as input and the return value additionally decides whether the whole family should get coarsened.
+ *   return > 0 -> The first element should get refined.
+ *   return = 0 -> The first element should not get refined.
+ *   return < 0 -> The whole family should get coarsened.
+ *  
+ * \param [in] forest       The current forest that is in construction.
+ * \param [in] forest_from  The forest from which we adapt the current forest (in our case, the uniform forest)
+ * \param [in] which_tree   The process local id of the current tree.
+ * \param [in] lelement_id  The tree local index of the current element (or the first of the family).
+ * \param [in] ts           The refinement scheme for this tree's element class.
+ * \param [in] is_family    if 1, the first \a num_elements entries in \a elements form a family. If 0, they do not.
+ * \param [in] num_elements The number of entries in \a elements elements that are defined.
+ * \param [in] elements     The element or family of elements to consider for refinement/coarsening.
+ */
+int
+t8_2_5D_adapt_callback_vertical (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
+                         t8_eclass_scheme_c *ts, const int is_family, const int num_elements, t8_element_t *elements[])
+{
+  /* Our adaptation criterion is to look at the midpoint coordinates of the current element and if
+   * they are inside a sphere around a given midpoint we refine, if they are outside, we coarsen. */
+  double centroid[3]; /* Will hold the element midpoint. */
+  /* In t8_2_5D_adapt_forest we pass a t8_2_5D_adapt_data pointer as user data to the
+   * t8_forest_new_adapt function. This pointer is stored as the used data of the new forest
+   * and we can now access it with t8_forest_get_user_data (forest). */
+  const struct t8_2_5D_adapt_data *adapt_data = (const struct t8_2_5D_adapt_data *) t8_forest_get_user_data (forest);
+  double dist; /* Will store the distance of the element's midpoint and the sphere midpoint. */
+
+  /* You can use T8_ASSERT for assertions that are active in debug mode (when configured with --enable-debug).
+   * If the condition is not true, then the code will abort.
+   * In this case, we want to make sure that we actually did set a user pointer to forest and thus
+   * did not get the NULL pointer from t8_forest_get_user_data.
+   */
+  T8_ASSERT (adapt_data != NULL);
+
+  /* Compute the element's centroid coordinates. */
+  t8_forest_element_centroid (forest_from, which_tree, elements[0], centroid);
+
+  /* Compute the distance to our sphere midpoint. */
+  // dist = t8_vec_dist_vertical (centroid, adapt_data->midpoint);
+  dist = t8_vec_dist (centroid, adapt_data->midpoint);
+  // dist = t8_vec_dist_yz (centroid, adapt_data->midpoint);
+  //dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
+  if (dist < adapt_data->refine_if_inside_radius) {
+    /* Refine this element. */
+    return 1;
+  }
+  else if (is_family && dist > adapt_data->coarsen_if_outside_radius) {
+    /* Coarsen this family. Note that we check for is_family before, since returning < 0
+     * if we do not have a family as input is illegal. */
+    return -1;
+  }
+  /* Do not change this element. */
+  return 0;
+}
+
+/* Adapt a forest according to our t8_2_5D_adapt_callback function.
+ * This will create a new forest and return it. */
+t8_forest_t
+t8_2_5D_adapt_forest_vertical (t8_forest_t forest)
+{
+  t8_forest_t forest_adapt;
+  // struct t8_2_5D_adapt_data adapt_data = {
+  //   { 0.0, 0.25, 0.25 }, /* Midpoints of the sphere. */
+  //   // 0.1,             /* Refine if inside this radius. */
+  //   0.6,             /* Refine if inside this radius. */
+  //   0.7              /* Coarsen if outside this radius. */
+  // };
+  struct t8_2_5D_adapt_data adapt_data = {
+    { 0.375, 0.0, 1.0 }, /* Midpoints of the sphere. */
+    // 0.1,             /* Refine if inside this radius. */
+    0.3,             /* Refine if inside this radius. */
+    0.7,              /* Coarsen if outside this radius. */
+  };
+  /* Check that forest is a committed, that is valid and usable, forest. */
+  T8_ASSERT (t8_forest_is_committed (forest));
+
+  /* Create a new forest that is adapted from \a forest with our adaptation callback.
+   * We provide the adapt_data as user data that is stored as the used_data pointer of the
+   * new forest (see also t8_forest_set_user_data).
+   * The 0, 0 arguments are flags that control
+   *   recursive  -    If non-zero adaptation is recursive, thus if an element is adapted the children
+   *                   or parents are plugged into the callback again recursively until the forest does not
+   *                   change any more. If you use this you should ensure that refinement will stop eventually.
+   *                   One way is to check the element's level against a given maximum level.
+   *   do_face_ghost - If non-zero additionally a layer of ghost elements is created for the forest.
+   *                   We will discuss ghost in later steps of the tutorial.
+   */
+  forest_adapt = t8_forest_new_adapt (forest, t8_2_5D_adapt_callback_vertical, 0, 0, 2, &adapt_data);
 
   return forest_adapt;
 }
@@ -186,9 +293,10 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
  *                  and  T8_VTK_VECTOR - 3 doubles per element
  */
 static void
-t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefix)
+t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *array, const char *prefix)
 {
-  t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
+//   t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
+  t8_locidx_t num_elements = t8_forest_get_global_num_elements (forest);
   t8_locidx_t ielem;
   /* We need to allocate a new array to store the data on their own.
    * The arrays have one entry per local element. */
@@ -218,6 +326,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
   t8_locidx_t element_index, elems_in_tree;
   t8_locidx_t element_index_in_tree;
   t8_locidx_t num_global_trees;
+  t8_locidx_t num_local_trees;
   t8_element_t *element;
   t8_eclass_scheme_c *scheme;
   //t8_element_t **elements = T8_ALLOC (t8_element_t *, num_elements);
@@ -225,29 +334,39 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
   element_index = 0;
   element_index_in_tree = 0;
 
+  //level1 += 1;
+  //int level2 = 0;
+
+
   for (itree = 0; itree < num_global_trees; itree++) {
     /* Get the tree that stores the elements */
-    tree = t8_forest_get_tree (forest, itree);
-    /* Get the eclass scheme of the tree */
-    scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-    elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-    element_index_in_tree += elems_in_tree;
-    for (element_index; element_index < element_index_in_tree; element_index++) {
-      /* Get a pointer to the element */
-      element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-      //int level1 = scheme->t8_element_level (element, 1);
-      //int level2 = scheme->t8_element_level (element, 2);
-      int level1 = 1;
-      int level2 = 3;
-      //int const level1 = scheme->t8_element_maxlevel;
-      //int level2 = scheme->t8_element_maxlevel;
-      std::vector<int> levels = {level1, level2};
-      //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
-      sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels, 3));
+    num_local_trees = t8_forest_get_num_local_trees (forest);
+    if (itree < num_local_trees){
+      tree = t8_forest_get_tree (forest, itree);
+      /* Get the eclass scheme of the tree */
+      scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
+      elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
+      element_index_in_tree += elems_in_tree;
+      for (element_index; element_index < element_index_in_tree; element_index++) {
+        /* Get a pointer to the element */
+        element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
+        //int level1 = scheme->t8_element_level (element, 1);
+        //int level2 = scheme->t8_element_level (element, 2);
+
+        //int level1 = forest->set_level1;
+        //t8_global_productionf("forest->set_level1: %i\n", forest->set_level1);
+        //int level2 = forest->set_level2;
+        //t8_global_productionf("forest->set_level2: %i \n", forest->set_level2);
+        //int const level1 = scheme->t8_element_maxlevel;
+        //int level2 = scheme->t8_element_maxlevel;
+        std::vector<int> levels = {level1, level2};
+        //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
+        sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
+      }
+      element_index += elems_in_tree;
+      t8_global_productionf ("num_elements: %li \n", num_elements);
+      t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
     }
-    element_index += elems_in_tree;
-    t8_global_productionf ("num_elements: %li \n", num_elements);
-    t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
   }
   // for (ielem = 0; ielem < num_elements; ++ielem) {
   //   sfc_index[ielem] = scheme->t8_element_get_linear_id[ielem];
@@ -280,12 +399,14 @@ t8_2_5D_adapt_main (int argc, char **argv)
   /* The prefix for our output files. */
   const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest";
   const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight";
-  const char *prefix_adapt = "t8_2_5D_adapted_first_horizontal_then_vertical_forest";
-  const char prefix_adapt_highlight[BUFSIZ] = "t8_2_5D_adapt__first_horizontal_then_vertical_highlight";
+  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal";
+  const char prefix_adapt_horizontal_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_horizontal_highlight";
+  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical";
+  const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 3;
-  const int level2 = 0;
+  const int level1 = 2;
+  const int level2 = 2;
 
   t8_gloidx_t global_num_elements;
 
@@ -295,9 +416,9 @@ t8_2_5D_adapt_main (int argc, char **argv)
   SC_CHECK_MPI (mpiret);
 
   /* Initialize the sc library, has to happen before we initialize t8code. */
-  sc_init (sc_MPI_COMM_WORLD, 1, 1, NULL, SC_LP_ESSENTIAL);
+  sc_init (sc_MPI_COMM_WORLD, 1, 1, NULL, SC_LP_DEBUG);
   /* Initialize t8code with log level SC_LP_PRODUCTION. See sc.h for more info on the log levels. */
-  t8_init (SC_LP_PRODUCTION);
+  t8_init (SC_LP_DEBUG);
 
   /* Print a message on the root process. */
   t8_global_productionf (" [2_5D] \n");
@@ -319,7 +440,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
 //   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
-  forest = t8_forest_new_uniform_2_5D_2 (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
 
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
@@ -337,18 +458,36 @@ t8_2_5D_adapt_main (int argc, char **argv)
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
-  t8_2_5D_output_data_to_vtu(forest, highlight, prefix_uniform_highlight);
+  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
+
+  T8_FREE(highlight);
 
 
+
+  // /*Für Masterarbeit Grafik*/
+
+  // t8_forest_t forest1 = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2+2, 0, comm);
+
+  // t8_forest_write_vtk (forest1, "uniform_1_2");
+
+  // global_num_elements = t8_forest_get_global_num_elements (forest1);
+
+  // double *highlight_forest1 = T8_ALLOC_ZERO (double, global_num_elements);
+  // highlight_forest1[16] = 1;
+
+  // t8_2_5D_output_data_to_vtu(forest1, level1+1, level2+2, highlight_forest1, "uniform_1_2_SFCindex");
+
+  t8_global_productionf("-----------------------");
+  t8_global_productionf("Adapt the forest horizontal.");
 
   /*
-   *  Adapt the forest.
+   *  Adapt the forest horizontal.
    */
 
   /* Adapt the forest. We can reuse the forest variable, since the new adapted
    * forest will take ownership of the old forest and destroy it.
    * Note that the adapted forest is a new forest, though. */
-  forest = t8_2_5D_adapt_forest (forest);
+  forest = t8_2_5D_adapt_forest_horizontal (forest);
 
   /*
    *  Output.
@@ -359,10 +498,62 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_2_5D_adapt_print_forest_information (forest);
 
   /* Write forest to vtu files. */
-  t8_forest_write_vtk (forest, prefix_adapt);
-  t8_global_productionf (" [2_5D] Wrote adapted forest to vtu files: %s*\n", prefix_adapt);
+  t8_forest_write_vtk (forest, prefix_adapt_horizontal);
+  t8_global_productionf (" [2_5D] Wrote adapted horizontal forest to vtu files: %s*\n", prefix_adapt_horizontal);
 
-  t8_2_5D_output_data_to_vtu(forest, highlight, prefix_adapt_highlight);
+  t8_global_productionf("----------------");
+  t8_global_productionf("AB HIER");
+  t8_global_productionf("----------------");
+
+    /* Get the global number of elements of adapted forest. */
+  global_num_elements = t8_forest_get_global_num_elements (forest);
+
+  double *highlight_adapt_horizontal = T8_ALLOC_ZERO (double, global_num_elements);
+  highlight_adapt_horizontal[3] = 1;
+
+  t8_2_5D_output_data_to_vtu(forest, level1+1, level2, highlight_adapt_horizontal, prefix_adapt_horizontal_highlight);
+
+  T8_FREE(highlight_adapt_horizontal);
+
+  /*
+   *  Adapt the forest verical.
+   */
+
+  /* Adapt the forest. We can reuse the forest variable, since the new adapted
+   * forest will take ownership of the old forest and destroy it.
+   * Note that the adapted forest is a new forest, though. */
+  forest = t8_2_5D_adapt_forest_vertical (forest);
+  //forest = t8_2_5D_adapt_forest_vertical (forest);
+
+  /*
+   *  Output.
+   */
+
+  /* Print information of our new forest. */
+  t8_global_productionf (" [2_5D] Adapted forest.\n");
+  t8_2_5D_adapt_print_forest_information (forest);
+
+  /* Write forest to vtu files. */
+  t8_forest_write_vtk (forest, prefix_adapt_vertical);
+  t8_global_productionf (" [2_5D] Wrote adapted forest to vtu files: %s*\n", prefix_adapt_vertical);
+
+    /* Get the global number of elements of adapted forest. */
+  global_num_elements = t8_forest_get_global_num_elements (forest);
+
+  double *highlight_adapt_vertical = T8_ALLOC_ZERO (double, global_num_elements);
+  for (int i=0; i<16; i++){
+    highlight_adapt_vertical[i] = 1;
+  }
+  for (int i=53; i<55; i++){
+    highlight_adapt_vertical[i] = 2;
+  }
+  // highlight_adapt_vertical[9]=1;
+  // highlight_adapt_vertical[21]=1;
+
+  // t8_2_5D_output_data_to_vtu(forest, level1+1, level2+2, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
+  t8_2_5D_output_data_to_vtu(forest, level1+1, level2+1, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
+
+  T8_FREE(highlight_adapt_vertical);
 
   /*
    * clean-up

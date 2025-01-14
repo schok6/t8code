@@ -57,7 +57,7 @@
 #include <t8_forest/t8_forest_general.h>        /* forest definition and basic interface. */
 #include <t8_forest/t8_forest_io.h>             /* save forest */
 #include <t8_forest/t8_forest_geometrical.h>    /* geometrical information of the forest */
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_cxx.hxx> /* 2_5D refinement scheme. */
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
 #include <t8_vec.h>                             /* Basic operations on 3D vectors. */
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
@@ -237,13 +237,13 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
       element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
       //int level1 = scheme->t8_element_level (element, 1);
       //int level2 = scheme->t8_element_level (element, 2);
-      int level1 = 1;
-      int level2 = 5;
+      int level1 = 3;
+      int level2 = 3;
       //int const level1 = scheme->t8_element_maxlevel;
       //int level2 = scheme->t8_element_maxlevel;
       std::vector<int> levels = {level1, level2};
       //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
-      sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels, 3));
+      sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
     }
     element_index += elems_in_tree;
     t8_global_productionf ("num_elements: %li \n", num_elements);
@@ -284,8 +284,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
   const char prefix_adapt_highlight[BUFSIZ] = "t8_2_5D_adapt_highlight";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 3;
-  const int level2 = 4;
+  const int level1 = 1;
+  const int level2 = 2;
 
   t8_gloidx_t global_num_elements;
 
@@ -295,9 +295,9 @@ t8_2_5D_adapt_main (int argc, char **argv)
   SC_CHECK_MPI (mpiret);
 
   /* Initialize the sc library, has to happen before we initialize t8code. */
-  sc_init (sc_MPI_COMM_WORLD, 1, 1, NULL, SC_LP_ESSENTIAL);
+  sc_init (sc_MPI_COMM_WORLD, 1, 1, NULL, SC_LP_DEBUG);
   /* Initialize t8code with log level SC_LP_PRODUCTION. See sc.h for more info on the log levels. */
-  t8_init (SC_LP_PRODUCTION);
+  t8_init (SC_LP_DEBUG);
 
   /* Print a message on the root process. */
   t8_global_productionf (" [2_5D] \n");
@@ -319,7 +319,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
 //   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
-  forest = t8_forest_new_uniform_2_5D_2 (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
 
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);

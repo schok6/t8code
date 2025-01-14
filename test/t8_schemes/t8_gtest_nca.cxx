@@ -115,8 +115,8 @@ TEST_P (nca, nca_check_deep)
         std::vector<int> check_lvl_a_vec {check_lvl_a};
         ts->t8_element_first_descendant (correct_nca, desc_a, check_lvl_a_vec);
         for (check_lvl_b = lvl + 1; check_lvl_b < elem_max_level; check_lvl_b++) {
-          //std::vector<int> check_lvl_b_vec {check_lvl_b};
-          ts->t8_element_last_descendant (correct_nca, desc_b, check_lvl_b);
+          std::vector<int> check_lvl_b_vec {check_lvl_b};
+          ts->t8_element_last_descendant (correct_nca, desc_b, check_lvl_b_vec);
           /* Compute the nca of desc_a and desc_b */
           ts->t8_element_nca (desc_a, desc_b, check);
           if (eclass == T8_ECLASS_VERTEX) {

@@ -82,7 +82,8 @@ t8_recursive_descendant (t8_element_t *elem, t8_element_t *desc, t8_element_t *t
     }
     /* last child == last descendant. */
     else if (ichild == num_children - 1) {
-      ts->t8_element_last_descendant (elem, test, level + 1);
+      std::vector<int> level_vec {level + 1};
+      ts->t8_element_last_descendant (elem, test, level_vec);
       EXPECT_ELEM_EQ (ts, desc, test);
     }
     else if (level > maxlvl) {
@@ -125,7 +126,8 @@ t8_deep_last_descendant (t8_element_t *elem, t8_element_t *desc, t8_element_t *t
     ts->t8_element_copy (desc, test);
   }
   /* Check for equality. */
-  ts->t8_element_last_descendant (elem, test, level);
+  std::vector<int> level_vec {level};
+  ts->t8_element_last_descendant (elem, test, level_vec);
   EXPECT_ELEM_EQ (ts, desc, test);
 }
 

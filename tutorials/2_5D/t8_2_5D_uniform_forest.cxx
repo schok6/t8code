@@ -28,7 +28,7 @@
 #include <t8_forest/t8_forest_io.h>                 /* forest io interface. */
 #include <t8_schemes/t8_default/t8_default.hxx> /* default refinement scheme. */
 
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_cxx.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
 
 
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
@@ -67,8 +67,8 @@ t8_2_5D_build_hypercube_coarse_mesh (sc_MPI_Comm comm)
   // // cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0); //Abort
 
   // t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_QUAD.\n");
-  t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_PRISM.\n");
-  // t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_HEX.\n");
+  // t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_PRISM.\n");
+  t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_HEX.\n");
 
   return cmesh;
 }
@@ -96,7 +96,7 @@ t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, in
   // //forest = t8_forest_new_uniform (cmesh, scheme, level, 0, comm);
   // // std::vector level = {level1, level2};
   
-  forest = t8_forest_new_uniform_2_5D_2 (cmesh, scheme, level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, level1, level2, 0, comm);
 
   return forest;
 }
@@ -181,7 +181,7 @@ t8_2_5D_destroy_forest (t8_forest_t forest)
  *                  and  T8_VTK_VECTOR - 3 doubles per element
  */
 static void
-t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefix)
+t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *array, const char *prefix)
 {
   t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
   t8_locidx_t ielem;
@@ -213,36 +213,44 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
   t8_locidx_t element_index, elems_in_tree;
   t8_locidx_t element_index_in_tree;
   t8_locidx_t num_global_trees;
+  t8_locidx_t num_local_trees;
   t8_element_t *element;
   t8_eclass_scheme_c *scheme;
   //t8_element_t **elements = T8_ALLOC (t8_element_t *, num_elements);
   num_global_trees = t8_forest_get_num_global_trees (forest);
+  t8_global_productionf ("num_global_trees: %i", num_global_trees);
   element_index = 0;
   element_index_in_tree = 0;
 
+  //@Lukas:how can this be done only for process 0? DONE
+  // if (forest->mpirank == 0){
   for (itree = 0; itree < num_global_trees; itree++) {
     /* Get the tree that stores the elements */
-    tree = t8_forest_get_tree (forest, itree);
-    /* Get the eclass scheme of the tree */
-    scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-    elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-    element_index_in_tree += elems_in_tree;
-    for (element_index; element_index < element_index_in_tree; element_index++) {
-      /* Get a pointer to the element */
-      element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-      //int level1 = scheme->t8_element_level (element, 1);
-      //int level2 = scheme->t8_element_level (element, 2);
-      int level1 = 1;
-      int level2 = 5;
-      //int const level1 = scheme->t8_element_maxlevel;
-      //int level2 = scheme->t8_element_maxlevel;
-      std::vector<int> levels = {level1, level2};
-      //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
-      sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels, 3));
+    //@Lukas:how can this be done only for process 0?
+    num_local_trees = t8_forest_get_num_local_trees (forest);
+    if (itree < num_local_trees){
+      tree = t8_forest_get_tree (forest, itree); 
+      /* Get the eclass scheme of the tree */
+      scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
+      elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
+      element_index_in_tree += elems_in_tree;
+      for (element_index; element_index < element_index_in_tree; element_index++) {
+        /* Get a pointer to the element */
+        element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
+        //int level1 = scheme->t8_element_level (element, 1);
+        //int level2 = scheme->t8_element_level (element, 2);
+        // int level1 = 1;
+        // int level2 = 1;
+        //int const level1 = scheme-SC_LP_DEBUG>t8_element_maxlevel;
+        //int level2 = scheme->t8_element_maxlevel;
+        std::vector<int> levels = {level1, level2};
+        //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
+        sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
+      }
+      element_index += elems_in_tree;
+      t8_global_productionf ("num_elements: %li \n", num_elements);
+      t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
     }
-    element_index += elems_in_tree;
-    t8_global_productionf ("num_elements: %li \n", num_elements);
-    t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
   }
   // for (ielem = 0; ielem < num_elements; ++ielem) {
   //   sfc_index[ielem] = scheme->t8_element_get_linear_id[ielem];
@@ -275,14 +283,17 @@ main (int argc, char **argv)
 
   /* The prefix for our output files. */
   // const char prefix[BUFSIZ] = "t8_1_5D_UNIFORM_FOREST_LINE_LINE";
-  const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_2_1_Partition"; 
+  // const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_2_1_Partition"; 
+  const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_3_3_Partition_5processes_test_error"; 
+  // const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TEST"; 
   // const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_1_3";
   // const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_3_HIGHLIGHT";
-  const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_2_1_HIGHLIGHT_Partition";
+  // const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_2_1_HIGHLIGHT_Partition";
+  const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_1_HIGHLIGHT_Partition";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 1;
-  const int level2 = 4;
+  const int level1 = 3;
+  const int level2 = 3;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
 
@@ -292,9 +303,9 @@ main (int argc, char **argv)
   SC_CHECK_MPI (mpiret);
 
   /* Initialize the sc library, has to happen before we initialize t8code. */
-  sc_init (sc_MPI_COMM_WORLD, 1, 1, NULL, SC_LP_ESSENTIAL);
+  sc_init (sc_MPI_COMM_WORLD, 1, 1, NULL, SC_LP_DEBUG);
   /* Initialize t8code with log level SC_LP_PRODUCTION. See sc.h for more info on the log levels. */
-  t8_init (SC_LP_PRODUCTION);
+  t8_init (SC_LP_DEBUG);
 
   /* Print a message on the root process. */
   t8_global_productionf (" [2_5D] \n");
@@ -330,7 +341,7 @@ main (int argc, char **argv)
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
-  t8_2_5D_output_data_to_vtu(forest, highlight, prefix_highlight);
+  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_highlight);
 
   /* Destroy the forest. */
   t8_2_5D_destroy_forest (forest);

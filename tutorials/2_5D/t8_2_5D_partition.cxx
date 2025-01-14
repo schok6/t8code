@@ -51,7 +51,7 @@
 #include <t8_cmesh/t8_cmesh_examples.h>                       /* A collection of exemplary cmeshes */
 #include <t8_forest/t8_forest_general.h>                      /* forest definition and basic interface. */
 #include <t8_forest/t8_forest_io.h>                           /* save forest */
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_cxx.hxx> /* 2_5D refinement scheme. */
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
 #include <t8_vec.h>                                           /* Basic operations on 3D vectors. */
 
 T8_EXTERN_C_BEGIN ();

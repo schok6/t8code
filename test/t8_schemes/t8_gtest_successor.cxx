@@ -146,7 +146,7 @@ TEST_P (class_successor, test_recursive_and_deep_successor)
   for (int ilevel = 1; ilevel <= maxlvl; ilevel++) {
     std::vector<int> level_vec {ilevel};
     ts->t8_element_set_linear_id (successor, level_vec, 0);
-    ts->t8_element_last_descendant (element, last, ilevel);
+    ts->t8_element_last_descendant (element, last, level_vec);
     t8_recursive_successor (element, successor, child, last, ts, ilevel);
   }
   /* Test at Maxlevel. */
