@@ -29,9 +29,6 @@
 #ifndef T8_FOREST_GENERAL_H
 #define T8_FOREST_GENERAL_H
 
-// #include <iostream>
-// #include <vector>
-
 #include <t8_cmesh.h>
 #include <t8_element.h>
 #include <t8_data/t8_containers.h>
@@ -741,11 +738,6 @@ t8_forest_get_cmesh (t8_forest_t forest);
 t8_element_t *
 t8_forest_get_element (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid);
 
-// /**
-//  * TODO
-// */
-// t8_element_t *
-// t8_forest_get_element_2_5D (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid, int dir);
 
 /** Return an element of a local tree in a forest.
  * \param [in]      forest      The forest.
@@ -892,17 +884,9 @@ t8_forest_element_points_inside (t8_forest_t forest, t8_locidx_t ltreeid, const 
  * \ref t8_forest_set_scheme, \ref t8_forest_set_level, and \ref t8_forest_commit.
  */
 t8_forest_t
-// t8_forest_new_uniform (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const std::vector<int>& level, const int do_face_ghost,
-//                        sc_MPI_Comm comm);
 t8_forest_new_uniform (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme, const int level, const int do_face_ghost,
                        sc_MPI_Comm comm);
 
-// /**
-//  * TODO
-// */
-// t8_forest_t
-// t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, t8_scheme_cxx_t *scheme,t8_scheme_comb_cxx_t *scheme_comb, const int level1, 
-//                             const int level2, const int do_face_ghost, sc_MPI_Comm comm);
 
 /**
  * TODO

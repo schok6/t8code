@@ -222,11 +222,8 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
   element_index = 0;
   element_index_in_tree = 0;
 
-  //@Lukas:how can this be done only for process 0? DONE
-  // if (forest->mpirank == 0){
   for (itree = 0; itree < num_global_trees; itree++) {
     /* Get the tree that stores the elements */
-    //@Lukas:how can this be done only for process 0?
     num_local_trees = t8_forest_get_num_local_trees (forest);
     if (itree < num_local_trees){
       tree = t8_forest_get_tree (forest, itree); 
@@ -237,24 +234,14 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
       for (element_index; element_index < element_index_in_tree; element_index++) {
         /* Get a pointer to the element */
         element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-        //int level1 = scheme->t8_element_level (element, 1);
-        //int level2 = scheme->t8_element_level (element, 2);
-        // int level1 = 1;
-        // int level2 = 1;
-        //int const level1 = scheme-SC_LP_DEBUG>t8_element_maxlevel;
-        //int level2 = scheme->t8_element_maxlevel;
         std::vector<int> levels = {level1, level2};
-        //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
         sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
       }
       element_index += elems_in_tree;
       t8_global_productionf ("num_elements: %li \n", num_elements);
       t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
     }
-  }
-  // for (ielem = 0; ielem < num_elements; ++ielem) {
-  //   sfc_index[ielem] = scheme->t8_element_get_linear_id[ielem];
-  // }    
+  }   
 
   {
     /* To write user defined data, we need to extended output function t8_forest_vtk_write_file
@@ -284,7 +271,7 @@ main (int argc, char **argv)
   /* The prefix for our output files. */
   // const char prefix[BUFSIZ] = "t8_1_5D_UNIFORM_FOREST_LINE_LINE";
   // const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_2_1_Partition"; 
-  const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_3_3_Partition_5processes_test_error"; 
+  const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_2"; 
   // const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TEST"; 
   // const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_1_3";
   // const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_3_HIGHLIGHT";
@@ -292,8 +279,8 @@ main (int argc, char **argv)
   const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_1_HIGHLIGHT_Partition";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 3;
-  const int level2 = 3;
+  const int level1 = 1;
+  const int level2 = 2;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
 

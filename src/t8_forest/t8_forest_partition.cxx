@@ -146,8 +146,9 @@ t8_forest_partition_test_desc (t8_forest_t forest)
     const t8_element_t *element = t8_element_array_index_locidx (&tree->elements, ielem);
 
     //Print coordinates
-    t8_productionf("element coordinates:");
-    ts->t8_element_debug_print (element);
+    // t8_productionf("element coordinates:");
+    // ts->t8_element_debug_print (element);
+
     // ts->t8_element_get_variable (element, 0, 0);
     // ts->t8_element_get_variable (element, 2);
 
@@ -166,11 +167,11 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       std::vector<int> levels = {level};
 
       //Print coordinates
-      t8_productionf("itree->first_desc coordinates:");
-      ts->t8_element_get_variable (elem_desc, 0, 0);
+      //t8_productionf("itree->first_desc coordinates:");
+      //ts->t8_element_get_variable (elem_desc, 0, 0);
 
-      t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
-      t8_global_productionf("first_desc_id: %li \n", first_desc_id);
+      // t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
+      // t8_global_productionf("first_desc_id: %li \n", first_desc_id);
       T8_ASSERT (ts->t8_element_get_linear_id (elem_desc, levels) >= first_desc_id);
     }
     else if (forest->set_type == 2) {
@@ -178,21 +179,21 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       ts->t8_element_first_descendant (element, elem_desc, maxlevels);
       level1 = ts->t8_element_level (elem_desc, 1);
       level2 = ts->t8_element_level (elem_desc, 2);
-      t8_global_productionf ("level1: %i\n", level1);
-      t8_global_productionf ("level2: %i\n", level2);
+      // t8_global_productionf ("level1: %i\n", level1);
+      // t8_global_productionf ("level2: %i\n", level2);
       T8_ASSERT (level1 == ts->t8_element_level (elem_desc, 1)); //wozu braucht man das?
       T8_ASSERT (level2 == ts->t8_element_level (elem_desc, 2)); //wozu braucht man das?
       T8_ASSERT (level1 == forest->maxlevel);
       T8_ASSERT (level2 == forest->maxlevel);
 
       //  Print coordinates
-      t8_productionf("itree->first_desc coordinates:");
-      ts->t8_element_debug_print (elem_desc);
+      // t8_productionf("itree->first_desc coordinates:");
+      // ts->t8_element_debug_print (elem_desc);
       // ts->t8_element_get_variable (elem_desc, 0, 0);
 
       std::vector<int> levels = {level1, level2};
-      t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
-      t8_global_productionf("first_desc_id: %li \n", first_desc_id);
+      // t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
+      // t8_global_productionf("first_desc_id: %li \n", first_desc_id);
       T8_ASSERT (ts->t8_element_get_linear_id (elem_desc, levels) >= first_desc_id);
     }
   }
@@ -318,10 +319,10 @@ t8_forest_partition_test_boundary_element (const t8_forest_t forest)
   }
   else if (forest->set_type == 2) {
     const int level0 = ts->t8_element_level (element_last_desc, 1);
-    T8_ASSERT (level0 == ts->t8_element_level (element_last_desc, 1)); //Wozu braucht man das hier? @Lukas
+    T8_ASSERT (level0 == ts->t8_element_level (element_last_desc, 1));
     T8_ASSERT (level0 == forest->maxlevel);
     const int level1 = ts->t8_element_level (element_last_desc, 2);
-    T8_ASSERT (level1 == ts->t8_element_level (element_last_desc, 2)); //Wozu braucht man das hier? @Lukas
+    T8_ASSERT (level1 == ts->t8_element_level (element_last_desc, 2)); 
     T8_ASSERT (level1 == forest->maxlevel);
     std::vector<int> levels = {level0, level1};
     const t8_linearidx_t last_desc_id = ts->t8_element_get_linear_id (element_last_desc, levels);  

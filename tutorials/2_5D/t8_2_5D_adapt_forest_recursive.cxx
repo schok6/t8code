@@ -141,12 +141,14 @@ t8_2_5D_adapt_forest_horizontal (t8_forest_t forest)
   //   0.3             /* Coarsen if outside this radius. */
   // };
   struct t8_2_5D_adapt_data adapt_data = {
-    { 0, 0, 0.0 }, /* Midpoints of the sphere. */
-    // { 1, 0.1, 0.0 }, /* Midpoints of the sphere. */
-    // { 1, 0.9, 0.0 }, /* Midpoints of the sphere. */
-    // 0.1,             /* Refine if inside this radius. */
+    { 0, 0, 0 }, /* Midpoints of the sphere. */
+    // // { 1, 0.1, 0.0 }, /* Midpoints of the sphere. */
+    // // { 1, 0.9, 0.0 }, /* Midpoints of the sphere. */
+    // // 0.1,             /* Refine if inside this radius. */
     0.5,             /* Refine if inside this radius. */
-    0.7//0.4             /* Coarsen if outside this radius. */
+    sqrt(0.5)//0.4             /* Coarsen if outside this radius. */
+    // 0.0,             /* Refine if inside this radius. */
+    // 0.5//0.4             /* Coarsen if outside this radius. */
   };
 
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -235,17 +237,11 @@ t8_forest_t
 t8_2_5D_adapt_forest_vertical (t8_forest_t forest)
 {
   t8_forest_t forest_adapt;
-  // struct t8_2_5D_adapt_data adapt_data = {
-  //   { 0.0, 0.25, 0.25 }, /* Midpoints of the sphere. */
-  //   // 0.1,             /* Refine if inside this radius. */
-  //   0.6,             /* Refine if inside this radius. */
-  //   0.7              /* Coarsen if outside this radius. */
-  // };
+
   struct t8_2_5D_adapt_data adapt_data = {
     { 0.375, 0.0, 1.0 }, /* Midpoints of the sphere. */
-    // 0.1,             /* Refine if inside this radius. */
     0.3,             /* Refine if inside this radius. */
-    0.7,              /* Coarsen if outside this radius. */
+    0.4,              /* Coarsen if outside this radius. */
   };
   /* Check that forest is a committed, that is valid and usable, forest. */
   T8_ASSERT (t8_forest_is_committed (forest));
@@ -295,7 +291,6 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
 static void
 t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *array, const char *prefix)
 {
-//   t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
   t8_locidx_t num_elements = t8_forest_get_global_num_elements (forest);
   t8_locidx_t ielem;
   /* We need to allocate a new array to store the data on their own.
@@ -318,24 +313,22 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
 
   vtk_data[1].type = T8_VTK_SCALAR;
   /* The name of the field as should be written to the file. */
-  strcpy (vtk_data[1].description, "SFCindex");
+  strcpy (vtk_data[1].description, "SFC index");
   vtk_data[1].data = sfc_index;
   /* Copy the element's height from our data array to the output array. */
   t8_tree_t tree;
   t8_locidx_t itree;
   t8_locidx_t element_index, elems_in_tree;
   t8_locidx_t element_index_in_tree;
+  t8_locidx_t elems_considered;
   t8_locidx_t num_global_trees;
   t8_locidx_t num_local_trees;
   t8_element_t *element;
   t8_eclass_scheme_c *scheme;
-  //t8_element_t **elements = T8_ALLOC (t8_element_t *, num_elements);
   num_global_trees = t8_forest_get_num_global_trees (forest);
   element_index = 0;
   element_index_in_tree = 0;
-
-  //level1 += 1;
-  //int level2 = 0;
+  elems_considered = 0;
 
 
   for (itree = 0; itree < num_global_trees; itree++) {
@@ -346,31 +339,24 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
       /* Get the eclass scheme of the tree */
       scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-      element_index_in_tree += elems_in_tree;
-      for (element_index; element_index < element_index_in_tree; element_index++) {
+      t8_global_productionf ("elems_in_tree: %li \n", elems_in_tree);
+      element_index_in_tree = elems_in_tree;
+      for (element_index = 0; element_index < element_index_in_tree; element_index++) {
+        t8_global_productionf ("element_index: %li \n", element_index);
         /* Get a pointer to the element */
-        element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-        //int level1 = scheme->t8_element_level (element, 1);
-        //int level2 = scheme->t8_element_level (element, 2);
+        element = t8_forest_get_element (forest, tree->elements_offset + element_index, &itree);
 
-        //int level1 = forest->set_level1;
-        //t8_global_productionf("forest->set_level1: %i\n", forest->set_level1);
-        //int level2 = forest->set_level2;
-        //t8_global_productionf("forest->set_level2: %i \n", forest->set_level2);
-        //int const level1 = scheme->t8_element_maxlevel;
-        //int level2 = scheme->t8_element_maxlevel;
         std::vector<int> levels = {level1, level2};
-        //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
-        sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
+
+        sfc_index[element_index + elems_considered] = (scheme->t8_element_get_linear_id (element, levels));
       }
-      element_index += elems_in_tree;
+      t8_global_productionf ("element_index: %li \n", element_index);
+      elems_considered += elems_in_tree;
+      t8_global_productionf ("element_index: %li \n", element_index);
       t8_global_productionf ("num_elements: %li \n", num_elements);
       t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
     }
   }
-  // for (ielem = 0; ielem < num_elements; ++ielem) {
-  //   sfc_index[ielem] = scheme->t8_element_get_linear_id[ielem];
-  // }    
 
   {
     /* To write user defined data, we need to extended output function t8_forest_vtk_write_file
@@ -397,16 +383,16 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_cmesh_t cmesh;
   t8_forest_t forest;
   /* The prefix for our output files. */
-  const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest";
-  const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight";
-  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal";
-  const char prefix_adapt_horizontal_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_horizontal_highlight";
-  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical";
-  const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight";
+  const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest_2_3_PRISM_2_processes";
+  const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight_PRISM";
+  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal_PRISM";
+  const char prefix_adapt_horizontal_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_horizontal_highlight_PRISM";
+  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical_PRISM";
+  const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight_PRISM";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 2;
-  const int level2 = 2;
+  const int level1 = 2; 
+  const int level2 = 3; 
 
   t8_gloidx_t global_num_elements;
 
@@ -438,7 +424,6 @@ t8_2_5D_adapt_main (int argc, char **argv)
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
-//   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
 
@@ -456,7 +441,13 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_global_productionf (" [2_5D] Wrote uniform forest to vtu files: %s*\n", prefix_uniform);  
   
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
-  highlight[3] = 1;
+  for (int i=0; i<16; i++){
+    highlight[i] = 1;
+  }
+  for (int i=22; i<24; i++){
+    highlight[i] = 2;
+  }
+
 
   t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
 
@@ -509,7 +500,12 @@ t8_2_5D_adapt_main (int argc, char **argv)
   global_num_elements = t8_forest_get_global_num_elements (forest);
 
   double *highlight_adapt_horizontal = T8_ALLOC_ZERO (double, global_num_elements);
-  highlight_adapt_horizontal[3] = 1;
+  for (int i=0; i<4; i++){
+    highlight_adapt_horizontal[i] = 1;
+  }
+  for (int i=10; i<12; i++){
+    highlight_adapt_horizontal[i] = 2;
+  }
 
   t8_2_5D_output_data_to_vtu(forest, level1+1, level2, highlight_adapt_horizontal, prefix_adapt_horizontal_highlight);
 
@@ -541,12 +537,12 @@ t8_2_5D_adapt_main (int argc, char **argv)
   global_num_elements = t8_forest_get_global_num_elements (forest);
 
   double *highlight_adapt_vertical = T8_ALLOC_ZERO (double, global_num_elements);
-  for (int i=0; i<16; i++){
-    highlight_adapt_vertical[i] = 1;
-  }
-  for (int i=53; i<55; i++){
-    highlight_adapt_vertical[i] = 2;
-  }
+  // for (int i=0; i<16; i++){
+  //   highlight_adapt_vertical[i] = 1;
+  // }
+  // for (int i=53; i<55; i++){
+  //   highlight_adapt_vertical[i] = 2;
+  // }
   // highlight_adapt_vertical[9]=1;
   // highlight_adapt_vertical[21]=1;
 

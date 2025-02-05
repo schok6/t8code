@@ -29,8 +29,8 @@
 #include <t8_schemes/t8_default/t8_default_quad/t8_dquad.h>
 #include <t8_schemes/t8_default/t8_default_tri/t8_dtri.h>
 
-// /* This functions are used by other element functions and we thus need to
-//  * declare it up here */
+/* This functions are used by other element functions and we thus need to
+ * declare it up here */
 
 /** This function assumes an sc_mempool_t as context.
  * It is suitable as the 2_5D_elem_new callback in \ref t8_eclass_scheme_t???.
@@ -58,14 +58,8 @@ t8_2_5dimension_scheme_c::t8_2_5dimension_scheme_c (t8_eclass_scheme_c *scheme1,
   this->scheme2 = scheme2;
   t8_eclass_t eclass1 = scheme1->eclass;
   t8_eclass_t eclass2 = scheme2->eclass;
-  // t8_global_productionf ("eclass1:\t%i\n", eclass1);
-  // t8_global_productionf ("eclass2:\t%i\n", eclass2);
-  //for testing
-  // if (eclass1 == T8_ECLASS_LINE && eclass2 == T8_ECLASS_LINE) { //1.5D
   if (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE)){
-    // if ((eclass1 == T8_ECLASS_LINE && (eclass2 == T8_ECLASS_QUAD || eclass2 == T8_ECLASS_TRIANGLE)) //leave this out for now
-    //|| (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE)))) {
-    element_size = 2 * sizeof (void *);//sizeof (scheme1->t8_element_size ()) * sizeof (scheme2->t8_element_size ());
+    element_size = 2 * sizeof (void *);
     ts_context = sc_mempool_new (element_size);
     return;
   }
@@ -95,13 +89,7 @@ t8_2_5dimension_scheme_c::t8_element_refines_irregular (void) const
 int
 t8_2_5dimension_scheme_c::t8_element_maxlevel (void) const
 {
-  // std::vector<int> maxlevels;
-  // maxlevels = {scheme1->t8_element_maxlevel (), scheme2->t8_element_maxlevel ()};
-  // return maxlevels;
-
-  //langt ein maxlevel?
-  return 7; //21; //for testing
-  //return SC_MIN (scheme1->t8_element_maxlevel (), scheme2->t8_element_maxlevel ());
+  return 21;
 }
 
 int
@@ -152,7 +140,6 @@ t8_2_5dimension_scheme_c::t8_element_compare (const t8_element_t *elem1, const t
   else { 
     return id1;
   }
-  //Säulenlogik -> linear id
 }
 
 int
@@ -171,24 +158,12 @@ t8_2_5dimension_scheme_c::t8_element_parent (const t8_element_t *elem, t8_elemen
 {
   T8_ASSERT (t8_element_is_valid (elem));
   T8_ASSERT (t8_element_is_valid (parent));
-  //DISKUSSION
   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;  
   t8_2_5D_t *parent2_5D = (t8_2_5D_t *) parent;
   /* return parent of eclass1*/
   if (dir == 1) {
-    /*
-    * SC_ABORT ("A list of all elements children from eclass1 with the according refinement of eclass2 needs\
-    * to be considered. / Needed: Siblings to go through them in z-direction.\n");
-    * see: t8_2_5dimension_scheme_c::t8_2_5D_parent (const t8_element_t *elem, t8_element_t *parent, t8_element_t **listofelem) const
-    * 
-    *über bit informationen an parent kommen -> nicht möglich, weil nicht eindeutig definiert
-    *=>direktes parent in Richtung eclass1 und dann über forest Suchfunktionalität schauen, ob Element existiert
-    *wenn nicht, dann iterativ parent in Richtung eclass2 erstellen und wieder schauen
-    */
-
     scheme1->t8_element_parent(el->elem1, parent2_5D->elem1);
     scheme2->t8_element_copy (el->elem2, parent2_5D->elem2);
-
   }
   /* return parent of eclass2*/
   else if (dir == 2) {
@@ -220,51 +195,20 @@ t8_2_5dimension_scheme_c::t8_element_parent_2_5D (const t8_element_t *elem, t8_e
 
   t8_2_5D_t **parent = (t8_2_5D_t **) p;
 
-  //IN MASTERARBEIT ÄNDERN!!
+  int level2 = scheme2->t8_element_level(el->elem2);
+ 
+  int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(level2);  
 
-    //assumption: uniform refined in direction 2
-    //1 parent element in direction 1 => parent->elem1
+  scheme1->t8_element_parent (el->elem1, parent[0]->elem1); 
+  scheme2->t8_element_copy(el->elem2, parent[0]->elem2);
 
-    // int num_children2 = scheme2->t8_element_num_children(el->elem2);
-    int level2 = scheme2->t8_element_level(el->elem2);
-    // int num_elems_dir2 = pow(num_children2, level2);  
-    int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(level2);  
+  scheme1->t8_element_debug_print (parent[0]->elem1);
+  scheme2->t8_element_debug_print(parent[0]->elem2);
 
-    // int pos;
-    scheme1->t8_element_parent (el->elem1, parent[0]->elem1); 
-    scheme2->t8_element_copy(el->elem2, parent[0]->elem2);
-    t8_global_productionf ("parent test \n");
-    scheme1->t8_element_debug_print (parent[0]->elem1);
-    scheme2->t8_element_debug_print(parent[0]->elem2);
-
-    // scheme2->t8_element_successor (parent[0]->elem2, parent[1]->elem2);
-    // for (int i = 1; i < pow(num_children2, level2 - 1); i++){
-    //   t8_global_productionf ("i: %i", i);
-    //   for (int j = 0; j < num_children2; j++){
-    //     t8_global_productionf ("j: %i", j);
-    //     pos = (i * num_children2 + j);
-    //     scheme2->t8_element_successor (parent[pos - 1]->elem2, parent[pos]->elem2);
-    //   }
-    // scheme2->t8_element_successor (parent[0]->elem2, parent[1]->elem2);
-    for (int i = 1; i < num_elems_per_column; i++){
-      scheme1->t8_element_parent (el->elem1, parent[i]->elem1); //muss 4 mal berechnet werden
-      scheme2->t8_element_successor (parent[i - 1]->elem2, parent[i]->elem2);
-    }
-
-    // for (int j = 0; j < num_elems_per_column; j++){
-    //   scheme1->t8_element_parent (el->elem1, parent[j]->elem1); //muss 4 mal berechnet werden
-    // }
-  
-
-    //print all parent elements
-    for (int i = 0; i < num_elems_per_column; i++){
-      int x = scheme1->t8_element_get_variable (parent[i]->elem1, 1);
-      int y = scheme1->t8_element_get_variable (parent[i]->elem1, 2);
-      int z = scheme2->t8_element_get_variable (parent[i]->elem2, 1);
-      t8_global_productionf ("------------------------------\n");
-      t8_global_productionf ("parent %i coordinates: (%i, %i) x %i\n", i, x, y, z);
-    }
-
+  for (int i = 1; i < num_elems_per_column; i++){
+    scheme1->t8_element_parent (el->elem1, parent[i]->elem1); //muss 4 mal berechnet werden
+    scheme2->t8_element_successor (parent[i - 1]->elem2, parent[i]->elem2);
+  }
 }
 
 int
@@ -285,19 +229,10 @@ t8_2_5dimension_scheme_c::t8_element_num_siblings (const t8_element_t *elem, int
     num_siblings = num_siblings1 * pow(num_siblings2, level2);
 
     return num_siblings;
-    // return scheme1->t8_element_num_siblings (el->elem1);
-
   }
   else if (dir == 2) {
     return scheme2->t8_element_num_siblings (el->elem2);
   }
-  // else if (dir == 3) {
-  //   //SC_ABORT ("The function t8_element_num_siblings is indefined for eclass1 (has a value between num_siblings_scheme1 and (num_siblings_scheme2 ^ maxlevel2).\n");
-  //   //not uniquely defined! this is the maximum number of possible sibling
-  //   int poss_level = scheme2->t8_element_maxlevel () - t8_element_level(elem, 2) - 1;
-  //   return (t8_element_num_siblings (elem, 1) - 1) * sc_intpow (t8_element_num_children (elem, 2), poss_level) + 1;
-  //   //scheme2->t8_element_num_siblings (el->elem2) == t8_element_num_siblings (elem, 2)
-  // }
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
   }
@@ -323,10 +258,6 @@ t8_2_5dimension_scheme_c::t8_element_sibling (const t8_element_t *elem, int sibi
     scheme1->t8_element_copy (el->elem1, sib->elem1);
     scheme2->t8_element_sibling (el->elem2, sibid, sib->elem2);
   }
-  /*EXTRA CASE
-  * sibid possible between 0 and t8_element_num_siblings(elem, 3) (=max number of possible siblings) 
-  * SC_ABORT ("The function t8_element_sibling is not uniquely defined for eclass1.\n");
-  */
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
   }
@@ -344,7 +275,6 @@ t8_2_5dimension_scheme_c::t8_element_num_corners (const t8_element_t *elem) cons
 int
 t8_2_5dimension_scheme_c::t8_element_num_faces (const t8_element_t *elem) const
 {
-  // T8_ASSERT (t8_element_is_valid (elem));
   SC_ABORT ("[FACE] This function is not implemented yet.\n");
   return T8_ECLASS_ZERO; /* suppresses compiler warning */
 }
@@ -352,7 +282,6 @@ t8_2_5dimension_scheme_c::t8_element_num_faces (const t8_element_t *elem) const
 int
 t8_2_5dimension_scheme_c::t8_element_max_num_faces (const t8_element_t *elem) const
 {
-  // T8_ASSERT (t8_element_is_valid (elem));
   SC_ABORT ("[FACE] This function is not implemented yet.\n");
   return T8_ECLASS_ZERO;
 }
@@ -373,18 +302,10 @@ t8_2_5dimension_scheme_c::t8_element_num_children (const t8_element_t *elem, int
     num_children = num_children1*pow(num_children2,level2);
 
     return num_children;
-
-    // return scheme1->t8_element_num_children (el->elem1);
   }
   else if (dir == 2) {
     return scheme2->t8_element_num_children (el->elem2);
   }
-  // else if (dir == 3) { //brauchen wir dir == 3
-  //   //not uniquely defined! this is the maximum number of possible children
-  //   int poss_level = scheme2->t8_element_maxlevel () - t8_element_level(el->elem2);
-  //   return ((scheme1->t8_element_num_children (el->elem1) - 1) * sc_intpow (scheme2->t8_element_num_children (el->elem2), poss_level)) + 1;
-  //   //scheme1->t8_element_num_children (el->elem1) = t8_element_num_children (elem, 1)
-  // }
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
   }
@@ -395,14 +316,6 @@ t8_2_5dimension_scheme_c::t8_element_num_face_children (const t8_element_t *elem
 {
   SC_ABORT ("[FACE] This function is not implemented yet.\n");
   return T8_ECLASS_ZERO;
-  // T8_ASSERT (t8_element_is_valid (elem));
-  // // Not true anymore for 4D with pyramids as faces
-  // if constexpr (eclass_T == T8_ECLASS_VERTEX) {
-  //   return 0;
-  // }
-  // else {
-  //   return 1 << (T8_ELEMENT_DIM[eclass_T] - 1);
-  // }
 }
 
 int
@@ -429,7 +342,6 @@ t8_2_5dimension_scheme_c::t8_element_child (const t8_element_t *elem, int childi
   t8_2_5D_t *c = (t8_2_5D_t *) child;
   /*direct child in eclass1 */
   if (dir == 1) {
-    //adjust to t8_element_children for dir == 1
     scheme1->t8_element_child(el->elem1, childid, c->elem1);
     scheme2->t8_element_copy (el->elem2, c->elem2);
     /*TODO
@@ -469,7 +381,6 @@ t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int len
   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
   t8_2_5D_t **children = (t8_2_5D_t **) c;
 
-  //IN MASTERARBEIT ÄNDERN!!
   if (dir == 1) {
     int num_children1 = scheme1->t8_element_num_children(el->elem1);
     t8_element_t **c1 = T8_ALLOC(t8_element_t *, num_children1);
@@ -481,73 +392,15 @@ t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int len
     
     //only refined in dir1
     if (level2 == 0){
-      // scheme1->t8_element_new (num_children1, c1);
-      // scheme1->t8_element_children (el->elem1, num_children1, c1);
 
       for (int i = 0; i < num_children1; i++){
         scheme1->t8_element_copy (c1[i], children[i]->elem1);
         scheme2->t8_element_copy(el->elem2, children[i]->elem2);
       }
-      // scheme1->t8_element_destroy (num_children1, c1);
-      // T8_FREE(c1);
     }
-    else{//assumption: uniform refined in direction 2
-      // // int num_elems_dir2 = pow(num_children2, level2);
-      // int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(level2);  
-      // t8_element_t **c2 = T8_ALLOC(t8_element_t *, num_elems_per_column);
-    
-      // scheme1->t8_element_new (num_children1, c1);
-      // scheme1->t8_element_children (el->elem1, num_children1, c1);
-
-      // scheme2->t8_element_new (num_elems_per_column, c2);
-
-      // scheme2->t8_element_copy (el->elem2, c2[0]);
-      // scheme2->t8_element_successor (c2[0], c2[1]);
-      // std::vector<int> levels = {level2};
-      // for (int i = 1; i < pow(num_children2, level2 - 1); i++){
-      //   t8_global_productionf ("i: %i", i);
-      //   for (int j = 0; j < num_children2; j++){
-      //     t8_global_productionf ("j: %i", j);
-      //     int pos = i * num_children2 + j;
-      //     scheme2->t8_element_successor (c2[pos-1], c2[pos]);
-      //   }
-      // }
-
-      // // print z-coordinates of children
-      // for (int i = 0; i < num_elems_per_column; i++){
-      //   int z = scheme2->t8_element_get_variable (c2[i], 1);
-      //   t8_global_productionf ("------------------------------\n");
-      //   t8_global_productionf ("child %i coordinate dir 2: %i\n", i, z);
-      // }
-
-      // for (int i = 0; i < num_children1; i++){
-      //   t8_global_productionf ("i: %i", i);
-      //   for (int j = 0; j < num_elems_per_column; j++){
-      //     int pos = i * num_elems_per_column + j;
-      //     t8_global_productionf ("pos: %i", pos);
-      //     scheme1->t8_element_copy (c1[i], children[pos]->elem1);
-      //     scheme2->t8_element_copy(c2[j], children[pos]->elem2);
-      //   }
-      // }
-
-      // scheme1->t8_element_destroy (num_children1, c1);
-      // scheme2->t8_element_destroy (num_elems_per_column, c2);
-
-      // T8_FREE(c1);
-      // T8_FREE(c2);
-
+    else{
 
       int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(level2);  
-    
-      // scheme1->t8_element_new (num_children1, c1);
-      // scheme1->t8_element_children (el->elem1, num_children1, c1);
-
-      for (int i = 0; i < num_children1; i++){
-        int x = scheme1->t8_element_get_variable (c1[i], 1);
-        int y = scheme1->t8_element_get_variable (c1[i], 2);
-        t8_global_productionf ("------------------------------\n");
-        t8_global_productionf ("child %i coordinate dir 1: (%i, %i) \n", i, x, y);
-      }
 
       for (int i = 0; i < num_children1; i++){
         scheme1->t8_element_copy (c1[i], children[i * num_elems_per_column]->elem1);
@@ -555,24 +408,10 @@ t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int len
         t8_global_productionf ("i: %i", i);
         for (int j = 1; j < num_elems_per_column; j++){
           int pos = i * num_elems_per_column + j;
-          t8_global_productionf ("pos: %i", pos);
           scheme1->t8_element_copy (c1[i], children[pos]->elem1);
           scheme2->t8_element_successor(children[pos-1]->elem2, children[pos]->elem2);
         }
       }
-
-      // scheme1->t8_element_destroy (num_children1, c1);
-
-      // T8_FREE(c1);
-    }
-
-    //print all children
-    for (int i = 0; i < length; i++){
-      int x = scheme1->t8_element_get_variable (children[i]->elem1, 1);
-      int y = scheme1->t8_element_get_variable (children[i]->elem1, 2);
-      int z = scheme2->t8_element_get_variable (children[i]->elem2, 1);
-      t8_global_productionf ("------------------------------\n");
-      t8_global_productionf ("child %i coordinates: (%i, %i) x %i\n", i, x, y, z);
     }
 
     scheme1->t8_element_destroy (num_children1, c1);
@@ -588,11 +427,6 @@ t8_2_5dimension_scheme_c::t8_element_children (const t8_element_t *elem, int len
     {
       scheme1->t8_element_copy(el->elem1, children[i]->elem1);
       scheme2->t8_element_copy (c2[i], children[i]->elem2);
-      int x = scheme1->t8_element_get_variable (children[i]->elem1, 1);
-      int y = scheme1->t8_element_get_variable (children[i]->elem1, 2);
-      int z = scheme2->t8_element_get_variable (children[i]->elem2, 1);
-      t8_global_productionf ("------------------------------\n");
-      t8_global_productionf ("child %i coordinates: (%i, %i) x %i\n", i, x, y, z);
     }
 
     scheme2->t8_element_destroy (length, c2);
@@ -656,17 +490,16 @@ t8_2_5dimension_scheme_c::t8_element_is_family (t8_element_t *const *fam, int di
     */
     int num_siblings1 = scheme1->t8_element_num_siblings (f0->elem1);
     t8_global_productionf ("num_siblings1: %i", num_siblings1);
-    // int num_siblings2 = scheme2->t8_element_num_siblings (f0->elem2);
-    // t8_global_productionf ("num_siblings2: %i", num_siblings2);
+
     int level2_elem0 = scheme2->t8_element_level(f0->elem2);
     int num_elems_dir2 = scheme2->t8_element_count_leaves_from_root(level2_elem0);
-    // int num_elems_dir2 = pow(num_siblings2,level2_elem0);
+
     t8_global_productionf ("num_elems_dir2: %i", num_elems_dir2);
     //holds due to assumption thatin direction 2 uniform refined
     int elems_in_family = num_siblings1 * num_elems_dir2;
 
     int level1_elem0 = scheme1->t8_element_level (f0->elem1);
-    // int level2_elem0 = scheme2->t8_element_level (f0->elem2);
+
     std::vector<int> levels_elem0 = {level1_elem0, level2_elem0};
     int lin_id_elem1 = t8_element_get_linear_id (fam[0], levels_elem0);
 
@@ -677,32 +510,19 @@ t8_2_5dimension_scheme_c::t8_element_is_family (t8_element_t *const *fam, int di
     std::vector<int> levels_elem1 = {level1_elem1, level2_elem1};
     int lin_id_elem2 = t8_element_get_linear_id (fam[num_elems_dir2], levels_elem1);
 
-    if (lin_id_elem1 + num_elems_dir2 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0){ //braucht man letzte && Bedingung? oder level2_elem0 == level2_elem1??
+    if (lin_id_elem1 + num_elems_dir2 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0){ //braucht man letzte && Bedingung? oder level2_elem0 == level2_elem1??  
       t8_element_t **fam1;
       fam1 = T8_ALLOC (t8_element_t *, num_siblings1); 
       int is_equal = 0;
       int is_equal_dir1 = 0;
       for (int i = 0; i < elems_in_family; i+=num_elems_dir2){
-        t8_global_productionf ("i: %i", i);
         const t8_2_5D_t *elem = (const t8_2_5D_t *) fam[i];
         int pos = i / num_elems_dir2;
-        t8_global_productionf ("pos: %i", pos);
         fam1[pos] = elem->elem1;
-
-        // t8_global_productionf("family element %i", i);
-        // t8_element_get_variable (elem, 0, 0);
-
-        int x = scheme1->t8_element_get_variable (elem->elem1, 1);
-        int y = scheme1->t8_element_get_variable (elem->elem1, 2);
-        int z = scheme2->t8_element_get_variable (elem->elem2, 1);
-        t8_global_productionf ("------------------------------\n");
-        t8_global_productionf ("family elements %i coordinates: (%i, %i) x %i\n", i, x, y, z);
       }
       for (int i = 0; i < num_elems_dir2 ; i++){
-        t8_global_productionf ("i: %i", i);
         is_equal_dir1 = 0;
         for (int j = 0; j < num_siblings1 - 1; j++){
-          t8_global_productionf ("j: %i", j);
           const t8_2_5D_t *elem = (const t8_2_5D_t *) fam[i + j * num_elems_dir2];
           const t8_2_5D_t *elem_comp = (const t8_2_5D_t *) fam[i + (j+1) * num_elems_dir2];
           if (scheme2->t8_element_equal (elem->elem2, elem_comp->elem2)){
@@ -712,22 +532,17 @@ t8_2_5dimension_scheme_c::t8_element_is_family (t8_element_t *const *fam, int di
         if (is_equal_dir1 == num_siblings1-1){
           is_equal++;
         }
-        t8_global_productionf("is_equal: %i", is_equal);
       }
 
-      // int is_family;
       is_family = scheme1->t8_element_is_family (fam1) && (is_equal == num_elems_dir2);
       T8_FREE (fam1);
-      t8_global_productionf("is_family: %i", is_family);
       return is_family;
     }
     else{
-      t8_global_productionf("is_family else case");
       return 0;
     }
   }
   else if (dir == 2) {
-    t8_global_productionf("CASE t8_element_is_family direction2");
     #ifdef T8_ENABLE_DEBUG
     {
       int i;
@@ -739,7 +554,7 @@ t8_2_5dimension_scheme_c::t8_element_is_family (t8_element_t *const *fam, int di
 
     const t8_2_5D_t *f0 = (const t8_2_5D_t *) fam[0];
     const t8_2_5D_t *f1 = (const t8_2_5D_t *) fam[1];
-    //int num_siblings1 = scheme1->t8_element_num_siblings (f0->elem1);
+
     int num_siblings2 = scheme2->t8_element_num_siblings (f0->elem2);
 
     int level1_elem0 = scheme1->t8_element_level (f0->elem1);
@@ -752,7 +567,7 @@ t8_2_5dimension_scheme_c::t8_element_is_family (t8_element_t *const *fam, int di
     std::vector<int> levels_elem1 = {level1_elem1, level2_elem1};
     int lin_id_elem2 = t8_element_get_linear_id (fam[1], levels_elem1);
     //+1 as this is dependent direction
-    if (lin_id_elem1 + 1 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0){ //braucht man letzte && Bedingung? oder level2_elem0 == level2_elem1??
+    if (lin_id_elem1 + 1 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0){ 
       t8_element **fam2;
       fam2 = T8_ALLOC (t8_element_t *, num_siblings2); 
       int is_equal = 0;
@@ -760,17 +575,14 @@ t8_2_5dimension_scheme_c::t8_element_is_family (t8_element_t *const *fam, int di
         t8_global_productionf ("i: %i", i);
         const t8_2_5D_t *elem = (const t8_2_5D_t *) fam[i];
         fam2[i] = elem->elem2;
-        t8_global_productionf("num_siblings_2: %i", num_siblings2);
         if (i < num_siblings2 - 1){
           const t8_2_5D_t *elem_comp = (const t8_2_5D_t *) fam[i+1];
           if (scheme1->t8_element_equal (elem->elem1, elem_comp->elem1)){
             is_equal+=1;
           }
-          t8_global_productionf("is_equal: %i", is_equal);
         }
       }
 
-      // int is_family;
       is_family = scheme2->t8_element_is_family (fam2) && (is_equal == (num_siblings2 - 1));
       T8_FREE (fam2);
       return is_family;
@@ -825,7 +637,6 @@ t8_2_5dimension_scheme_c::t8_element_face_parent_face (const t8_element_t *elem,
 {
   SC_ABORT ("[FACE] This function is not implemented yet. Waiting for scheme interface.\n");
   return T8_ECLASS_ZERO;
-  // return t8_sele_face_parent_face<eclass_T> ((const t8_standalone_element_t<eclass_T> *) elem, face);
 }
 
 int
@@ -910,15 +721,6 @@ t8_2_5dimension_scheme_c::t8_element_shape (const t8_element_t *elem) const
   }
 } 
 
-//@Lukas sc_intpow statt pow verwenden?
-
-// void
-// t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, int level1, int level2, t8_linearidx_t id) const
-// {
-//   return t8_element_get_linear_id (elem, level1, 1) * sc_intpow (t8_element_num_children (elem, 2), level2)
-//           + t8_element_get_linear_id (elem, level2, 2);
-// }
-
 void
 t8_2_5dimension_scheme_c::t8_element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
 {
@@ -946,49 +748,17 @@ t8_2_5dimension_scheme_c::t8_element_get_linear_id (const t8_element_t *elem, st
   std::vector<int> level1 = {levels[0]};
   std::vector<int> level2 = {levels[1]};
   t8_linearidx_t lin_id;
-  t8_global_productionf("levels[1]: %i", levels[1]);
-  //only columns -> level2 = 0
+
   if (levels[1] == 0){
-    t8_global_productionf("level1: %i", level1[0]);
     lin_id = scheme1->t8_element_get_linear_id (el->elem1, level1);
   }
   else{
     lin_id = scheme1->t8_element_get_linear_id (el->elem1, level1) * sc_intpow (scheme2->t8_element_num_children (el->elem2), levels[1]) 
                   + scheme2->t8_element_get_linear_id (el->elem2, level2);
   }
-  t8_global_productionf("lin_id: %i \n", lin_id);
   return lin_id;
 }
 
-// /*return 1 if elem lies inside column, 0 if column is not refined (contains just one element),
-// * -1 if elem is last elem of column
-// */
-// int
-// t8_2_5dimension_scheme_c::t8_element_column_check (const t8_element_t *elem) const
-// {
-//   t8_global_productionf ("t8_element_column_check");
-//   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
-//   int level1, level2;
-//   level1 = scheme1->t8_element_level(el->elem1);
-//   level2 = scheme2->t8_element_level(el->elem2);
-//   std::vector<int> levels = {level1, level2};
-//   t8_linearidx_t lin_id = t8_element_get_linear_id (elem, levels, 3);
-//   t8_global_productionf ("lin_id: %li\n", lin_id);
-//   int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(level1);
-//   t8_global_productionf ("num_elems_per_column: %i\n", num_elems_per_column);
-//   if (num_elems_per_column == 0){
-//     return 0;
-//   }
-//   else if ((lin_id + 1) % num_elems_per_column != 0) {
-//     return 1;
-//   }
-//   else{
-//     return -1;
-//   }
-// }
-
-
-//braucht man hier std::vector für levels? nicht wenn es nur ein maxlevel gibt
 void
 t8_2_5dimension_scheme_c::t8_element_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
@@ -999,30 +769,16 @@ t8_2_5dimension_scheme_c::t8_element_first_descendant (const t8_element_t *elem,
 
   scheme1->t8_element_first_descendant (el->elem1, d->elem1, level1);
   scheme2->t8_element_first_descendant (el->elem2, d->elem2, level2);
-
-  // const t8_element_t *el_test = (const t8_element_t *) el;
-  // t8_productionf ("--------------------FUNKTION\n");
-  // t8_linearidx_t lin_id = t8_element_get_linear_id (elem, levels);
-  // t8_linearidx_t lin_id_test = t8_element_get_linear_id (el_test, levels);
-  // T8_ASSERT (lin_id == lin_id_test);
-  // int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(levels[1], 2);
-  // if ((lin_id + 1) % num_elems_per_column != 0) {
-  //   scheme2->t8_element_root (el->elem2);
-  // }
-
 }
 
-//vektor für maxlevel! @Masterarbeit
 void
 t8_2_5dimension_scheme_c::t8_element_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
 {
-  // t8_productionf("last descendant 2.5D");
   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
   t8_2_5D_t *d = (t8_2_5D_t *) desc;
-  // std::vector<int> level1 = {levels[0]};
   std::vector<int> level2 = {levels[1]};
 
-  int level1_max = t8_element_maxlevel(); //scheme1->t8_element_maxlevel();
+  int level1_max = t8_element_maxlevel(); 
   t8_productionf("level1_max: %i", level1_max);
   int level1 = scheme1->t8_element_level (el->elem1);
   if (level1_max == level1){
@@ -1037,32 +793,7 @@ t8_2_5dimension_scheme_c::t8_element_last_descendant (const t8_element_t *elem, 
     }
   }
 
-  
-  // scheme1->t8_element_last_descendant (el->elem1, d->elem1, level1);
   scheme2->t8_element_last_descendant (el->elem2, d->elem2, level2);
-
-  
-  // const t8_element_t *el_test = (const t8_element_t *) el;
-  // t8_productionf ("--------------------FUNKTION\n");
-  // t8_linearidx_t lin_id = t8_element_get_linear_id (elem, levels);
-  // t8_linearidx_t lin_id_test = t8_element_get_linear_id (el_test, levels);
-  // T8_ASSERT (lin_id == lin_id_test);
-  // int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(levels[1], 2);
-  // if ((lin_id + 1) % num_elems_per_column != 0) {
-  //   int child_id = scheme1->t8_element_child_id(el->elem1);
-  //   // T8_ASSERT (child_id > 0);
-  //   if (child_id > 0){
-  //     scheme1->t8_element_parent(el->elem1, el->elem1);
-  //     scheme1->t8_element_child(el->elem1, child_id - 1, el->elem1);
-  //     scheme2->t8_element_root (el->elem2);
-  //     // int level_t = t8_element_maxlevel;
-  //     // for (int i = 0; i < level_t; i++) {
-  //     for (int i = 0; i < levels[1]; i++) {
-  //       scheme2->t8_element_child (el->elem2, 0, el->elem2);
-  //     }
-  //   }
-    
-  // }
 }
 
 void
@@ -1074,24 +805,13 @@ t8_2_5dimension_scheme_c::t8_element_successor (const t8_element_t *t, t8_elemen
   const t8_2_5D_t *tel = (const t8_2_5D_t *) t;
   t8_2_5D_t *sel = (t8_2_5D_t *) s;
 
-  t8_global_productionf ("--------------------\n");
   int level1 = scheme1->t8_element_level (tel->elem1);
-  t8_global_productionf ("level1: %i\n", level1);
   int level2 = t8_element_level (t, 2);
-  t8_global_productionf ("level2: %i\n", level2);
-  // int level3 = scheme2->t8_element_level(sel->elem1);
-  // t8_global_productionf ("level3: %i\n", level3);
+
   std::vector<int> levels = {level1, level2};
   t8_linearidx_t lin_id = t8_element_get_linear_id (t, levels);
   int num_elems_per_column = scheme2->t8_element_count_leaves_from_root(levels[1], 2);
-  // if (lin_id == 0) { // || lin_id % num_elems_per_column != 0){
-  //   scheme1->t8_element_copy (tel->elem1, sel->elem1);
-  //   scheme2->t8_element_successor (tel->elem2, sel->elem2);
-  //   // int x1 = scheme1->t8_element_get_variable (sel->elem1, 1);
-  //   // int y1 = scheme1->t8_element_get_variable (sel->elem1, 2);
-  //   // t8_global_productionf ("succesor coordinates x1: %i", x1);
-  //   // t8_global_productionf ("succesor coordinates y1: %i", y1);
-  // }
+
   if ((lin_id + 1) % num_elems_per_column != 0) {
     scheme1->t8_element_copy (tel->elem1, sel->elem1);
     scheme2->t8_element_successor (tel->elem2, sel->elem2);
@@ -1104,13 +824,6 @@ t8_2_5dimension_scheme_c::t8_element_successor (const t8_element_t *t, t8_elemen
     }
     scheme1->t8_element_successor (tel->elem1, sel->elem1);
   }
-  int x1 = scheme1->t8_element_get_variable (sel->elem1, 1);
-  int y1 = scheme1->t8_element_get_variable (sel->elem1, 2);
-  int x2 = scheme2->t8_element_get_variable (sel->elem2, 1);
-  t8_global_productionf ("succesor coordinates: (%i,%i) x %i\n", x1, y1, x2);
-  // scheme1->t8_element_debug_print(sel->elem1);
-  // t8_global_productionf ("Test \n");
-  // t8_debugf ("Test_de \n");
 }
 
 void
@@ -1129,16 +842,11 @@ t8_2_5dimension_scheme_c::t8_element_reference_coords (const t8_element_t *elem,
   int dim1, dim2;
   dim1 = t8_eclass_to_dimension[scheme1->eclass];
   dim2 = t8_eclass_to_dimension[scheme2->eclass];
-  // t8_global_productionf ("dimensions: %i x %i \n", dim1, dim2);
   for (size_t coord = 0; coord < num_coords; ++coord) {
     scheme1->t8_element_reference_coords (el->elem1, (ref_coords + (coord * (dim1 + dim2))), num_coords, (out_coords + (coord * (dim1 + dim2))));
     scheme2->t8_element_reference_coords (el->elem2, ref_coords + (coord * (dim1 + dim2) + dim1), num_coords, out_coords + (coord * (dim1 + dim2) + dim1));
   }
   size_t size = (dim1 + dim2)*num_coords;
-  // t8_global_productionf ("-------------------. \n");
-  // for (size_t i = 0; i < size; i++) {
-  //   t8_global_productionf ("out_coords[%li]: %f\n", i, out_coords[i]);
-  // }
 }
 
 t8_gloidx_t
@@ -1213,7 +921,6 @@ t8_2_5D_mempool_alloc (sc_mempool_t *ts_context, int length, t8_element_t **elem
   T8_ASSERT (elem != NULL);
 
   for (i = 0; i < length; ++i) {
-    // elem[i] = (t8_element_t *) sc_mempool_alloc (ts_context);
     elem[i] = (t8_element_t *) sc_mempool_alloc (ts_context);
     
   }
@@ -1242,7 +949,7 @@ t8_2_5dimension_scheme_c::t8_element_new (int length, t8_element_t **elem) const
 void
 t8_2_5dimension_scheme_c::t8_element_init (int length, t8_element_t *elem) const
 {
-//#ifdef T8_ENABLE_DEBUG
+#ifdef T8_ENABLE_DEBUG
   {
     t8_2_5D_t *el = (t8_2_5D_t *) elem;
     /* Set all values to 0 */
@@ -1250,12 +957,10 @@ t8_2_5dimension_scheme_c::t8_element_init (int length, t8_element_t *elem) const
     for (int i = 0; i < length; i++) {
       t8_2_5D_t *elem_init = el + i;
       scheme1->t8_element_new (1, &elem_init->elem1);
-      //scheme1->t8_element_init (1, elem_init->elem1); //would throw an error -> explanantion in declaration (due to declaration of t8_elemnt_init in t8_element.hxx)
       scheme2->t8_element_new (1, &elem_init->elem2);
-      //scheme2->t8_element_init (1, elem_init->elem2);
     }
   }
-//#endif
+#endif
 }
 
 void

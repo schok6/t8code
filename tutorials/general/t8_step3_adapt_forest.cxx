@@ -109,6 +109,8 @@ t8_step3_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_
 
   /* Compute the distance to our sphere midpoint. */
   dist = t8_vec_dist (centroid, adapt_data->midpoint);
+  t8_global_productionf("dist: %f", dist);
+  // dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
   if (dist < adapt_data->refine_if_inside_radius) {
     /* Refine this element. */
     return 1;
@@ -128,18 +130,11 @@ t8_forest_t
 t8_step3_adapt_forest (t8_forest_t forest)
 {
   t8_forest_t forest_adapt;
-  t8_forest_t forest_adapt_1;
-  t8_forest_t forest_adapt_2;
-  struct t8_step3_adapt_data adapt_data = {
-    { 0.1, 0.4, 1 }, /* Midpoints of the sphere. */
-    0.1,             /* Refine if inside this radius. */
-    0.2              /* Coarsen if outside this radius. */
-  };
 
-  struct t8_step3_adapt_data adapt_data1 = {
-    { 0, 1, 1 }, /* Midpoints of the sphere. */
-    0.1,             /* Refine if inside this radius. */
-    0.15              /* Coarsen if outside this radius. */
+  struct t8_step3_adapt_data adapt_data = {
+    { 0.5, 0, 1 }, /* Midpoints of the sphere. */
+    0.5,             /* Refine if inside this radius. */
+    0.7              /* Coarsen if outside this radius. */
   };
 
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -156,9 +151,7 @@ t8_step3_adapt_forest (t8_forest_t forest)
    *   do_face_ghost - If non-zero additionally a layer of ghost elements is created for the forest.
    *                   We will discuss ghost in later steps of the tutorial.
    */
-  forest_adapt_1 = t8_forest_new_adapt (forest, t8_step3_adapt_callback, 0, 0, 0, &adapt_data);
-  forest_adapt_2 = t8_forest_new_adapt (forest_adapt_1, t8_step3_adapt_callback, 0, 0, 0, &adapt_data);
-  forest_adapt = t8_forest_new_adapt (forest_adapt_2, t8_step3_adapt_callback, 0, 0, 0, &adapt_data1);
+  forest_adapt = t8_forest_new_adapt (forest, t8_step3_adapt_callback, 0, 0, 0, &adapt_data);
 
   return forest_adapt;
 }
@@ -189,10 +182,10 @@ t8_step3_main (int argc, char **argv)
   t8_cmesh_t cmesh;
   t8_forest_t forest;
   /* The prefix for our output files. */
-  const char *prefix_uniform = "t8_step3_uniform_forest_hex_level4";
-  const char *prefix_adapt = "t8_step3_adapted_forest_hex_level4";
+  const char *prefix_uniform = "t8_step3_uniform_forest_hex_level1";
+  const char *prefix_adapt = "t8_step3_adapted_forest_hex_level1";
   /* The uniform refinement level of the forest. */
-  const int level = 4;
+  const int level = 3;
 
   /* Initialize MPI. This has to happen before we initialize sc or t8code. */
   mpiret = sc_MPI_Init (&argc, &argv);
@@ -221,6 +214,7 @@ t8_step3_main (int argc, char **argv)
   /* Build a cube cmesh with tet, hex, and prism trees. */
   //cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
   t8_global_productionf (" [step3] Created coarse mesh.\n");
   forest = t8_forest_new_uniform (cmesh, t8_scheme_new_default_cxx (), level, 0, comm);
 
@@ -240,6 +234,7 @@ t8_step3_main (int argc, char **argv)
   /* Adapt the forest. We can reuse the forest variable, since the new adapted
    * forest will take ownership of the old forest and destroy it.
    * Note that the adapted forest is a new forest, though. */
+  forest = t8_step3_adapt_forest (forest);
   forest = t8_step3_adapt_forest (forest);
 
   /*

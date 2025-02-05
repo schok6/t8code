@@ -1256,18 +1256,12 @@ t8_forest_compute_desc (t8_forest_t forest)
     ts = forest->scheme_cxx->eclass_schemes[itree->eclass];
     /* get a pointer to the first element of itree */
     const t8_element_t *first_element = t8_element_array_index_locidx (&itree->elements, 0);
-    t8_global_productionf ("forest->maxlevel: %i\n", forest->maxlevel);
-    t8_global_productionf ("----------------------\n");
     /* get memory for the trees first descendant */
     ts->t8_element_new (1, &itree->first_desc);
     if (forest->set_type == 1) { //könnte hier wahrscheinlich entfernt werden
       std::vector<int> maxlevels = {forest->maxlevel};
       /* calculate the first descendant of the first element */
       ts->t8_element_first_descendant (first_element, itree->first_desc, maxlevels);
-
-      //  Print coordinates
-      t8_global_productionf ("itree->first_desc coordinates in t8_forest_compute_desc: \n");
-      ts->t8_element_get_variable (itree->first_desc, 0, 0);
     }
     else if (forest->set_type == 2) {
       std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel}; 
@@ -1294,24 +1288,7 @@ t8_forest_compute_desc (t8_forest_t forest)
       ts->t8_element_last_descendant (last_element, itree->last_desc, maxlevels);
 
     }
-
-    // //2D elements
-    // int x1 = ts->t8_element_get_variable (itree->last_desc, 1, 1);
-    // int y1 = ts->t8_element_get_variable (itree->last_desc, 2, 1);
-    // t8_global_productionf ("itree->last_desc coordinates: (%i,%i)\n", x1, y1);
-
-    // //3D elements
-    // int x1 = ts->t8_element_get_variable (itree->last_desc, 1, 1);
-    // int y1 = ts->t8_element_get_variable (itree->last_desc, 2, 1);
-    // int x2 = ts->t8_element_get_variable (itree->last_desc, 1, 2);
-    // t8_global_productionf ("itree->last_desc coordinates: (%i,%i) x %i\n", x1, y1, x2);
-
-    //Print coordinates
-    t8_global_productionf("itree->last_desc coordinates:");
-    ts->t8_element_get_variable (itree->last_desc, 0, 0);
   }
-  // t8_global_productionf ("after t8_forest_compute_desc \n");
-  // t8_forest_kontrolle(forest);
 }
 
 /* Create the elements on this process given a uniform partition of the coarse mesh. */
@@ -1387,21 +1364,21 @@ t8_forest_populate (t8_forest_t forest)
       element = t8_element_array_index_locidx_mutable (telements, 0);
       // t8_global_productionf (" element->x: %i ", eclass_scheme->t8_element_get_variable (element, 1, 1));
       // t8_global_productionf (" element->y: %i ", eclass_scheme->t8_element_get_variable (element, 2, 1));
-      t8_global_productionf("dim: %i", dim);
-      if (dim == 2) {
-        int x1 = eclass_scheme->t8_element_get_variable (element, 1);
-        int y1 = eclass_scheme->t8_element_get_variable (element, 2);
-        t8_global_productionf ("element coordinates: (%i,%i)\n", x1, y1);
-      }
-      else if (dim == 3) {
-        int x1 = eclass_scheme->t8_element_get_variable (element, 1, 1);
-        int y1 = eclass_scheme->t8_element_get_variable (element, 1, 2);
-        int z1 = eclass_scheme->t8_element_get_variable (element, 2, 1);
-        t8_global_productionf ("element coordinates: (%i,%i,%i)\n", x1, y1, z1);
-      }
-      else{
-        eclass_scheme->t8_element_get_variable (element, 0);
-      }
+      // t8_global_productionf("dim: %i", dim);
+      // if (dim == 2) {
+      //   int x1 = eclass_scheme->t8_element_get_variable (element, 1);
+      //   int y1 = eclass_scheme->t8_element_get_variable (element, 2);
+      //   t8_global_productionf ("element coordinates: (%i,%i)\n", x1, y1);
+      // }
+      // else if (dim == 3) {
+      //   int x1 = eclass_scheme->t8_element_get_variable (element, 1, 1);
+      //   int y1 = eclass_scheme->t8_element_get_variable (element, 1, 2);
+      //   int z1 = eclass_scheme->t8_element_get_variable (element, 2, 1);
+      //   t8_global_productionf ("element coordinates: (%i,%i,%i)\n", x1, y1, z1);
+      // }
+      // else{
+      //   eclass_scheme->t8_element_get_variable (element, 0);
+      // }
       std::vector<int> level {forest->set_level};
       eclass_scheme->t8_element_set_linear_id (element, level, start);
       count_elements++;
@@ -1464,9 +1441,9 @@ t8_forest_populate_2_5D (t8_forest_t forest)
 
   SC_CHECK_ABORT (forest->set_level1 <= forest->maxlevel, "Given refinement level exceeds the maximum.\n");
   SC_CHECK_ABORT (forest->set_level2 <= forest->maxlevel, "Given refinement level exceeds the maximum.\n");
-  /* TODO: create trees and quadrants according to uniform refinement */  //@Lukas
+  /* TODO: create trees and quadrants according to uniform refinement */  
   t8_cmesh_uniform_bounds_2_5D (forest->cmesh, forest->set_level1, forest->set_level2, forest->scheme_cxx, &forest->first_local_tree,
-                           &child_in_tree_begin, &forest->last_local_tree, &child_in_tree_end, NULL); //trees_eclass1
+                           &child_in_tree_begin, &forest->last_local_tree, &child_in_tree_end, NULL); 
 
   /* True if the forest has no elements */
   is_empty = forest->first_local_tree > forest->last_local_tree
@@ -1519,7 +1496,6 @@ t8_forest_populate_2_5D (t8_forest_t forest)
       eclass_scheme->t8_element_debug_print (element);
       std::vector<int> level {forest->set_level1, forest->set_level2};
       eclass_scheme->t8_element_set_linear_id (element, level, start);
-      // eclass_scheme->t8_element_set_linear_id (element, [forest->set_level1, forest->set_level2], start);
       count_elements++;
       for (et = start + 1; et < end; et++, count_elements++) {  
         element_succ = t8_element_array_index_locidx_mutable (telements, et - start);
@@ -3306,25 +3282,6 @@ t8_forest_set_scheme (t8_forest_t forest, t8_scheme_cxx_t *scheme)
   forest->scheme_cxx = scheme;
 }
 
-// void
-// t8_forest_set_scheme_2_5D (t8_forest_t forest, t8_scheme_cxx_t *scheme, t8_scheme_comb_cxx_t *scheme_comb)
-// {
-//   T8_ASSERT (forest != NULL);
-//   T8_ASSERT (forest->rc.refcount > 0);
-//   T8_ASSERT (!forest->committed);
-//   T8_ASSERT (forest->scheme_cxx == NULL);
-//   T8_ASSERT (forest->scheme_comb_cxx == NULL);
-//   T8_ASSERT (forest->set_from == NULL);
-
-//   T8_ASSERT (scheme != NULL);
-//   T8_ASSERT (scheme_comb != NULL);
-
-//   forest->scheme_cxx = scheme;
-//   forest->scheme_comb_cxx = scheme_comb;
-//   // t8_global_productionf("forest->scheme_cxx: %i \n", forest->scheme_cxx);
-//   // t8_global_productionf("forest->scheme_comb_cxx: %i \n", forest->scheme_comb_cxx);
-// }
-
 void
 t8_forest_set_level (t8_forest_t forest, int level)
 {
@@ -3359,7 +3316,7 @@ t8_forest_set_copy (t8_forest_t forest, const t8_forest_t set_from)
   T8_ASSERT (!forest->committed);
   T8_ASSERT (forest->mpicomm == sc_MPI_COMM_NULL);
   T8_ASSERT (forest->cmesh == NULL);
-  T8_ASSERT (forest->scheme_cxx == NULL);// || forest->scheme_comb_cxx == NULL);
+  T8_ASSERT (forest->scheme_cxx == NULL);
   T8_ASSERT (forest->set_from == NULL);
 
   T8_ASSERT (set_from != NULL);
@@ -3382,7 +3339,7 @@ t8_forest_set_partition (t8_forest_t forest, const t8_forest_t set_from, int set
   T8_ASSERT (forest->rc.refcount > 0);
   T8_ASSERT (!forest->committed);
   T8_ASSERT (forest->mpicomm == sc_MPI_COMM_NULL);
-  T8_ASSERT (forest->cmesh == NULL);// || forest->scheme_comb_cxx == NULL);
+  T8_ASSERT (forest->cmesh == NULL);
   T8_ASSERT (forest->scheme_cxx == NULL);
 
   forest->set_for_coarsening = set_for_coarsening;
@@ -3467,13 +3424,12 @@ t8_forest_set_adapt (t8_forest_t forest, const t8_forest_t set_from, t8_forest_a
   T8_ASSERT (!forest->committed);
   T8_ASSERT (forest->mpicomm == sc_MPI_COMM_NULL);
   T8_ASSERT (forest->cmesh == NULL);
-  T8_ASSERT (forest->scheme_cxx == NULL);// || forest->scheme_comb_cxx == NULL);
+  T8_ASSERT (forest->scheme_cxx == NULL);
   T8_ASSERT (forest->set_adapt_fn == NULL);
   T8_ASSERT (forest->set_adapt_recursive == -1);
 
   forest->set_adapt_fn = adapt_fn;
   forest->set_adapt_recursive = recursive != 0;
-  // forest->set_adapt_direction = direction != 0;
 
   if (set_from != NULL) {
     /* If set_from = NULL, we assume a previous forest_from was set */
@@ -3668,13 +3624,10 @@ t8_forest_commit (t8_forest_t forest)
     t8_productionf ("before compute_maxlevel \n");
     /* Compute the maximum allowed refinement level */
     if (forest->set_type == 1) {
-    // if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
       t8_forest_compute_maxlevel (forest);
       T8_ASSERT (forest->set_level <= forest->maxlevel);
     }
     else if (forest->set_type == 2) {
-    // else {
-      // t8_forest_compute_maxlevel_2_5D (forest);
       t8_forest_compute_maxlevel (forest);
       T8_ASSERT (forest->set_level1 <= forest->maxlevel);
       T8_ASSERT (forest->set_level2 <= forest->maxlevel);
@@ -3692,7 +3645,6 @@ t8_forest_commit (t8_forest_t forest)
       }
     }
     else if (forest->set_type == 2) {
-    // else { //for t8_scheme_comb_cxx forest won't refine irregular
       t8_forest_populate_2_5D (forest);
     }
     forest->global_num_trees = t8_cmesh_get_num_trees (forest->cmesh);
@@ -3873,12 +3825,6 @@ t8_forest_commit (t8_forest_t forest)
   if (forest->global_first_desc == NULL) {
     /* Compute global first desc array */
     t8_forest_partition_create_first_desc (forest);
-    // if (forest->scheme_cxx != NULL && forest->scheme_comb_cxx == NULL) {
-    //   t8_forest_partition_create_first_desc (forest);
-    // }
-    // else {
-    //   t8_forest_partition_create_first_desc_2_5D (forest);
-    // }
   }
 
   if (forest->profile != NULL) {
@@ -4165,7 +4111,6 @@ t8_forest_get_element (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t 
   }
 #endif
   ltree = sc_array_bsearch (forest->trees, &lelement_id, t8_forest_compare_elem_tree);
-  // t8_global_productionf ("ltree: %i \n", ltree);
   T8_ASSERT (ltreedebug == ltree);
   if (ltreeid != NULL) {
     *ltreeid = ltree;
@@ -4184,277 +4129,6 @@ t8_forest_get_element (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t 
   return NULL;
 }
 
-// t8_element_t *
-// t8_forest_get_element_2_5D (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid, int dir)
-// {
-//   t8_tree_t tree;
-//   t8_locidx_t ltree;
-// #ifdef T8_ENABLE_DEBUG
-//   t8_locidx_t ltreedebug;
-//   // t8_locidx_t ltreedebug1, ltreedebug2;
-// #endif
-
-//   T8_ASSERT (t8_forest_is_committed (forest));
-//   T8_ASSERT (lelement_id >= 0);
-//   if (lelement_id >= t8_forest_get_local_num_elements (forest)) {
-//     return NULL;
-//   }
-//   /* We optimized the binary search out by using sc_bsearch,
-//    * but keep it in for debugging. We check whether the hand-written
-//    * binary search matches the sc_array_bsearch. */
-// // #ifdef T8_ENABLE_DEBUG
-//   // {
-//     t8_locidx_t ltree_a, ltree_b;
-//     ltree_a = 0;
-//     ltree_b = t8_forest_get_num_local_trees (forest) / 2; // -> ist immer gerade weil ein tree für eclass1 und ein tree für eclass2
-//     ltreedebug = (ltree_a + ltree_b) / 2;
-//     // t8_global_productionf ("ltreedebug - 1: %i \n", ltreedebug);
-//     // if (dir ==1){
-//     //   for (int itree = 1, itree < ltreeb * 2; itree += 2) {
-//     //     // tree2 = t8_forest_get_tree (forest, itree);
-//     //     // eclass2 = t8_cmesh_get_tree_class(forest->cmesh, itree);
-//     //     // ts2 = forest->scheme_cxx->eclass_schemes[eclass2];
-//     //     int num_children = t8_forest_num_children_tree_cmesh (forest, itree, 2);
-//     //     lelement_id/=num_children;
-//     //   }
-//     // }
-//     while (ltree_a < ltree_b) {
-//       ltreedebug = (ltree_a + ltree_b) / 2;
-//       // t8_global_productionf ("ltree_b: %i \n", ltree_b);
-//       t8_global_productionf ("ltreedebug: %i \n", ltreedebug);
-//       if (dir == 1){
-//         tree = t8_forest_get_tree (forest, ltreedebug * 2);
-//         // int num_children = t8_forest_num_children_tree_cmesh (forest, ltreedebug * 2 + 1, 2);
-//         // t8_global_productionf ("lelement_id: %i \n", lelement_id);
-//         // t8_global_productionf ("num_children: %i \n", num_children);
-//         // lelement_id/=num_children;
-//         t8_global_productionf ("lelement_id: %i \n", lelement_id);
-//         t8_eclass_t eclass = t8_forest_get_eclass (forest, ltreedebug * 2);
-//         t8_global_productionf ("eclass: %i \n", eclass);
-//       }
-//       else if (dir == 2){
-//         tree = t8_forest_get_tree (forest, ltreedebug * 2 + 1);
-//         // int num_children = t8_forest_num_children_tree_cmesh (forest, ltreedebug * 2, 1);
-//         // lelement_id/=num_children;
-//         // t8_global_productionf ("lelement_id: %i \n", lelement_id);
-//         t8_eclass_t eclass = t8_forest_get_eclass (forest, ltreedebug * 2 + 1);
-//         t8_global_productionf ("eclass: %i \n", eclass);
-//       }
-      
-
-//       if (tree->elements_offset > lelement_id) {
-//         /* We have to look further to the left */
-//         ltree_b = ltreedebug;
-//       }
-//       else if (tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements) > lelement_id) {
-//         /* We have found the tree */
-//         ltree_a = ltree_b;
-//       }
-//       else {
-//         /* We have to look further right */
-//         ltree_a = ltreedebug;
-//       }
-//     }
-//     if (dir == 1){
-//       ltree = ltreedebug * 2;
-//     }
-//     else if (dir == 2){
-//       ltree = ltreedebug * 2 + 1;
-//     }
-//     t8_global_productionf ("ltree: %i \n", ltree);
-//   // }
-// // #endif
-//   // ltree = sc_array_bsearch (forest->trees, &lelement_id, t8_forest_compare_elem_tree);
-//   // t8_global_productionf ("ltree: %i \n", ltree);
-//   // T8_ASSERT (ltreedebug == ltree);
-//   // ltree = ltreedebug; //extra weil sc_array_bsearch nicht funktioniert
-//   if (ltreeid != NULL) {
-//     *ltreeid = ltree;
-//   }
-
-//   /* The tree that contains the element is now local tree ltree.
-//    * Or the element is not a local element. */
-//   tree = t8_forest_get_tree (forest, ltree);
-//   if (tree->elements_offset <= lelement_id
-//       && lelement_id < tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements)) {
-//     return t8_element_array_index_locidx_mutable (&tree->elements, lelement_id - tree->elements_offset);
-//   }
-//   /* The element was not found.
-//    * This case is covered by the first if and should therefore never happen. */
-//   SC_ABORT_NOT_REACHED ();
-//   return NULL;
-// }
-
-
-// t8_element_t *
-// t8_forest_get_element_2_5D (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid, int dir)
-// {
-
-//   t8_global_productionf ("t8_forest_get_element_2_5D");
-//   t8_tree_t tree;
-//   t8_tree_t tree1, tree2;
-//   t8_locidx_t ltree;
-//   t8_gloidx_t itree;
-//   t8_gloidx_t num_trees_cmesh;
-//   t8_locidx_t num_trees_eclass; 
-//   t8_locidx_t local_num_elems;
-//   // t8_eclass_t eclass1, eclass2;
-//   // t8_eclass_scheme_c *ts1, *ts2;
-
-// #ifdef T8_ENABLE_DEBUG
-//   t8_locidx_t ltreedebug;
-// #endif
-
-//   T8_ASSERT (t8_forest_is_committed (forest));
-//   T8_ASSERT (lelement_id >= 0);
-//   if (lelement_id >= t8_forest_get_local_num_elements (forest)) {
-//     return NULL;
-//   }
-
-//   num_trees_eclass = 0;
-//   if (dir == 1) {
-//     for (itree = 0, local_num_elems = 0; local_num_elems < t8_forest_get_local_num_elements (forest); itree+=2){
-//       // ts1 = t8_forest_get_eclass_scheme (forest, t8_cmesh_get_tree_class (forest->cmesh, itree));
-//       // ts2 = t8_forest_get_eclass_scheme (forest, t8_cmesh_get_tree_class (forest->cmesh, itree+1));
-
-//       // // eclass1 = t8_cmesh_get_tree_class(forest->cmesh, itree);
-//       // // eclass2 = t8_cmesh_get_tree_class(forest->cmesh, itree + 1);
-//       // // ts1 = forest->scheme_cxx->eclass_schemes[eclass1];
-//       // // ts2 = forest->scheme_cxx->eclass_schemes[eclass2];
-
-//       local_num_elems += (t8_forest_num_children_tree_cmesh (forest, itree, 1) * t8_forest_num_children_tree_cmesh (forest, itree + 1, 2) );
-//       t8_global_productionf ("local_num_elems : %i", local_num_elems);
-//       lelement_id/=t8_forest_num_children_tree_cmesh (forest, itree + 1, 2);
-//       t8_global_productionf ("lelement_id : %i", lelement_id);
-//       num_trees_eclass++;
-//     }
-//     t8_global_productionf ("num_trees_eclass : %i", num_trees_eclass);
-//   }
-//   else if (dir = 2) {
-//     for (itree = 0, local_num_elems = 0; local_num_elems < t8_forest_get_local_num_elements (forest); itree+=2){
-//       //int num_children_eclass1 = t8_forest_num_children_tree_cmesh (forest, itree, 1);
-//       for(int itree2 = 0; itree2 < t8_forest_num_children_tree_cmesh (forest, itree, 1); itree2++){
-//         local_num_elems += t8_forest_num_children_tree_cmesh (forest, itree + 1, 2);
-//         num_trees_eclass++;
-//       }
-//     }
-//     t8_global_productionf ("num_trees_eclass : %i", num_trees_eclass);
-//   }
-
-
-
-//   num_trees_cmesh = t8_cmesh_get_num_trees (forest->cmesh);
-
-// //   for (itree = 0; itree < num_trees_cmesh; itree+=2)
-
-
-
-//   /* We optimized the binary search out by using sc_bsearch,
-//    * but keep it in for debugging. We check whether the hand-written
-//    * binary search matches the sc_array_bsearch. */
-// //#ifdef T8_ENABLE_DEBUG
-//   {
-//     t8_global_productionf ("Test \n");
-//     t8_locidx_t ltree_a, ltree_b;
-//     ltree_a = 0;
-//     //ltree_b = t8_forest_get_num_local_trees (forest);
-//     ltree_b = num_trees_eclass;
-//     ltreedebug = (ltree_a + ltree_b) / 2;
-//     //ltreedebug = (ltree_a + ltree_b) / 2 / 2;
-//     while (ltree_a < ltree_b) {
-//       t8_global_productionf ("ltree_a: %i \n", ltree_a);
-//       t8_global_productionf ("ltree_b: %i \n", ltree_b);
-//       ltreedebug = (ltree_a + ltree_b) / 2;
-//       //ltreedebug = (ltree_a + ltree_b) / 2 / 2;
-//       tree = t8_forest_get_tree (forest, ltreedebug);
-// // //       if (dir == 1) {
-// // //         tree = t8_forest_get_tree (forest, ltreedebug * 2);
-// // //         //tree = t8_forest_get_tree (forest, ltreedebug+1);
-// // //         t8_eclass_t eclass = t8_forest_get_eclass (forest, ltreedebug-1);
-// // //         //t8_eclass_t eclass = t8_forest_get_eclass (forest, ltreedebug+1);
-// // //         t8_global_productionf ("eclass: %i \n", eclass);
-// // //       }
-// // //       else {
-// // //         tree = t8_forest_get_tree (forest, ltreedebug);
-// // //         t8_eclass_t eclass = t8_forest_get_eclass (forest, ltreedebug);
-// // //         t8_global_productionf ("eclass: %i \n", eclass);
-// // //       }
-//       t8_global_productionf ("ltreedebug: %i \n", ltreedebug);
-//       t8_global_productionf ("tree->elements_offset: %i \n", tree->elements_offset);
-//       t8_global_productionf ("tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements): %i \n", tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements));
-//       if (tree->elements_offset > lelement_id) {
-//         /* We have to look further to the left */
-//         ltree_b = ltreedebug;
-//       }
-//       else if (tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements) > lelement_id) {
-//         /* We have found the tree */
-//         ltree_a = ltree_b;
-//       }
-//       else {
-//         /* We have to look further right */
-//         ltree_a = ltreedebug;
-//       }
-//     }
-//     t8_global_productionf ("ltreedebug: %i \n", ltreedebug);
-//   }
-// //#endif
-//   // ltree = sc_array_bsearch (forest->trees, &lelement_id, t8_forest_compare_elem_tree);
-//   // t8_global_productionf ("ltree: %i \n", ltree);
-//   // T8_ASSERT (ltreedebug == ltree);
-//   // if (ltreeid != NULL) {
-//   //   *ltreeid = ltree;
-//   // }
-//   if (ltreeid != NULL) {
-//     *ltreeid = ltreedebug;
-//   }
-
-//   /* The tree that contains the element is now local tree ltree.
-//    * Or the element is not a local element. */
-//   // if (dir == 1) {
-//   //   tree = t8_forest_get_tree (forest, ltree - 1);
-//   // }
-//   // else {
-//   //   tree = t8_forest_get_tree (forest, ltree);
-//   // }
-
-//   int num_trees = 0;
-//   if (dir == 1){
-//     for (itree = 0; itree < ltreedebug - 1; itree++){
-//       num_trees = 1 + t8_forest_num_children_tree_cmesh (forest, num_trees + 1, 2);
-//     }
-//   }
-//   else if (dir == 2){
-//     t8_global_productionf ("TODO \n");
-//     num_trees = 1;
-//     for (itree = 0; itree < ltreedebug - 1; itree++){
-//       num_trees = 1; // + t8_forest_num_children_tree_cmesh (forest, num_trees + 1, 2);
-//     }
-//   }
-
-
-//   t8_global_productionf ("num_trees: %i \n", num_trees);
-
-//   // t8_forest_kontrolle (forest);
-
-//   tree = t8_forest_get_tree (forest, num_trees);
-//   t8_eclass_t eclass = t8_forest_get_eclass (forest, num_trees);
-//   t8_global_productionf ("eclass: %i \n", eclass);
-//   t8_global_productionf ("lelement_id: %i \n", lelement_id);
-//   t8_global_productionf ("tree->elements_offset: %i \n", tree->elements_offset);
-//   t8_global_productionf ("tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements): %i \n", tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements));
-//   if (tree->elements_offset <= lelement_id
-//       && lelement_id < tree->elements_offset + (t8_locidx_t) t8_element_array_get_count (&tree->elements)) {
-//     t8_global_productionf ("Test1 \n");
-//     t8_global_productionf ("lelement_id - tree->elements_offset: %i \n", lelement_id - tree->elements_offset);
-//     return t8_element_array_index_locidx_mutable (&tree->elements, lelement_id - tree->elements_offset);
-//     t8_global_productionf ("Test2 \n"); 
-//   }
-//   /* The element was not found.
-//    * This case is covered by the first if and should therefore never happen. */
-//   SC_ABORT_NOT_REACHED ();
-//   return NULL;
-// }
-
 const t8_element_t *
 t8_forest_get_element_in_tree (t8_forest_t forest, t8_locidx_t ltreeid, t8_locidx_t leid_in_tree)
 {
@@ -4468,10 +4142,6 @@ t8_forest_get_element_in_tree (t8_forest_t forest, t8_locidx_t ltreeid, t8_locid
 
   t8_eclass_t eclass = t8_forest_get_eclass (forest, ltreeid);
   t8_eclass_scheme_c *eclass_scheme = t8_forest_get_eclass_scheme (forest, eclass);
-  int x1 = eclass_scheme->t8_element_get_variable (element, 1, 1);
-  int y1 = eclass_scheme->t8_element_get_variable (element, 2, 1);
-  int x2 = eclass_scheme->t8_element_get_variable (element, 1, 2);
-  t8_global_productionf ("element coordinates: (%i,%i) x %i\n", x1, y1, x2);
 
   return element;
 }
@@ -4542,15 +4212,6 @@ t8_forest_get_scheme (const t8_forest_t forest)
   return forest->scheme_cxx;
 }
 
-// t8_scheme_comb_cxx_t *
-// t8_forest_get_scheme_2_5D (const t8_forest_t forest)
-// {
-//   T8_ASSERT (t8_forest_is_committed (forest));
-//   T8_ASSERT (forest->scheme_comb_cxx != NULL);
-
-//   return forest->scheme_comb_cxx;
-// }
-
 t8_eclass_scheme_c *
 t8_forest_get_eclass_scheme (const t8_forest_t forest, const t8_eclass_t eclass)
 {
@@ -4561,40 +4222,15 @@ t8_forest_get_eclass_scheme (const t8_forest_t forest, const t8_eclass_t eclass)
   return forest->scheme_cxx->eclass_schemes[eclass];
 }
 
-// t8_eclass_scheme_c *
-// t8_forest_get_eclass_scheme_2_5D (const t8_forest_t forest, const t8_eclass_t eclass1, const t8_eclass_t eclass2)
-// {
-//   T8_ASSERT (t8_forest_is_committed (forest));
-//   T8_ASSERT (forest->scheme_comb_cxx != NULL);
-//   T8_ASSERT (eclass1 != T8_ECLASS_COUNT);
-//   T8_ASSERT (eclass2 != T8_ECLASS_COUNT);
-
-//   return forest->scheme_comb_cxx->eclass_schemes_comb[eclass1][eclass2];
-// }
-
 t8_eclass_scheme_c *
 t8_forest_get_eclass_scheme_before_commit (t8_forest_t forest, t8_eclass_t eclass)
 {
   T8_ASSERT (t8_forest_is_initialized (forest));
   T8_ASSERT (forest->scheme_cxx != NULL);
   T8_ASSERT (eclass != T8_ECLASS_COUNT);
-  // t8_global_productionf ("forest->scheme_cxx->eclass_schemes[eclass]: %i\n", forest->scheme_cxx->eclass_schemes[eclass]);
 
   return forest->scheme_cxx->eclass_schemes[eclass];
 }
-
-// t8_eclass_scheme_c *
-// t8_forest_get_eclass_scheme_before_commit_2_5D (t8_forest_t forest, t8_eclass_t eclass1, t8_eclass_t eclass2)
-// {
-//   T8_ASSERT (t8_forest_is_initialized (forest));
-//   T8_ASSERT (forest->scheme_comb_cxx != NULL);
-//   T8_ASSERT (eclass1 != T8_ECLASS_COUNT);
-//   T8_ASSERT (eclass2 != T8_ECLASS_COUNT);
-//   // t8_global_productionf ("eclass1 %i\n", eclass1);
-//   // t8_global_productionf ("eclass2 %i\n", eclass2);
-
-//   return forest->scheme_comb_cxx->eclass_schemes_comb[eclass1][eclass2];
-// }
 
 t8_eclass_t
 t8_forest_get_eclass (const t8_forest_t forest, const t8_locidx_t ltreeid)
@@ -4900,43 +4536,13 @@ t8_forest_profile_get_balance (t8_forest_t forest, int *balance_rounds)
   return 0;
 }
 
-// t8_locidx_t
-// t8_forest_get_num_trees (t8_forest_t forest)
-// {
-//   t8_locidx_t num_trees_cmesh;
-//   t8_locidx_t num_trees;
-//   int num_children;
-
-//   T8_ASSERT (t8_forest_is_initialized (forest));
-
-//   num_trees_cmesh = t8_cmesh_get_num_local_trees (forest->cmesh); 
-//   num_trees = 0;
-      
-//   for (int i = 0; i < num_trees_cmesh; i+=2){
-//     t8_ctree_t tree = t8_cmesh_get_tree (forest->cmesh, i);
-//     num_children = t8_forest_num_children_eclass1 (forest, num_trees);
-//     num_trees += (1 + num_children);
-//     t8_global_productionf ( "num_trees: %i \n", num_trees);
-//   }
-
-//   // t8_global_productionf ( "test: %i \n");
-
-//   return num_trees;
-// }
 
 void
 t8_forest_compute_elements_offset (t8_forest_t forest)
 {
- // t8_global_productionf ("before t8_forest_compute_elements_offset \n");
-  // t8_forest_kontrolle(forest);
   t8_tree_t tree;
   t8_locidx_t itree, num_trees;
   t8_locidx_t current_offset;
-  // t8_eclass_t tree_eclass1;
-  // t8_eclass_t tree_eclass;
-  // t8_eclass_scheme_c *eclass_scheme_tree;
-  // t8_eclass_scheme_c *eclass_scheme1;
-  //t8_tree_t tree;
 
   T8_ASSERT (t8_forest_is_initialized (forest));
 
@@ -4947,81 +4553,6 @@ t8_forest_compute_elements_offset (t8_forest_t forest)
    * the element_offsets */
   t8_global_productionf (" num_trees: %i \n", num_trees);
 
-  // t8_locidx_t num_trees_cmesh = t8_cmesh_get_num_local_trees (forest->cmesh);
-
-  // for (int i = 0; i < num_trees_cmesh; i++){
-  //   tree_eclass = t8_cmesh_get_tree_class (forest->cmesh, i);
-  //   t8_global_productionf ( "trees_eclass cmesh at %i: %i \n", i, tree_eclass);
-  // }
-
-  // if (forest->scheme_comb_cxx != NULL)
-  // {
-  //   // // float trees_eclass1 = 0.0;
-  //   // int trees_eclass1 = 0;
-  //   // int test = 0;
-  //   // float var = 0.0;
-
-  //   // int num_children;
-  //   t8_tree_t tree1, tree2;
-  //   t8_locidx_t current_offset1 = 0;
-  //   t8_locidx_t current_offset2 = 0;
-  //   for (itree = 0; itree < num_trees - 1; itree+=2) {
-  //     t8_global_productionf (" itree: %i ", itree);
-  //     tree1 = t8_forest_get_tree (forest, itree);
-  //     tree1->elements_offset = current_offset1;
-  //     tree2 = t8_forest_get_tree (forest, itree + 1);
-  //     tree2->elements_offset = current_offset2;
-  //     current_offset1 += t8_forest_get_tree_element_count (tree1);
-  //     current_offset2 += t8_forest_get_tree_element_count (tree2);
-  //     current_offset += t8_forest_get_tree_element_count (tree1) * t8_forest_get_tree_element_count (tree2);
-  //     t8_global_productionf (" current_offset: %i ", current_offset);
-  //   } 
-  //   // //t8_global_productionf ("count_elements: %i", count_elements);
-  //   // // *eclass_scheme1 = forest->scheme_cxx->eclass_schemes[tree_class];
-  //   // for (itree = 0; itree < num_trees; itree++) {
-  //   //   t8_global_productionf (" itree: %i \n", itree);
-
-  //   //   if (trees_eclass1 == test){
-  //   //     t8_global_productionf ( "trees_eclass1: %i \n", trees_eclass1);
-  //   //     tree_eclass1 = t8_cmesh_get_tree_class (forest->cmesh, trees_eclass1);
-  //   //     test+=2;
-  //   //     t8_global_productionf ( "test: %i \n", test);
-  //   //     num_children = t8_forest_num_children_eclass1 (forest, itree); //ginge hier auch t8_forest_get_tree_element_count (tree)
-  //   //   }
-  //   //   // else if (var == (trees_eclass1 + 1.0) && f){
-  //   //   //   t8_global_productionf (" CASE var is int - var: %i ", var);
-  //   //   // }
-
-  //   //   tree = t8_forest_get_tree (forest, itree);
-  //   //   tree_eclass = tree->eclass;
-  //   //   tree->elements_offset = current_offset;
-  //   //   t8_global_productionf (" current_offset: %i \n", current_offset);
-  //   //   t8_global_productionf (" t8_forest_get_tree_element_count (tree): %i \n", t8_forest_get_tree_element_count (tree));
-  //   //   if (tree_eclass1 != tree_eclass){
-  //   //     t8_global_productionf ( "CASE tree_eclass1 != tree_eclass: %i != %i \n", tree_eclass1, tree_eclass);
-  //   //     t8_global_productionf ( "tree_eclass: %i \n", tree_eclass);
-  //   //     var += 1.0/num_children;
-  //   //     // trees_eclass1 = (trees_eclass1 + 1 + num_children1);
-  //   //     t8_global_productionf ( "var: %f \n", var);
-  //   //     int var_int = var;
-  //   //     double temp_var = var - var_int;
-
-  //   //     // int f;
-  //   //     if (temp_var > 0) {
-  //   //       // f = 0;
-  //   //     }
-  //   //     else {
-  //   //       trees_eclass1+=2;
-  //   //       // f = 1;
-  //   //     }
-  //   //     current_offset += t8_forest_get_tree_element_count (tree);
-  //   //   }
-      
-  //   // } 
-  // }
-  // else
-  // {
-    // t8_tree_t tree;
     for (itree = 0; itree < num_trees; itree++) {
       t8_global_productionf (" itree: %i \n", itree);
       tree = t8_forest_get_tree (forest, itree);
@@ -5030,14 +4561,11 @@ t8_forest_compute_elements_offset (t8_forest_t forest)
       current_offset += t8_forest_get_tree_element_count (tree);
       t8_global_productionf (" current_offset: %i \n", current_offset);
     } 
-  // }
  
   /* At the end, we counted all elements */
   t8_global_productionf (" current_offset == forest->local_num_elements: %i == %i ", current_offset, forest->local_num_elements);
   T8_ASSERT (current_offset == forest->local_num_elements);
 
-  // t8_global_productionf ("after t8_forest_compute_elements_offset \n");
-  // t8_forest_kontrolle(forest);
 }
 
 int

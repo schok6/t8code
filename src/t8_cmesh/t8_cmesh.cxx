@@ -1635,11 +1635,11 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   T8_ASSERT (ts != NULL);
 
   *first_local_tree = 0;
-  if (child_in_tree_begin != NULL) { //@Lukas
+  if (child_in_tree_begin != NULL) { 
     *child_in_tree_begin = 0;
   }
   *last_local_tree = 0;
-  if (child_in_tree_end != NULL) { //@Lukas
+  if (child_in_tree_end != NULL) { 
     *child_in_tree_end = 0;
   }
 
@@ -1728,6 +1728,7 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   T8_ASSERT (0 <= last_global_child && last_global_child <= global_num_children);
 
   *first_local_tree = first_global_child / (children_per_tree1 * children_per_tree2);
+  t8_productionf("first_local_tree: %li \n", *first_local_tree);
   child_in_tree_begin_temp = first_global_child - *first_local_tree * (children_per_tree1 * children_per_tree2); //rest von ganzzahldivision!!!!
   if (child_in_tree_begin != NULL) {
     *child_in_tree_begin = child_in_tree_begin_temp;
