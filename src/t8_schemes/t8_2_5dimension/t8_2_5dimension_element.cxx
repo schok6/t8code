@@ -351,9 +351,6 @@ t8_2_5dimension_scheme_c::t8_element_child (const t8_element_t *elem, int childi
   else if (dir == 2) {
     scheme1->t8_element_copy(el->elem1, c->elem1);
     scheme2->t8_element_child (el->elem2, childid, c->elem2);
-    /*TODO
-    * iterativ auch weitere Elemente der Säule in Kinder bezüglich eclass1 verfeinern
-    */
   }
   /*EXTRA CASE
   * childid possible between 0 and t8_element_num_children(elem, 1) (=max number of possible children) 
