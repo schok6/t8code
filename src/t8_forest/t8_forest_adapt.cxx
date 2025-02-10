@@ -724,10 +724,10 @@ t8_forest_adapt (t8_forest_t forest)
               elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
             }
             
-            //Print coordinates
-            t8_productionf("elements_from[0] coordinates:");
-            tscheme->t8_element_debug_print (elements_from[0]);
-            tscheme->t8_element_parent_2_5D (elements_from[0], elements);
+            // //Print coordinates
+            // t8_productionf("elements_from[0] coordinates:");
+            // tscheme->t8_element_debug_print (elements_from[0]);
+            // tscheme->t8_element_parent_2_5D (elements_from[0], elements);
 
           }
           else {
@@ -776,9 +776,9 @@ t8_forest_adapt (t8_forest_t forest)
             for (int elem_z = 1; elem_z < elems_dir2; elem_z++){
               elements[elem_z] = t8_element_array_push (telements);
               tscheme->t8_element_copy (elements_from[elem_z], elements[elem_z]);
-              //Print coordinates
-              t8_productionf("elements[elem_z] coordinates:");
-              tscheme->t8_element_debug_print (elements[elem_z]);
+              // //Print coordinates
+              // t8_productionf("elements[elem_z] coordinates:");
+              // tscheme->t8_element_debug_print (elements[elem_z]);
             }
             el_inserted+= (t8_locidx_t) elems_dir2;
           }
