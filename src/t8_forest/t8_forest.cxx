@@ -1492,8 +1492,8 @@ t8_forest_populate_2_5D (t8_forest_t forest)
       /* Allocate elements for this processor. */
       t8_element_array_init_size (telements, eclass_scheme, num_tree_elements);
       element = t8_element_array_index_locidx_mutable (telements, 0);
-      t8_productionf (" element_coordinates");
-      eclass_scheme->t8_element_debug_print (element);
+      // t8_productionf (" element_coordinates");
+      // eclass_scheme->t8_element_debug_print (element);
       std::vector<int> level {forest->set_level1, forest->set_level2};
       eclass_scheme->t8_element_set_linear_id (element, level, start);
       count_elements++;

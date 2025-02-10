@@ -202,8 +202,8 @@ t8_2_5dimension_scheme_c::t8_element_parent_2_5D (const t8_element_t *elem, t8_e
   scheme1->t8_element_parent (el->elem1, parent[0]->elem1); 
   scheme2->t8_element_copy(el->elem2, parent[0]->elem2);
 
-  scheme1->t8_element_debug_print (parent[0]->elem1);
-  scheme2->t8_element_debug_print(parent[0]->elem2);
+  // scheme1->t8_element_debug_print (parent[0]->elem1);
+  // scheme2->t8_element_debug_print(parent[0]->elem2);
 
   for (int i = 1; i < num_elems_per_column; i++){
     scheme1->t8_element_parent (el->elem1, parent[i]->elem1); //muss 4 mal berechnet werden

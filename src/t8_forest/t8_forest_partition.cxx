@@ -285,15 +285,15 @@ t8_forest_partition_test_boundary_element (const t8_forest_t forest)
   if (forest->set_type == 1) {
     std::vector<int> maxlevels = {forest->maxlevel}; 
     ts->t8_element_last_descendant (element_last, element_last_desc, maxlevels);
-    t8_productionf ("-------------------- LAST_DESCENDANT");
-    ts->t8_element_debug_print (element_last_desc);
+    // t8_productionf ("-------------------- LAST_DESCENDANT");
+    // ts->t8_element_debug_print (element_last_desc);
   }
   else if (forest->set_type == 2) {
     // possibility for different maxlevels
     std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
     ts->t8_element_last_descendant (element_last, element_last_desc, maxlevels);
-    t8_productionf ("-------------------- LAST_DESCENDANT");
-    ts->t8_element_debug_print (element_last_desc);
+    // t8_productionf ("-------------------- LAST_DESCENDANT");
+    // ts->t8_element_debug_print (element_last_desc);
     // ts->t8_element_get_variable (element_last_desc, 0, 0);
   }
   T8_ASSERT (ts->t8_element_is_valid (element_last_desc));
@@ -392,9 +392,9 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
     else {
       t8_global_productionf ("t8_forest_get_element_in_tree (forest, 0, 0) \n");
       first_element = t8_forest_get_element_in_tree (forest, 0, 0);
-      t8_productionf ("-------------------- FIRST_ELEMENT");
-      ts = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, 0));
-      ts->t8_element_debug_print (first_element);
+      // t8_productionf ("-------------------- FIRST_ELEMENT");
+      // ts = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, 0));
+      // ts->t8_element_debug_print (first_element);
     }
     /* This process is not empty, the element was found, so we compute its first descendant. */
     if (first_element != NULL) {
@@ -405,8 +405,8 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
         t8_global_productionf ("forest->set_type == 1 \n");
         std::vector<int> maxlevels = {forest->maxlevel};
         ts->t8_element_first_descendant (first_element, first_desc, maxlevels);
-        t8_productionf ("-------------------- FIRST_DESCENDANT");
-        ts->t8_element_debug_print (first_desc);
+        // t8_productionf ("-------------------- FIRST_DESCENDANT");
+        // ts->t8_element_debug_print (first_desc);
         /* Compute the linear id of the descendant. */
         local_first_desc = ts->t8_element_get_linear_id (first_desc, maxlevels);
 
@@ -415,8 +415,8 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
         t8_global_productionf ("forest->set_type == 2 \n");
         std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
         ts->t8_element_first_descendant (first_element, first_desc, maxlevels);
-        t8_productionf ("-------------------- FIRST_DESCENDANT");
-        ts->t8_element_debug_print (first_desc);
+        // t8_productionf ("-------------------- FIRST_DESCENDANT");
+        // ts->t8_element_debug_print (first_desc);
         /* Compute the linear id of the descendant. */
         local_first_desc = ts->t8_element_get_linear_id (first_desc, maxlevels);
       }
