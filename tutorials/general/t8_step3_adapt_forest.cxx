@@ -132,7 +132,8 @@ t8_step3_adapt_forest (t8_forest_t forest)
   t8_forest_t forest_adapt;
 
   struct t8_step3_adapt_data adapt_data = {
-    { 0.5, 0, 1 }, /* Midpoints of the sphere. */
+    // { 0.5, 0, 1 }, /* Midpoints of the sphere. */
+    {0.5, 1},
     0.5,             /* Refine if inside this radius. */
     0.7              /* Coarsen if outside this radius. */
   };
@@ -182,8 +183,8 @@ t8_step3_main (int argc, char **argv)
   t8_cmesh_t cmesh;
   t8_forest_t forest;
   /* The prefix for our output files. */
-  const char *prefix_uniform = "t8_step3_uniform_forest_hex_level1";
-  const char *prefix_adapt = "t8_step3_adapted_forest_hex_level1";
+  const char *prefix_uniform = "t8_step3_uniform_forest_quad";
+  const char *prefix_adapt = "t8_step3_adapted_forest_quad";
   /* The uniform refinement level of the forest. */
   const int level = 3;
 

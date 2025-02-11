@@ -63,7 +63,8 @@ t8_step2_build_prismcube_coarse_mesh (sc_MPI_Comm comm)
   t8_cmesh_t cmesh;
 
   /* Build a coarse mesh of 2 prism trees that form a cube. */
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_TRIANGLE, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_TRIANGLE, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [step2] Constructed coarse mesh with 2 prism trees.\n");
 
@@ -128,7 +129,7 @@ main (int argc, char **argv)
   /* The prefix for our output files. */
   const char *prefix = "t8_step2_uniform_forest_hex_level3_3processes";
   /* The uniform refinement level of the forest. */
-  const int level = 2;
+  const int level = 3;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
 

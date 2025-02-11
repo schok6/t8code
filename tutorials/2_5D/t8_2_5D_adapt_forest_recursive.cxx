@@ -383,12 +383,12 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_cmesh_t cmesh;
   t8_forest_t forest;
   /* The prefix for our output files. */
-  const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest_2_3_PRISM_2_processes";
-  const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight_PRISM";
-  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal_PRISM";
-  const char prefix_adapt_horizontal_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_horizontal_highlight_PRISM";
-  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical_PRISM";
-  const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight_PRISM";
+  const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest_2_3";
+  const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight";
+  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal";
+  const char prefix_adapt_horizontal_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_horizontal_highlight";
+  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical";
+  const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight";
 
   /* The uniform refinement level of the forest. */
   const int level1 = 2; 
@@ -449,7 +449,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   }
 
 
-  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
 
   T8_FREE(highlight);
 
@@ -507,7 +507,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
     highlight_adapt_horizontal[i] = 2;
   }
 
-  t8_2_5D_output_data_to_vtu(forest, level1+1, level2, highlight_adapt_horizontal, prefix_adapt_horizontal_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, level1+1, level2, highlight_adapt_horizontal, prefix_adapt_horizontal_highlight);
 
   T8_FREE(highlight_adapt_horizontal);
 
@@ -547,7 +547,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   // highlight_adapt_vertical[21]=1;
 
   // t8_2_5D_output_data_to_vtu(forest, level1+1, level2+2, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
-  t8_2_5D_output_data_to_vtu(forest, level1+1, level2+1, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, level1+1, level2+1, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
 
   T8_FREE(highlight_adapt_vertical);
 

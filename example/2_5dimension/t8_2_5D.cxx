@@ -25,7 +25,6 @@
 #include <t8.h>
 #include <t8_cmesh.h>
 #include <t8_cmesh/t8_cmesh_examples.h>
-//#include <t8_cmesh_vtk_writer.h>        /* cmesh-writer interface. */
 #include <t8_forest/t8_forest_general.h>
 #include <t8_forest/t8_forest_io.h>
 #include <t8_forest/t8_forest_geometrical.h> 
@@ -34,9 +33,6 @@
 #include <netcdf.h>
 #include <algorithm>
 #include <cmath>
-// #include <span> //c++20
-// #include <example/2_5dimension/netCDF_2_5D.hxx>
-// #include <example/2_5dimension/netCDF.hxx>
 #include "t8_forest/t8_forest_types.h"
 
 T8_EXTERN_C_BEGIN ();
@@ -91,13 +87,8 @@ get_values_for_column_k(int k, int levlength, int latlength, int lonlength, floa
 {
   int num_datapoints;
   num_datapoints = latlength * lonlength;
-  // t8_global_productionf(" data points per level: %i \n", num_datapoints);
-  //Temperature values for column one at x = 0, y = 0
-  //int k = x*y; //# of column
-  //k = 0;
   outputvalues[0] = inputvalues[k];
   for (int i = 1; i < levlength; i++) {
-  //for (k; k < levlength*latlength*lonlength; k += num_datapoints) {
     k += num_datapoints;
     outputvalues[i] = inputvalues[k];
   }
@@ -110,22 +101,15 @@ get_values_for_column_xy(int x, int y, int level, int corr_levlength, int levlen
 {
   int num_datapoints;
   num_datapoints = latlength * lonlength;
-  // t8_global_productionf(" data points per level: %i \n", num_datapoints);
   //Temperature values for column one at x = 0, y = 0
   //int k = x*y; //# of column
   int k = y*lonlength + x; //#of column  //= morton_index!!
   t8_global_productionf("column: %i\n", k);
-  //int k = get_morton_index(x, y, level);
-  // t8_global_productionf("k = %i \n", k);
   outputvalues[0] = inputvalues[k];
   for (int i = 1; i < levlength; i++) {
-  //for (k; k < levlength*latlength*lonlength; k += num_datapoints) {
     k += num_datapoints;
     outputvalues[i] = inputvalues[k];
   }
-  // for (int i = levlength; i < corr_levlength; i++){
-  //   outputvalues[i] = 0;
-  // }
   return outputvalues;
 }
 
@@ -152,21 +136,13 @@ get_morton_index(int x, int y, int level)
       y_vec[i] = 0;
     }
   }
-  for (int i = 0; i < level; i++){
-    // t8_global_productionf("x_vec[%i] = %i & y_vec[%i] = %i \n", i, x_vec[i], i, y_vec[i]);
-  }
-  //zu einem Schritt machen? interleving und morton index bestimmen
   for (int i = 0; i < 2*level - 1; i+=2){
-    //t8_global_productionf("morton[%i] = %i & morton[%i] = %i \n", i, x_vec[i/2], i+1, y_vec[i/2]);
     morton[i] = x_vec[i/2];
     morton[i+1] = y_vec[i/2];
   }
-  // for (int i = 0; i < 2*level; i++){
-  //   t8_global_productionf("morton[%i] = %i \n", i, morton[i]);
-  // }
+
   for (int i = 2*level-1; i >= 0 ; i--){
     morton_index += pow(2,i)*morton[i];
-    // t8_global_productionf("@ %i morton_index = %i \n", i, morton_index);
   }
   return morton_index;
 }
@@ -188,13 +164,9 @@ get_coords_of_morton (int k, int level)
       k_vec[i] = 0;
     }
   }
-  for (int i = 0; i < 2*level - 1; i++) {
-    // t8_global_productionf("k_vec[%i] = %i \n", i, k_vec[i]);
-  }
   for (int i = 0; i < 2*level - 1; i+=2) {
     y_vec[i/2] = k_vec[i+1];
     x_vec[i/2] = k_vec[i];
-    // t8_global_productionf("x_vec[%i] = %i & y_vec[%i] = %i \n", i/2, x_vec[i/2], i/2, y_vec[i/2]);
   }
   for (int i = 0; i < level ; i++){
     x += pow(2,i)*x_vec[i];
@@ -277,8 +249,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
   /* The adaptation criterion for the MESSy application is to look at temperature data given for several positions and
   * different levels throughout the world. 
   * The temperature change inside the columns shall be considered. To do so, the temperature gradients are analysed.
-  * The less 5% of temperature gradients are coarsened and the steepest 5% are getting refined. */
-  //For now: refine if gradients are larger than 50% of the average or coarsen ...
+  * gradients larger than average are refined and gradients smaller are coarsened. */
 
   t8_locidx_t elems = t8_forest_get_local_num_elements (forest_from);
   t8_locidx_t num_trees = t8_forest_get_num_local_trees (forest_from);
@@ -289,11 +260,10 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
    * t8_forest_new_adapt function. This pointer is stored as the used data of the new forest
    * and we can now access it with t8_forest_get_user_data (forest). */
   const struct MESSy_data *adapt_data = (const struct MESSy_data *) t8_forest_get_user_data (forest);
-  const int level2_fixed = 21; //ts->t8_element_maxlevel;//10;
+  const int level2_fixed = 21; 
   int level1 = adapt_data->level_horizontal;
   t8_global_productionf("adapt_data->coarsen: %f", adapt_data->coarsen_if_less_than_10perc);
   t8_global_productionf("adapt_data->refine: %f", adapt_data->refine_if_more_than_90perc);
-  //t8_global_productionf("&adapt_data->level1: %i", &adapt_data->level1);
   std::vector<int> levels = {adapt_data->level_horizontal, level2_fixed};
   t8_linearidx_t lin_id = ts->t8_element_get_linear_id(elements[0],levels);
   t8_global_productionf("which_tree: %i", which_tree);
@@ -310,8 +280,6 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
 
   t8_element_t **successor1 = T8_ALLOC(t8_element_t *, 1);
   t8_element_t **successor2 = T8_ALLOC(t8_element_t *, 1);
-  // if (lelement_id+1 < elems){
-  // if (lelement_id+(which_tree*elems_per_tree)+1 < elems){
   int elems_help;
   if (which_tree == 0){
     elems_help = elems_tree1;
@@ -323,36 +291,23 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
     t8_locidx_t tree_succ1;
     successor1[0] = t8_forest_get_element(forest_from, lelement_id + (which_tree * elems_tree1) + 1, &tree_succ1);
     t8_global_productionf("tree_succ: %li", &tree_succ1);
-    //ts->t8_element_new(successor[0]);
-    //ts->t8_element_successor(elements[0], successor[0]);
     lin_id2 = ts->t8_element_get_linear_id(successor1[0],levels);
     column_succ1 = lin_id2 / pow(2,level2_fixed) + which_tree * pow(2,2*level1);
     t8_global_productionf ("column_succ1: %i \n", column_succ1);
-    //int level2 = ts->t8_element_level(elements[0],1); //dummy elements are of level2
   }
   else {
-    t8_global_productionf("Look here.");
     lin_id2 =  pow(2,level2_fixed) * (column-1) + adapt_data->elems_per_column[column];
   }
 
   if (is_family){
-    
-    // if (lelement_id+1 < elems){
-    // if (lelement_id+(which_tree*elems_per_tree)+2 < elems){
     if (lelement_id + (which_tree * elems_tree1) + 2 < elems_help){
       t8_locidx_t tree_succ2;
       successor2[0] = t8_forest_get_element(forest_from, lelement_id + (which_tree * elems_tree1) + 2, &tree_succ2);
       t8_global_productionf("tree_succ: %li", &tree_succ2);
-      //ts->t8_element_new(successor[0]);
-      //ts->t8_element_successor(elements[0], successor[0]);
       lin_id3 = ts->t8_element_get_linear_id(successor2[0],levels);
       column_succ2 = lin_id3 / pow(2,level2_fixed) + which_tree * pow(2,2*level1);
       t8_global_productionf ("column_succ2: %i \n", column_succ2);
-      //int level2 = ts->t8_element_level(elements[0],1); //dummy elements are of level2
     }
-    // else if (lin_id2 == pow(2,level2_fixed) * pow(2,2*level1)){
-    //   lin_id3 =  pow(2,level2_fixed) * pow(2,2*level1) + 1;
-    // }
     else{
       lin_id3 =  pow(2,level2_fixed) * (column-1) + adapt_data->elems_per_column[column];
     }
@@ -375,7 +330,6 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
   unsigned id;
   unsigned id2;
   unsigned id3;
-  //if (adapt_data->elems_per_column[column] < 90){
     corr = lin_id / pow(2,level2_fixed);
     id = 90 * corr + (which_tree * pow(2,2*level1) * 90);
     corr2 = lin_id2 / pow(2,level2_fixed);
@@ -396,19 +350,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
       t8_global_productionf ("lin_id3: %u \n", lin_id3);
       t8_global_productionf ("id3: %i \n", id3);
       t8_global_productionf ("corr3: %f \n", corr3);
-      // if (adapt_data->elems_per_column[column]<89){
-      //   float diff_hei1 = abs(adapt_data->height[id] - adapt_data->height[id2]);
-      //   float diff_hei2 = abs(adapt_data->height[id2] - adapt_data->height[id3-1]);
-      //   if (diff_hei1 != 0 && diff_hei2 != 0){
-      //     gradient1 = abs(adapt_data->temperature[id] - adapt_data->temperature[id2])/diff_hei;
-      //     gradient2 = abs(adapt_data->temperature[id2] - adapt_data->temperature[id3])/diff_hei;
-      //     gradient = (gradient1 + gradient2)/2;
-      //   }
-      //   else {
-      //     gradient = 0;
-      //   }
-      // }
-      // else{
+
         t8_global_productionf ("adapt_data->height[id]: %f \n", adapt_data->height[id]);
         t8_global_productionf ("adapt_data->height[id2]: %f \n", adapt_data->height[id2]);
         t8_global_productionf ("adapt_data->height[id3]: %f \n", adapt_data->height[id3]);
@@ -432,7 +374,6 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
         else {
           gradient = -0.00000001;
         }
-      // }
     }
     else {
         t8_global_productionf ("adapt_data->height[id]: %f \n", adapt_data->height[id]);
@@ -450,79 +391,6 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
           gradient = -0.00000001;
         }
     }
-  //}
-      
-    
-      // if (column != column_succ1){
-      //   return 0;
-      // }
-      // else if (column != column_succ2 && adapt_data->elems_per_column[column]<89){
-
-  
-
-    // if (lelement_id+1 == elems || column != column_succ) {
-    //   id2 = 90 * corr2 - 1;
-    // }
-    // else {
-    //   id2 = 90 * corr2;
-    // }
-    // //int next = 90 / adapt_data->elems_per_column[column];
-    // t8_global_productionf ("id: %u \n", id);
-    // t8_global_productionf ("id2: %u \n", id2);
-    // //t8_global_productionf ("next: %li \n", corr);
-    // if (is_family){
-    //   float diff_hei1 = abs(adapt_data->height[id] - adapt_data->height[id+1]);
-    //   float diff_hei2 = abs(adapt_data->height[id+1] - adapt_data->height[id+2]);
-    //   if (diff_hei1 != 0 && diff_hei2 != 0){
-    //     gradient1 = abs(adapt_data->temperature[id] - adapt_data->temperature[id+1])/diff_hei;
-    //   }
-    //   else {
-    //     gradient = 0;
-    //   }
-    // }
-    // else{
-    //   float diff_hei = abs(adapt_data->height[id] - adapt_data->height[id2]);
-    //   if (diff_hei != 0){
-    //     gradient = abs(adapt_data->temperature[id] - adapt_data->temperature[id2])/diff_hei;
-    //   }
-    //   else {
-    //     gradient = 0;
-    //   }
-    // }  
-  // }
-  // else { 
-  //   t8_linearidx_t check = lin_id - column * pow(2, level2_fixed);
-  //         //if (lin_id )
-  //         //int check = lin_id / pow(2, level2);
-  //   t8_global_productionf ("check: %u \n", check);
-  //         //if (check * pow(2, level2) <= lin_id < (check + 1) * pow(2, level2) - (pow(2, level2_fixed) - 90)){
-  //   if (check < 90){
-  //     int id = check + column*90;
-  //     t8_global_productionf ("id: %li \n", id);
-  //     if (is_family){
-  //       float diff_hei1 = abs(adapt_data->height[id] - adapt_data->height[id+1]);
-  //       float diff_hei2 = abs(adapt_data->height[id+1] - adapt_data->height[id+2]);
-  //       if (diff_hei1 != 0 && diff_hei2 != 0){
-  //         gradient1 = abs(adapt_data->temperature[id] - adapt_data->temperature[id+1])/diff_hei;
-  //       }
-  //       else {
-  //         gradient = 0;
-  //       }
-  //     }
-  //     else{
-  //       float diff_hei = abs(adapt_data->height[id] - adapt_data->height[id+1]);
-  //       if (diff_hei != 0){
-  //         gradient = abs(adapt_data->temperature[id] - adapt_data->temperature[id+1])/diff_hei;
-  //       }
-  //       else {
-  //         gradient = 0;
-  //       }
-  //     }
-  //   }
-  //   else{
-  //     gradient = -0.00000001;
-  //   }
-  // }
 
   t8_global_productionf("gradient: %f", gradient);
 
@@ -773,7 +641,6 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, struct MESSy_data_per_element *d
   T8_FREE (temperature);
   T8_FREE (height_help);
   T8_FREE (temperature_help);
-  // T8_FREE (gradient);
 }
 
 int

@@ -218,6 +218,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
   t8_locidx_t element_index, elems_in_tree;
   t8_locidx_t element_index_in_tree;
   t8_locidx_t num_global_trees;
+  t8_locidx_t num_local_trees;
   t8_element_t *element;
   t8_eclass_scheme_c *scheme;
   //t8_element_t **elements = T8_ALLOC (t8_element_t *, num_elements);
@@ -225,7 +226,12 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
   element_index = 0;
   element_index_in_tree = 0;
 
-  for (itree = 0; itree < num_global_trees; itree++) {
+for (itree = 0; itree < num_global_trees; itree++) {
+  /* Get the tree that stores the elements */
+  num_local_trees = t8_forest_get_num_local_trees (forest);
+  if (itree < num_local_trees){
+
+  // for (itree = 0; itree < num_global_trees; itree++) {
     /* Get the tree that stores the elements */
     tree = t8_forest_get_tree (forest, itree);
     /* Get the eclass scheme of the tree */
@@ -235,12 +241,8 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
     for (element_index; element_index < element_index_in_tree; element_index++) {
       /* Get a pointer to the element */
       element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-      //int level1 = scheme->t8_element_level (element, 1);
-      //int level2 = scheme->t8_element_level (element, 2);
       int level1 = 3;
       int level2 = 3;
-      //int const level1 = scheme->t8_element_maxlevel;
-      //int level2 = scheme->t8_element_maxlevel;
       std::vector<int> levels = {level1, level2};
       //sfc_index[element_index] = static_cast<double>(scheme->t8_element_get_linear_id (element, levels));
       sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
@@ -252,7 +254,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, double *array, const char *prefi
   // for (ielem = 0; ielem < num_elements; ++ielem) {
   //   sfc_index[ielem] = scheme->t8_element_get_linear_id[ielem];
   // }    
-
+}
   {
     /* To write user defined data, we need to extended output function t8_forest_vtk_write_file
      * from t8_forest_vtk.h. Despite writing user data, it also offers more control over which 
@@ -284,8 +286,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
   const char prefix_adapt_highlight[BUFSIZ] = "t8_2_5D_adapt_highlight";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 1;
-  const int level2 = 2;
+  const int level1 = 2;
+  const int level2 = 3;
 
   t8_gloidx_t global_num_elements;
 
@@ -315,8 +317,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
 
   /* Build a cube cmesh with tet, hex or prism trees. */
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
 //   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
@@ -337,7 +339,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
-  t8_2_5D_output_data_to_vtu(forest, highlight, prefix_uniform_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, highlight, prefix_uniform_highlight);
 
 
 
@@ -362,11 +364,12 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_forest_write_vtk (forest, prefix_adapt);
   t8_global_productionf (" [2_5D] Wrote adapted forest to vtu files: %s*\n", prefix_adapt);
 
-  t8_2_5D_output_data_to_vtu(forest, highlight, prefix_adapt_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, highlight, prefix_adapt_highlight);
 
   /*
    * clean-up
    */
+  T8_FREE (highlight);
 
   /* Destroy the forest. */
   t8_forest_unref (&forest);
