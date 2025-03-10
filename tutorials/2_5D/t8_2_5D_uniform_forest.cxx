@@ -26,7 +26,6 @@
 #include <t8_cmesh/t8_cmesh_examples.h> /* A collection of exemplary cmeshes */
 #include <t8_forest/t8_forest_general.h>            /* forest definition and general interface. */
 #include <t8_forest/t8_forest_io.h>                 /* forest io interface. */
-#include <t8_schemes/t8_default/t8_default.hxx> /* default refinement scheme. */
 
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
 
@@ -34,8 +33,7 @@
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
 #include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
 
-//needed to write SFC index
-#include "t8_forest/t8_forest_types.h"
+#include <tutorials/2_5D/t8_2_5D_vtu.hxx>
 
 
 
@@ -121,94 +119,6 @@ t8_2_5D_destroy_forest (t8_forest_t forest)
   t8_forest_unref (&forest);
 }
 
-/* Write the forest as vtu and also write the highlighted element in the file.
- * 
- * t8code supports writing element based data to vtu as long as its stored
- * as doubles. Each of the data fields to write has to be provided in its own
- * array of length num_local_elements.
- * We support two types: T8_VTK_SCALAR - One double per element
- *                  and  T8_VTK_VECTOR - 3 doubles per element
- */
-static void
-t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *array, const char *prefix)
-{
-  t8_locidx_t num_elements = t8_forest_get_local_num_elements (forest);
-  t8_locidx_t ielem;
-  /* We need to allocate a new array to store the data on their own.
-   * The arrays have one entry per local element. */
-  double *highlight = T8_ALLOC (double, num_elements);
-  double *sfc_index = T8_ALLOC (double, num_elements);
-  /* The number of user defined data fields to write. */
-  int num_data = 2;
-  /* For each user defined data field we need one t8_vtk_data_field_t variable */
-  t8_vtk_data_field_t vtk_data[num_data];
-  /* Set the type of this variable. Since we have for each array one value per element, we pick T8_VTK_SCALAR */
-  vtk_data[0].type = T8_VTK_SCALAR;
-  /* The name of the field as should be written to the file. */
-  strcpy (vtk_data[0].description, "highlight");
-  vtk_data[0].data = highlight;
-  /* Copy the element's height from our data array to the output array. */
-  for (ielem = 0; ielem < num_elements; ++ielem) {
-    highlight[ielem] = array[ielem];
-  }
-
-  vtk_data[1].type = T8_VTK_SCALAR;
-  /* The name of the field as should be written to the file. */
-  strcpy (vtk_data[1].description, "SFCindex");
-  vtk_data[1].data = sfc_index;
-  /* Copy the element's height from our data array to the output array. */
-  t8_tree_t tree;
-  t8_locidx_t itree;
-  t8_locidx_t element_index, elems_in_tree;
-  t8_locidx_t element_index_in_tree;
-  t8_locidx_t num_global_trees;
-  t8_locidx_t num_local_trees;
-  t8_element_t *element;
-  t8_eclass_scheme_c *scheme;
-  //t8_element_t **elements = T8_ALLOC (t8_element_t *, num_elements);
-  num_global_trees = t8_forest_get_num_global_trees (forest);
-  t8_global_productionf ("num_global_trees: %i", num_global_trees);
-  element_index = 0;
-  element_index_in_tree = 0;
-
-  for (itree = 0; itree < num_global_trees; itree++) {
-    /* Get the tree that stores the elements */
-    num_local_trees = t8_forest_get_num_local_trees (forest);
-    if (itree < num_local_trees){
-      tree = t8_forest_get_tree (forest, itree); 
-      /* Get the eclass scheme of the tree */
-      scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
-      elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-      element_index_in_tree += elems_in_tree;
-      for (element_index; element_index < element_index_in_tree; element_index++) {
-        /* Get a pointer to the element */
-        element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-        std::vector<int> levels = {level1, level2};
-        sfc_index[element_index] = (scheme->t8_element_get_linear_id (element, levels));
-      }
-      element_index += elems_in_tree;
-      t8_global_productionf ("num_elements: %li \n", num_elements);
-      t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
-    }
-  }   
-
-  {
-    /* To write user defined data, we need to extended output function t8_forest_vtk_write_file
-     * from t8_forest_vtk.h. Despite writing user data, it also offers more control over which 
-     * properties of the forest to write. */
-    int write_treeid = 1;
-    int write_mpirank = 1;
-    int write_level = 1;
-    int write_element_id = 1;
-    int write_ghosts = 0;
-    t8_forest_write_vtk_ext (forest, prefix, write_treeid, write_mpirank, write_level, write_element_id, write_ghosts,
-                             0, 0, num_data, vtk_data);
-  }
-  /* clean-up */
-  T8_FREE (highlight);
-  T8_FREE (sfc_index);
-}
-
 int
 main (int argc, char **argv)
 {
@@ -223,8 +133,8 @@ main (int argc, char **argv)
   const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_2_3_HIGHLIGHT_Partition";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 2;
-  const int level2 = 3;
+  const int level1 = 1;
+  const int level2 = 1;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
 
@@ -269,7 +179,7 @@ main (int argc, char **argv)
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
-  // t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_highlight);
+  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_highlight);
 
   /* Destroy the forest. */
   t8_2_5D_destroy_forest (forest);

@@ -28,13 +28,12 @@
  * See \ref t8_2_5D_adapt_forest.cxx for more details.
  */
 
-#ifndef T8_2_5D_ADAPT_H
-#define T8_2_5D_ADAPT_H
+#ifndef T8_2_5D_ADAPT_HXX
+#define T8_2_5D_ADAPT_HXX
 
 #include <t8.h>                          /* General t8code header, always include this. */
 #include <t8_forest/t8_forest_general.h> /* forest definition and basic interface. */
-
-T8_EXTERN_C_BEGIN ();
+#include <tutorials/2_5D/t8_2_5D_vtu.hxx>
 
 /** This is the main program of this example. It creates a coarse mesh and a forest,
  *  adapts the forest and writes some output.
@@ -76,6 +75,4 @@ int
 t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
                          t8_eclass_scheme_c *ts, const int is_family, const int num_elements, t8_element_t *elements[]);
 
-T8_EXTERN_C_END ();
-
-#endif /* !T8_STEP3_H */
+#endif /* !T8_2_5D_ADAPT_HXX */

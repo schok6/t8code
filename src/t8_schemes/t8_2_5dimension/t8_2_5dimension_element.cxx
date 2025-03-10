@@ -946,8 +946,6 @@ t8_2_5dimension_scheme_c::t8_element_new (int length, t8_element_t **elem) const
 void
 t8_2_5dimension_scheme_c::t8_element_init (int length, t8_element_t *elem) const
 {
-#ifdef T8_ENABLE_DEBUG
-  {
     t8_2_5D_t *el = (t8_2_5D_t *) elem;
     /* Set all values to 0 */
 
@@ -956,8 +954,6 @@ t8_2_5dimension_scheme_c::t8_element_init (int length, t8_element_t *elem) const
       scheme1->t8_element_new (1, &elem_init->elem1);
       scheme2->t8_element_new (1, &elem_init->elem2);
     }
-  }
-#endif
 }
 
 void

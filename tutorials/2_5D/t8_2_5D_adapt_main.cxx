@@ -22,7 +22,7 @@
 
 /* This file is part of the adapt example of 2_5D in t8code.
  * Here, we only wrap the main function. See t8_2_5D_adapt_forest.cxx for the documentation of 
- * the step3 example.
+ * the adapt example.
  */
 
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
