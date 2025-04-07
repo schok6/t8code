@@ -30,29 +30,27 @@
 #include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
 #include <t8_schemes/t8_default/t8_default_tri/t8_default_tri.hxx>
 #include <t8_schemes/t8_default/t8_default_tet/t8_default_tet.hxx>
+#include <t8_schemes/t8_scheme_builder.hxx>
 
-t8_scheme_cxx_t *
-t8_scheme_new_2_5dimension_cxx (void)
+/*t8_scheme_new_2_5dimension gets ownership of scheme*/
+const t8_scheme *
+t8_scheme_new_2_5dimension (const t8_scheme *scheme)
 {
-  t8_scheme_cxx_t *s;
+  t8_scheme_builder builder;
 
-  s = T8_ALLOC_ZERO (t8_scheme_cxx_t, 1);
-  t8_refcount_init (&s->rc);
+  /* refcount of scheme is already one and needs to get increased to two*/
+  scheme->ref ();
 
-  t8_eclass_scheme_c *scheme_line1 = new t8_default_scheme_line_c ();
-  t8_eclass_scheme_c *scheme_line2 = new t8_default_scheme_line_c ();
-  t8_eclass_scheme_c *scheme_quad = new t8_default_scheme_quad_c ();
-  t8_eclass_scheme_c *scheme_tri = new t8_default_scheme_tri_c ();
+  builder.add_eclass_scheme<t8_default_scheme_vertex> ();
+  builder.add_eclass_scheme<t8_default_scheme_line> ();
+  builder.add_eclass_scheme<t8_default_scheme_quad> ();
+  builder.add_eclass_scheme<t8_default_scheme_tri> ();
+  builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_QUAD, T8_ECLASS_LINE);
+  builder.add_eclass_scheme<t8_default_scheme_tet> (); //NULL
+  builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_TRIANGLE, T8_ECLASS_LINE);
+  builder.add_eclass_scheme<t8_default_scheme_pyramid> (); //NULL
 
-
-  s->eclass_schemes[T8_ECLASS_VERTEX] = new t8_default_scheme_vertex_c ();
-  s->eclass_schemes[T8_ECLASS_LINE] = new t8_default_scheme_line_c ();
-  s->eclass_schemes[T8_ECLASS_QUAD] = new t8_default_scheme_quad_c ();
-  s->eclass_schemes[T8_ECLASS_HEX] = new t8_2_5dimension_scheme_c(scheme_quad, scheme_line1);
-  s->eclass_schemes[T8_ECLASS_TRIANGLE] = new t8_default_scheme_tri_c ();
-  s->eclass_schemes[T8_ECLASS_TET] = new t8_default_scheme_tet_c (); //NULL;
-  s->eclass_schemes[T8_ECLASS_PRISM] = new t8_2_5dimension_scheme_c(scheme_tri, scheme_line2);
-  s->eclass_schemes[T8_ECLASS_PYRAMID] = NULL;
-
-  return s;
+  t8_global_productionf("scheme->rc: %i", scheme->rc.refcount);
+  
+  return builder.build_scheme ();
 }

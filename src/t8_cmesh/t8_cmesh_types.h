@@ -92,11 +92,11 @@ typedef struct t8_cmesh
 
   int set_partition;  /**< If nonzero the cmesh is partitioned.
                                             If zero each process has the whole cmesh. */
-  int face_knowledge; /**< If partitioned the level of face knowledge that is expected. \ref t8_mesh_set_partitioned;
+  int face_knowledge; /**< If partitioned the level of face knowledge that is expected. \ref t8_cmesh_set_partitioned;
                             see \ref t8_cmesh_set_partition.
 */
 
-  t8_scheme_cxx_t *set_partition_scheme; /**< If the cmesh is to be partitioned according to a uniform level,
+  const t8_scheme_c *set_partition_scheme; /**< If the cmesh is to be partitioned according to a uniform level,
                                                 the scheme that describes the refinement pattern. See \ref t8_cmesh_set_partition. */
   int8_t set_partition_level;  /**< Non-negative if the cmesh should be partitioned from an already existing cmesh
                                          with an assumed \a level uniform mesh underneath. */

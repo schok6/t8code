@@ -28,6 +28,7 @@
 #include <t8_forest/t8_forest_io.h>                 /* forest io interface. */
 
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
+#include <t8_schemes/t8_default/t8_default.hxx>
 
 
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
@@ -83,12 +84,13 @@ static t8_forest_t
 t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, int level2)
 {
   t8_forest_t forest;
-  t8_scheme_cxx_t *scheme;
+
+  const t8_scheme *scheme_base = t8_scheme_new_default ();
+  const t8_scheme *scheme = t8_scheme_new_2_5dimension (scheme_base);
 
   /* Create the refinement scheme. */
-  scheme = t8_scheme_new_2_5dimension_cxx ();
   
-  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
 
   return forest;
 }
@@ -158,6 +160,7 @@ main (int argc, char **argv)
   comm = sc_MPI_COMM_WORLD;
   /* Create the cmesh */
   cmesh = t8_2_5D_build_hypercube_coarse_mesh (comm);
+  // t8_cmesh_ref (cmesh);
   /* Build the uniform forest, it is automatically partitioned among the processes. */
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
   /* Get the local number of elements. */
@@ -182,6 +185,8 @@ main (int argc, char **argv)
   t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_highlight);
 
   /* Destroy the forest. */
+  // t8_cmesh_unref (&cmesh);
+  // forest->scheme->unref ();
   t8_2_5D_destroy_forest (forest);
   t8_global_productionf (" [2_5D] Destroyed forest.\n");
 

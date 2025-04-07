@@ -25,8 +25,8 @@
 #include <t8_forest/t8_forest_private.h>
 #include <t8_forest/t8_forest_general.h>
 #include <t8_cmesh/t8_cmesh_offset.h>
-#include <sc_functions.h>
-#include <t8_element.hxx>
+#include <sc_functions.h> //@TODO
+#include <t8_schemes/t8_scheme.hxx>
 
 /* We want to export the whole implementation to be callable from "C" */
 T8_EXTERN_C_BEGIN ();
@@ -123,7 +123,7 @@ t8_forest_partition_test_desc (t8_forest_t forest)
   t8_element_t *elem_desc;
   t8_linearidx_t first_desc_id;
   t8_locidx_t ielem;
-  t8_eclass_scheme_c *ts;
+  const t8_scheme *scheme = t8_forest_get_scheme (forest);
   t8_tree_t tree;
   int level, level1, level2;
 
@@ -133,10 +133,10 @@ t8_forest_partition_test_desc (t8_forest_t forest)
   }
 
   tree = t8_forest_get_tree (forest, 0);
-  ts = t8_forest_get_eclass_scheme (forest, tree->eclass);
+  const t8_eclass_t tree_class = tree->eclass;
   /* Get the first descendant id of this rank */
   first_desc_id = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank);
-  ts->t8_element_new (1, &elem_desc);
+  scheme->element_new (tree_class, 1, &elem_desc);
   t8_productionf ("t8_forest_get_tree_element_count (tree): %i \n", t8_forest_get_tree_element_count (tree));
   for (ielem = 0; ielem < t8_forest_get_tree_element_count (tree); ielem++) {
     t8_productionf ("---------------------------\n");
@@ -149,60 +149,60 @@ t8_forest_partition_test_desc (t8_forest_t forest)
     // t8_productionf("element coordinates:");
     // ts->t8_element_debug_print (element);
 
-    // ts->t8_element_get_variable (element, 0, 0);
-    // ts->t8_element_get_variable (element, 2);
+    // ts->element_get_variable (tree_class, element, 0, 0);
+    // ts->element_get_variable (tree_class, element, 2);
 
-    // int x1_elem = ts->t8_element_get_variable (element, 1, 1);
-    // int y1_elem = ts->t8_element_get_variable (element, 2, 1);
-    // int x2_elem = ts->t8_element_get_variable (element, 1, 2);
+    // int x1_elem = ts->element_get_variable (tree_class, element, 1, 1);
+    // int y1_elem = ts->element_get_variable (tree_class, element, 2, 1);
+    // int x2_elem = ts->element_get_variable (tree_class, element, 1, 2);
     // t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1_elem, y1_elem, x2_elem);
 
     if (forest->set_type == 1) {
       std::vector<int> maxlevels = {forest->maxlevel};
-      ts->t8_element_first_descendant (element, elem_desc, maxlevels);
-      level = ts->t8_element_level (elem_desc);
+      scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
+      level = scheme->element_get_level (tree_class, elem_desc);
       t8_global_productionf ("level: %i\n", level);
-      T8_ASSERT (level == ts->t8_element_level (elem_desc)); //wozu braucht man das?
+      T8_ASSERT (level == scheme->element_get_level (tree_class, elem_desc)); //wozu braucht man das?
       T8_ASSERT (level == forest->maxlevel);
       std::vector<int> levels = {level};
 
       //Print coordinates
       //t8_productionf("itree->first_desc coordinates:");
-      //ts->t8_element_get_variable (elem_desc, 0, 0);
+      //ts->element_get_variable (tree_class, elem_desc, 0, 0);
 
       // t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
       // t8_global_productionf("first_desc_id: %li \n", first_desc_id);
-      T8_ASSERT (ts->t8_element_get_linear_id (elem_desc, levels) >= first_desc_id);
+      T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
     }
     else if (forest->set_type == 2) {
       std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
-      ts->t8_element_first_descendant (element, elem_desc, maxlevels);
-      level1 = ts->t8_element_level (elem_desc, 1);
-      level2 = ts->t8_element_level (elem_desc, 2);
+      scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
+      level1 = scheme->element_get_level (tree_class, elem_desc, 1);
+      level2 = scheme->element_get_level (tree_class, elem_desc, 2);
       // t8_global_productionf ("level1: %i\n", level1);
       // t8_global_productionf ("level2: %i\n", level2);
-      T8_ASSERT (level1 == ts->t8_element_level (elem_desc, 1)); //wozu braucht man das?
-      T8_ASSERT (level2 == ts->t8_element_level (elem_desc, 2)); //wozu braucht man das?
+      T8_ASSERT (level1 == scheme->element_get_level (tree_class, elem_desc, 1)); //wozu braucht man das?
+      T8_ASSERT (level2 == scheme->element_get_level (tree_class, elem_desc, 2)); //wozu braucht man das?
       T8_ASSERT (level1 == forest->maxlevel);
       T8_ASSERT (level2 == forest->maxlevel);
 
       //  Print coordinates
       // t8_productionf("itree->first_desc coordinates:");
       // ts->t8_element_debug_print (elem_desc);
-      // ts->t8_element_get_variable (elem_desc, 0, 0);
+      // ts->element_get_variable (tree_class, elem_desc, 0, 0);
 
       std::vector<int> levels = {level1, level2};
       // t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
       // t8_global_productionf("first_desc_id: %li \n", first_desc_id);
-      T8_ASSERT (ts->t8_element_get_linear_id (elem_desc, levels) >= first_desc_id);
+      T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
     }
   }
-  ts->t8_element_destroy (1, &elem_desc);
+  scheme->element_destroy (tree_class, 1, &elem_desc);
 }
 //#endif
 
 void
-t8_forest_partition_test_boundary_element (const t8_forest_t forest)
+t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t forest)
 {
 #ifdef T8_ENABLE_DEBUG
   T8_ASSERT (t8_forest_is_committed (forest));
@@ -274,35 +274,36 @@ t8_forest_partition_test_boundary_element (const t8_forest_t forest)
     T8_ASSERT (itree > -1);
   }
   const t8_tree_t tree = t8_forest_get_tree (forest, itree);
-  t8_eclass_scheme_c *ts = t8_forest_get_eclass_scheme (forest, tree->eclass);
+  const t8_scheme *scheme = t8_forest_get_scheme (forest);
+  const t8_eclass_t tree_class = tree->eclass;
   t8_element_t *element_last_desc;
-  ts->t8_element_new (1, &element_last_desc);
+  scheme->element_new (tree_class, 1, &element_last_desc);
   /* last element of current rank */
   const t8_element_t *element_last
     = t8_forest_get_element_in_tree (forest, itree, t8_forest_get_tree_element_count (tree) - 1);
-  T8_ASSERT (ts->t8_element_is_valid (element_last));
+  T8_ASSERT (scheme->element_is_valid (tree_class, element_last));
   /* last and finest possiple element of current rank */
   if (forest->set_type == 1) {
     std::vector<int> maxlevels = {forest->maxlevel}; 
-    ts->t8_element_last_descendant (element_last, element_last_desc, maxlevels);
+    scheme->element_get_last_descendant (tree_class, element_last, element_last_desc, maxlevels);
     // t8_productionf ("-------------------- LAST_DESCENDANT");
     // ts->t8_element_debug_print (element_last_desc);
   }
   else if (forest->set_type == 2) {
     // possibility for different maxlevels
     std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
-    ts->t8_element_last_descendant (element_last, element_last_desc, maxlevels);
+    scheme->element_get_last_descendant (tree_class, element_last, element_last_desc, maxlevels);
     // t8_productionf ("-------------------- LAST_DESCENDANT");
     // ts->t8_element_debug_print (element_last_desc);
-    // ts->t8_element_get_variable (element_last_desc, 0, 0);
+    // ts->element_get_variable (tree_class, element_last_desc, 0, 0);
   }
-  T8_ASSERT (ts->t8_element_is_valid (element_last_desc));
-    if (forest->set_type == 1) {
-    const int level = ts->t8_element_level (element_last_desc);
-    T8_ASSERT (level == ts->t8_element_level (element_last_desc));
+  T8_ASSERT (scheme->element_is_valid (tree_class, element_last_desc));
+  if (forest->set_type == 1) {
+    const int level = scheme->element_get_level (tree_class, element_last_desc);
+    T8_ASSERT (level == scheme->element_get_level (tree_class, element_last_desc));
     T8_ASSERT (level == forest->maxlevel);
     std::vector<int> levels = {level};
-    const t8_linearidx_t last_desc_id = ts->t8_element_get_linear_id (element_last_desc, levels);
+    const t8_linearidx_t last_desc_id = scheme->element_get_linear_id (tree_class, element_last_desc, levels);
     /* Get the first descendant id of rank+1 */
     const t8_linearidx_t first_desc_id
       = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank + 1);
@@ -318,14 +319,14 @@ t8_forest_partition_test_boundary_element (const t8_forest_t forest)
     T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
   }
   else if (forest->set_type == 2) {
-    const int level0 = ts->t8_element_level (element_last_desc, 1);
-    T8_ASSERT (level0 == ts->t8_element_level (element_last_desc, 1));
+    const int level0 = scheme->element_get_level (tree_class, element_last_desc, 1);
+    T8_ASSERT (level0 == scheme->element_get_level (tree_class, element_last_desc, 1));
     T8_ASSERT (level0 == forest->maxlevel);
-    const int level1 = ts->t8_element_level (element_last_desc, 2);
-    T8_ASSERT (level1 == ts->t8_element_level (element_last_desc, 2)); 
+    const int level1 = scheme->element_get_level (tree_class, element_last_desc, 2);
+    T8_ASSERT (level1 == scheme->element_get_level (tree_class, element_last_desc, 2)); 
     T8_ASSERT (level1 == forest->maxlevel);
     std::vector<int> levels = {level0, level1};
-    const t8_linearidx_t last_desc_id = ts->t8_element_get_linear_id (element_last_desc, levels);  
+    const t8_linearidx_t last_desc_id = scheme->element_get_linear_id (tree_class, element_last_desc, levels);  
     /* Get the first descendant id of rank+1 */
     const t8_linearidx_t first_desc_id
       = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank + 1);
@@ -344,7 +345,7 @@ t8_forest_partition_test_boundary_element (const t8_forest_t forest)
   }
 
   /* clean up */
-  ts->t8_element_destroy (1, &element_last_desc);
+  scheme->element_destroy (tree_class, 1, &element_last_desc);
 #endif
 }
 
@@ -354,7 +355,6 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
   sc_MPI_Comm comm;
   t8_linearidx_t local_first_desc;
   t8_element_t *first_desc = NULL;
-  t8_eclass_scheme_c *ts;
 
   T8_ASSERT (t8_forest_is_committed (forest));
 
@@ -399,29 +399,30 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
     /* This process is not empty, the element was found, so we compute its first descendant. */
     if (first_element != NULL) {
       /* Get the eclass_scheme of the element. */
-      ts = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, 0));
-      ts->t8_element_new (1, &first_desc);
+      const t8_scheme *scheme = t8_forest_get_scheme (forest);
+      const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, 0);
+      scheme->element_new (tree_class, 1, &first_desc);
       if (forest->set_type == 1) {
         t8_global_productionf ("forest->set_type == 1 \n");
         std::vector<int> maxlevels = {forest->maxlevel};
-        ts->t8_element_first_descendant (first_element, first_desc, maxlevels);
+        scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);
         // t8_productionf ("-------------------- FIRST_DESCENDANT");
         // ts->t8_element_debug_print (first_desc);
         /* Compute the linear id of the descendant. */
-        local_first_desc = ts->t8_element_get_linear_id (first_desc, maxlevels);
+        local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, maxlevels);
 
       }
       else if (forest->set_type == 2) {
         t8_global_productionf ("forest->set_type == 2 \n");
         std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
-        ts->t8_element_first_descendant (first_element, first_desc, maxlevels);
+        scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);
         // t8_productionf ("-------------------- FIRST_DESCENDANT");
         // ts->t8_element_debug_print (first_desc);
         /* Compute the linear id of the descendant. */
-        local_first_desc = ts->t8_element_get_linear_id (first_desc, maxlevels);
+        local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, maxlevels);
       }
       t8_productionf("local_first_desc: %li \n", local_first_desc);
-      ts->t8_element_destroy (1, &first_desc);
+      scheme->element_destroy (tree_class, 1, &first_desc);      
     }
   }
   /* Collect all first global indices in the array */
@@ -529,8 +530,8 @@ t8_forest_partition_create_tree_offsets (t8_forest_t forest)
       // t8_global_productionf("tree1->elements_offset: %i \n", tree_test->elements_offset);
 
       // element_test = t8_forest_get_element (forest, tree_test->elements_offset + 0, NULL); //HIER ist der Fehler
-      // t8_global_productionf("element1->x: %li \n", ts_test->t8_element_get_variable (const_cast<t8_element*>(element_test), 1, 1));
-      // t8_global_productionf("element1->y: %li \n", ts_test->t8_element_get_variable (const_cast<t8_element*>(element_test), 2, 1));
+      // t8_global_productionf("element1->x: %li \n", ts_test->element_get_variable (const_cast<t8_element*>(element_test), 1, 1));
+      // t8_global_productionf("element1->y: %li \n", ts_test->element_get_variable (const_cast<t8_element*>(element_test), 2, 1));
     // //BIS HIER
 }
 
@@ -795,7 +796,7 @@ t8_forest_partition_fill_buffer (t8_forest_t forest_from, char **send_buffer, in
  * \param [in]  last_element_send The local id of the last element that we need to send.
  */
 static void
-t8_forest_partition_fill_buffer_data (t8_forest_t forest_from, char **send_buffer, int *buffer_alloc,
+t8_forest_partition_fill_buffer_data ([[maybe_unused]] t8_forest_t forest_from, char **send_buffer, int *buffer_alloc,
                                       t8_locidx_t first_element_send, t8_locidx_t last_element_send,
                                       const sc_array_t *data)
 {
@@ -1052,7 +1053,7 @@ t8_forest_partition_recv_message (t8_forest_t forest, sc_MPI_Comm comm, int proc
   t8_forest_partition_tree_info_t *tree_info;
   t8_tree_t tree, last_tree;
   size_t element_size {};
-  t8_eclass_scheme_c *eclass_scheme;
+  const t8_scheme *scheme = t8_forest_get_scheme (forest->set_from);
 
   if (proc != forest->mpirank) {
     T8_ASSERT (proc == status->MPI_SOURCE);
@@ -1117,12 +1118,11 @@ t8_forest_partition_recv_message (t8_forest_t forest, sc_MPI_Comm comm, int proc
       }
       /* Done calculating the element offset */
       /* Get the size of an element of the tree */
-      eclass_scheme = t8_forest_get_eclass_scheme (forest->set_from, tree->eclass);
-      element_size = eclass_scheme->t8_element_size ();
+      element_size = scheme->get_element_size (tree->eclass);
       /* initialize the elements array and copy the elements from the receive buffer */
       T8_ASSERT (element_cursor + tree_info->num_elements * element_size <= (size_t) recv_bytes);
-      t8_element_array_init_copy (&tree->elements, eclass_scheme, (t8_element_t *) (recv_buffer + element_cursor),
-                                  tree_info->num_elements);
+      t8_element_array_init_copy (&tree->elements, scheme, tree->eclass,
+                                  (t8_element_t *) (recv_buffer + element_cursor), tree_info->num_elements);
     }
     else {
       T8_ASSERT (itree == 0); /* This situation only happens for the first tree */
@@ -1140,8 +1140,7 @@ t8_forest_partition_recv_message (t8_forest_t forest, sc_MPI_Comm comm, int proc
       if (tree_info->num_elements > 0) {
         t8_element_t *first_new_element = t8_element_array_index_locidx_mutable (&tree->elements, old_num_elements);
         /* Get the size of an element of the tree */
-        eclass_scheme = t8_forest_get_eclass_scheme (forest->set_from, tree->eclass);
-        element_size = eclass_scheme->t8_element_size ();
+        element_size = scheme->get_element_size (tree->eclass);
         T8_ASSERT (element_size == t8_element_array_get_size (&tree->elements));
         /* Copy the elements from the receive buffer to the elements array */
         memcpy ((void *) first_new_element, recv_buffer + element_cursor, tree_info->num_elements * element_size);

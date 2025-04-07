@@ -72,7 +72,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
   t8_locidx_t num_global_trees;
   t8_locidx_t num_local_trees;
   t8_element_t *element;
-  t8_eclass_scheme_c *scheme;
+  const t8_scheme *scheme;
   num_global_trees = t8_forest_get_num_global_trees (forest);
   element_index = 0;
   element_index_in_tree = 0;
@@ -85,7 +85,8 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
     if (itree < num_local_trees){
       tree = t8_forest_get_tree (forest, itree);
       /* Get the eclass scheme of the tree */
-      scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
+      scheme = t8_forest_get_scheme(forest);
+      const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
       t8_global_productionf ("elems_in_tree: %li \n", elems_in_tree);
       element_index_in_tree = elems_in_tree;
@@ -96,7 +97,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
 
         std::vector<int> levels = {level1, level2};
 
-        sfc_index[element_index + elems_considered] = (scheme->t8_element_get_linear_id (element, levels));
+        sfc_index[element_index + elems_considered] = (scheme->element_get_linear_id (tree_class, element, levels));
       }
       t8_global_productionf ("element_index: %li \n", element_index);
       elems_considered += elems_in_tree;

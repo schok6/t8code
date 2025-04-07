@@ -29,7 +29,8 @@
 #include <t8_forest/t8_forest_io.h>
 #include <t8_forest/t8_forest_geometrical.h> 
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
-#include <t8_vec.h>                      /* Basic operations on 3D vectors. */
+#include <t8_schemes/t8_default/t8_default.hxx>
+#include <t8_types/t8_vec.h>                    /* Basic operations on 3D vectors. */
 #include <netcdf.h>
 #include <algorithm>
 #include <cmath>
@@ -243,11 +244,13 @@ t8_2_5D_calculate_gradient (double *gradient, t8_locidx_t length, float percenta
  * \param [in] elements     The element or family of elements to consider for refinement/coarsening.
  */
 int
-t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
-                         t8_eclass_scheme_c *ts, const int is_family, const int num_elements, t8_element_t *elements[])
+t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree,
+                        [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
+                        [[maybe_unused]] const t8_scheme *scheme, const int is_family,
+                        [[maybe_unused]] const int num_elements, t8_element_t *elements[])
 {
   /* The adaptation criterion for the MESSy application is to look at temperature data given for several positions and
-  * different levels throughout the world. 
+  * differnt levels throughout the world. 
   * The temperature change inside the columns shall be considered. To do so, the temperature gradients are analysed.
   * gradients larger than average are refined and gradients smaller are coarsened. */
 
@@ -265,7 +268,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
   t8_global_productionf("adapt_data->coarsen: %f", adapt_data->coarsen_if_less_than_10perc);
   t8_global_productionf("adapt_data->refine: %f", adapt_data->refine_if_more_than_90perc);
   std::vector<int> levels = {adapt_data->level_horizontal, level2_fixed};
-  t8_linearidx_t lin_id = ts->t8_element_get_linear_id(elements[0],levels);
+  t8_linearidx_t lin_id = scheme->element_get_linear_id (tree_class, elements[0],levels);
   t8_global_productionf("which_tree: %i", which_tree);
   int column = lin_id / pow(2,level2_fixed) + which_tree * pow(2,2*level1);
   t8_global_productionf ("column: %i \n", column);
@@ -291,7 +294,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
     t8_locidx_t tree_succ1;
     successor1[0] = t8_forest_get_element(forest_from, lelement_id + (which_tree * elems_tree1) + 1, &tree_succ1);
     t8_global_productionf("tree_succ: %li", &tree_succ1);
-    lin_id2 = ts->t8_element_get_linear_id(successor1[0],levels);
+    lin_id2 = scheme->element_get_linear_id (tree_class, successor1[0],levels);
     column_succ1 = lin_id2 / pow(2,level2_fixed) + which_tree * pow(2,2*level1);
     t8_global_productionf ("column_succ1: %i \n", column_succ1);
   }
@@ -304,7 +307,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
       t8_locidx_t tree_succ2;
       successor2[0] = t8_forest_get_element(forest_from, lelement_id + (which_tree * elems_tree1) + 2, &tree_succ2);
       t8_global_productionf("tree_succ: %li", &tree_succ2);
-      lin_id3 = ts->t8_element_get_linear_id(successor2[0],levels);
+      lin_id3 = scheme->element_get_linear_id (tree_class, successor2[0],levels);
       column_succ2 = lin_id3 / pow(2,level2_fixed) + which_tree * pow(2,2*level1);
       t8_global_productionf ("column_succ2: %i \n", column_succ2);
     }
@@ -475,7 +478,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, struct MESSy_data_per_element *d
   t8_element_t *element;
   t8_locidx_t num_elements = t8_forest_get_global_num_elements (forest);
   t8_locidx_t correct;
-  t8_eclass_scheme_c *scheme;  //all two trees have the same scheme
+  // t8_eclass_scheme_c *scheme;  //all two trees have the same scheme
   t8_linearidx_t lin_id;
   t8_locidx_t column;
   t8_locidx_t column_check;
@@ -511,7 +514,8 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, struct MESSy_data_per_element *d
     if (itree < num_local_trees){
       tree = t8_forest_get_tree (forest, itree);
       /* Get the eclass scheme of the tree */
-      scheme = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, itree));
+      const t8_scheme *scheme = t8_forest_get_scheme(forest);
+      const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
       t8_global_productionf ("elems_in_tree: %li \n", elems_in_tree);
       element_index_in_tree = elems_in_tree;
@@ -524,7 +528,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, struct MESSy_data_per_element *d
         /* Get a pointer to the element */
         element = t8_forest_get_element (forest, tree->elements_offset + element_index, &itree);
         std::vector<int> levels = {level1, level2_fixed};
-        lin_id = scheme->t8_element_get_linear_id (element, levels);
+        lin_id = scheme->element_get_linear_id (tree_class, element, levels);
 
         int column = lin_id / pow(2, level2_fixed);
         t8_global_productionf ("column: %li \n", column);
@@ -863,8 +867,9 @@ main (int argc, char **argv)
 
   cmesh = t8_cmesh_new_row_of_cubes (num_cmesh, 1, 0, comm);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
+  // const t8_scheme *scheme_base = t8_scheme_new_default ();
   level2 = 4;
-  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension (t8_scheme_new_default ()), t8_scheme_new_default(), level1, level2, 0, comm);
 
   /* Print information of the forest. */
   t8_global_productionf (" [2_5D] Created uniform forest.\n");

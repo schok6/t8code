@@ -175,4 +175,4 @@ int
 t8_eclass_is_valid (t8_eclass_t eclass);
 T8_EXTERN_C_END ();
 
-#endif /* !T8_ELEMENT_H */
+#endif /* !T8_ECLASS_H */

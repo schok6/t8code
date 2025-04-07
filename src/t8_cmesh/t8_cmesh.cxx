@@ -26,11 +26,11 @@
 #include <t8_geometry/t8_geometry_handler.hxx>
 #include <t8_geometry/t8_geometry_implementations/t8_geometry_linear.h>
 #include <t8_geometry/t8_geometry_implementations/t8_geometry_linear_axis_aligned.h>
+#include <t8_schemes/t8_scheme.hxx>
 #include <t8_refcount.h>
 #include <t8_data/t8_shmem.h>
-#include <t8_vec.h>
+#include <t8_types/t8_vec.h>
 #include <t8_eclass.h>
-#include <t8_element.hxx>
 #include "t8_cmesh_types.h"
 #ifdef T8_WITH_METIS
 #include <metis.h>
@@ -41,7 +41,6 @@
 
 /** \file t8_cmesh.cxx
  *  This file collects all general cmesh routines that need c++ compilation.
- *  Particularly those functions that use the element interface from \ref t8_element.hxx.
  */
 
 int
@@ -307,15 +306,15 @@ t8_cmesh_set_partition_offsets (t8_cmesh_t cmesh, t8_shmem_array_t tree_offsets)
 }
 
 void
-t8_cmesh_set_partition_uniform (t8_cmesh_t cmesh, const int element_level, t8_scheme_cxx_t *ts)
+t8_cmesh_set_partition_uniform (t8_cmesh_t cmesh, const int element_level, const t8_scheme *scheme)
 {
   T8_ASSERT (t8_cmesh_is_initialized (cmesh));
   T8_ASSERT (element_level >= -1);
-  T8_ASSERT (ts != NULL);
+  T8_ASSERT (scheme != NULL);
 
   cmesh->set_partition = 1;
   cmesh->set_partition_level = element_level;
-  cmesh->set_partition_scheme = ts;
+  cmesh->set_partition_scheme = scheme;
   if (element_level >= 0) {
     /* We overwrite any previous partition settings */
     cmesh->first_tree = -1;
@@ -450,7 +449,7 @@ t8_cmesh_get_attribute (const t8_cmesh_t cmesh, const int package_id, const int 
 
 t8_gloidx_t *
 t8_cmesh_get_attribute_gloidx_array (const t8_cmesh_t cmesh, const int package_id, const int key,
-                                     const t8_locidx_t ltree_id, const size_t data_count)
+                                     const t8_locidx_t ltree_id, [[maybe_unused]] const size_t data_count)
 {
   T8_ASSERT (0 <= data_count);
   return (t8_gloidx_t *) t8_cmesh_get_attribute (cmesh, package_id, key, ltree_id);
@@ -638,9 +637,9 @@ t8_cmesh_tree_vertices_negative_volume (const t8_eclass_t eclass, const double *
     v_j[2] = 1.0;
 
     /* Compute cross = v_1 x v_2. */
-    t8_vec_cross (v_1, v_2, cross);
+    t8_cross_3D (v_1, v_2, cross);
     /* Compute sc_prod = <v_j, cross>. */
-    sc_prod = t8_vec_dot (v_j, cross);
+    sc_prod = t8_dot (v_j, cross);
 
     T8_ASSERT (sc_prod != 0);
     return sc_prod < 0;
@@ -661,9 +660,9 @@ t8_cmesh_tree_vertices_negative_volume (const t8_eclass_t eclass, const double *
     v_j[i] = vertices[3 * j + i] - vertices[i];
   }
   /* compute cross = v_1 x v_2 */
-  t8_vec_cross (v_1, v_2, cross);
+  t8_cross_3D (v_1, v_2, cross);
   /* Compute sc_prod = <v_j, cross> */
-  sc_prod = t8_vec_dot (v_j, cross);
+  sc_prod = t8_dot (v_j, cross);
 
   T8_ASSERT (sc_prod != 0);
   return eclass == T8_ECLASS_TET ? sc_prod > 0 : sc_prod < 0;
@@ -1342,7 +1341,7 @@ t8_cmesh_reset (t8_cmesh_t *pcmesh)
 
   /* unref the partition scheme (if set) */
   if (cmesh->set_partition_scheme != NULL) {
-    t8_scheme_cxx_unref (&cmesh->set_partition_scheme);
+    cmesh->set_partition_scheme->unref ();
   }
 
   T8_FREE (cmesh);
@@ -1414,7 +1413,7 @@ t8_cmesh_coords_axb (const double *coords_in, double *coords_out, int num_vertic
   int i;
 
   for (i = 0; i < num_vertices; i++) {
-    t8_vec_axpyz (coords_in + i * 3, b, coords_out + i * 3, alpha);
+    t8_axpyz (coords_in + i * 3, b, coords_out + i * 3, alpha);
   }
 }
 
@@ -1449,7 +1448,7 @@ t8_cmesh_print_local_trees (const t8_cmesh_t cmesh)
 #endif
 
 void
-t8_cmesh_debug_print_trees (const t8_cmesh_t cmesh, sc_MPI_Comm comm)
+t8_cmesh_debug_print_trees ([[maybe_unused]] const t8_cmesh_t cmesh, [[maybe_unused]] sc_MPI_Comm comm)
 {
 #ifdef T8_ENABLE_DEBUG
   /* This function is probably rather slow, linear in the number of processes and therefore
@@ -1494,7 +1493,7 @@ t8_cmesh_debug_print_trees (const t8_cmesh_t cmesh, sc_MPI_Comm comm)
 }
 
 void
-t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_cxx_t *ts, t8_gloidx_t *first_local_tree,
+t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme *scheme, t8_gloidx_t *first_local_tree,
                          t8_gloidx_t *child_in_tree_begin, t8_gloidx_t *last_local_tree, t8_gloidx_t *child_in_tree_end,
                          int8_t *first_tree_shared)
 {
@@ -1503,7 +1502,7 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_cxx_
   T8_ASSERT (cmesh != NULL);
   T8_ASSERT (cmesh->committed);
   T8_ASSERT (level >= 0);
-  T8_ASSERT (ts != NULL);
+  T8_ASSERT (scheme != NULL);
 
   *first_local_tree = 0;
   if (child_in_tree_begin != NULL) {
@@ -1523,7 +1522,6 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_cxx_
   t8_gloidx_t prev_last_tree = -1;
 #endif
   int tree_class;
-  t8_eclass_scheme_c *tree_scheme;
 
   /* Compute the number of children on level in each tree */
   global_num_children = 0;
@@ -1532,9 +1530,7 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_cxx_
      * tree class.
      */
     if (cmesh->num_trees_per_eclass[tree_class] > 0) {
-      tree_scheme = ts->eclass_schemes[tree_class];
-      T8_ASSERT (tree_scheme != NULL);
-      children_per_tree = tree_scheme->t8_element_count_leaves_from_root (level);
+      children_per_tree = scheme->count_leaves_from_root (static_cast<t8_eclass_t> (tree_class), level);
       T8_ASSERT (children_per_tree >= 0);
       global_num_children += cmesh->num_trees_per_eclass[tree_class] * children_per_tree;
     }
@@ -1622,7 +1618,7 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_cxx_
 }
 
 void
-t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_scheme_cxx_t *ts,
+t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_scheme *scheme,
                                 t8_gloidx_t *first_local_tree, t8_gloidx_t *child_in_tree_begin, t8_gloidx_t *last_local_tree,
                                 t8_gloidx_t *child_in_tree_end, int8_t *first_tree_shared)
 {
@@ -1632,7 +1628,7 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   T8_ASSERT (cmesh->committed);
   T8_ASSERT (level1 >= 0);
   T8_ASSERT (level2 >= 0);
-  T8_ASSERT (ts != NULL);
+  T8_ASSERT (scheme != NULL);
 
   *first_local_tree = 0;
   if (child_in_tree_begin != NULL) { 
@@ -1655,7 +1651,6 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   t8_gloidx_t prev_last_tree = -1;
 #endif
   int tree_class;
-  t8_eclass_scheme_c *tree_scheme;
 
   /* Compute the number of children on level1 and level2 in each tree */
   global_num_children = 0;
@@ -1664,11 +1659,9 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
      * tree class.
      */
     if (cmesh->num_trees_per_eclass[tree_class] > 0) {
-      tree_scheme = ts->eclass_schemes[tree_class];
-      T8_ASSERT (tree_scheme != NULL);
-      children_per_tree1 = tree_scheme->t8_element_count_leaves_from_root (level1, 1); 
+      children_per_tree1 = scheme->count_leaves_from_root (static_cast<t8_eclass_t> (tree_class), level1, 1); 
       T8_ASSERT (children_per_tree1 >= 0);
-      children_per_tree2 = tree_scheme->t8_element_count_leaves_from_root (level2, 2);
+      children_per_tree2 = scheme->count_leaves_from_root (static_cast<t8_eclass_t> (tree_class), level2, 2);
       T8_ASSERT (children_per_tree2 >= 0);
       global_num_children += cmesh->num_trees_per_eclass[tree_class] * children_per_tree1 * children_per_tree2;
     }

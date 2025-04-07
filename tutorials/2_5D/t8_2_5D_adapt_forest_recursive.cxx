@@ -58,7 +58,8 @@
 #include <t8_forest/t8_forest_io.h>             /* save forest */
 #include <t8_forest/t8_forest_geometrical.h>    /* geometrical information of the forest */
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
-#include <t8_vec.h>                             /* Basic operations on 3D vectors. */
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* default refinement scheme. */
+#include <t8_types/t8_vec.h>                    /* Basic operations on 3D vectors. */
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
 //needed to write SFC index
@@ -88,8 +89,10 @@
  * \param [in] elements     The element or family of elements to consider for refinement/coarsening.
  */
 int
-t8_2_5D_adapt_callback_horizontal (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
-                         t8_eclass_scheme_c *ts, const int is_family, const int num_elements, t8_element_t *elements[])
+t8_2_5D_adapt_callback_horizontal (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree,
+                                  [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
+                                  [[maybe_unused]] const t8_scheme *scheme, const int is_family,
+                                  [[maybe_unused]] const int num_elements, t8_element_t *elements[])
 {
   /* Our adaptation criterion is to look at the midpoint coordinates of the current element and if
    * they are inside a sphere around a given midpoint we refine, if they are outside, we coarsen. */
@@ -111,8 +114,8 @@ t8_2_5D_adapt_callback_horizontal (t8_forest_t forest, t8_forest_t forest_from, 
   t8_forest_element_centroid (forest_from, which_tree, elements[0], centroid);
 
   /* Compute the distance to our sphere midpoint. */
-  dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
-  //dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
+  // dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint); //@TODO
+  dist = t8_dist (centroid, adapt_data->midpoint);
   if (dist < adapt_data->refine_if_inside_radius) {
     /* Refine this element. */
     return 1;
@@ -189,8 +192,10 @@ t8_2_5D_adapt_forest_horizontal (t8_forest_t forest)
  * \param [in] elements     The element or family of elements to consider for refinement/coarsening.
  */
 int
-t8_2_5D_adapt_callback_vertical (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree, t8_locidx_t lelement_id,
-                         t8_eclass_scheme_c *ts, const int is_family, const int num_elements, t8_element_t *elements[])
+t8_2_5D_adapt_callback_vertical (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree,
+                                [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
+                                [[maybe_unused]] const t8_scheme *scheme, const int is_family,
+                                [[maybe_unused]] const int num_elements, t8_element_t *elements[])
 {
   /* Our adaptation criterion is to look at the midpoint coordinates of the current element and if
    * they are inside a sphere around a given midpoint we refine, if they are outside, we coarsen. */
@@ -213,7 +218,7 @@ t8_2_5D_adapt_callback_vertical (t8_forest_t forest, t8_forest_t forest_from, t8
 
   /* Compute the distance to our sphere midpoint. */
   // dist = t8_vec_dist_vertical (centroid, adapt_data->midpoint);
-  dist = t8_vec_dist (centroid, adapt_data->midpoint);
+  dist = t8_dist (centroid, adapt_data->midpoint);
   // dist = t8_vec_dist_yz (centroid, adapt_data->midpoint);
   //dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
   if (dist < adapt_data->refine_if_inside_radius) {
@@ -285,6 +290,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   sc_MPI_Comm comm;
   t8_cmesh_t cmesh;
   t8_forest_t forest;
+  const t8_scheme *scheme_base = t8_scheme_new_default ();
   /* The prefix for our output files. */
   const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest_2_3";
   const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight";
@@ -328,7 +334,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
-  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension (scheme_base), scheme_base, level1, level2, 0, comm);
 
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);

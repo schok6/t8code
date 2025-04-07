@@ -54,8 +54,6 @@
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
 #include <t8_vec.h>                                           /* Basic operations on 3D vectors. */
 
-T8_EXTERN_C_BEGIN ();
-
 /* So far we have seen t8_forest_new_* functions to create forests.
    * These directly returned a new forest.
    * However, t8code offers us more control over the creation of forests.
@@ -260,5 +258,3 @@ t8_step4_main (int argc, char **argv)
 
   return 0;
 }
-
-T8_EXTERN_C_END ();
