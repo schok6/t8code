@@ -647,8 +647,9 @@ t8_forest_adapt (t8_forest_t forest)
         else{
           level = scheme->element_get_level (tree->eclass, elements_from[0]);
         }
-        if (refine > 0 && level >= forest->maxlevel) {
-          /* Only refine an element if it does not exceed the maximum level */
+        if (refine > 0 && level >= forest->maxlevel
+            && scheme->element_is_refinable (tree->eclass, elements_from[0])) {
+          /* Only refine an element if it does not exceed the maximum level and if it is refinable */
           refine = 0;
         }
         if (refine == 1) { 

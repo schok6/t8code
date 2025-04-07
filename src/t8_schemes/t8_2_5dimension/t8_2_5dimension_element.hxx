@@ -633,6 +633,15 @@ class t8_2_5dimension_scheme
   void
   element_general_function (const t8_element_t *elem, const void *indata, void *outdata) const;
 
+  /**
+   * Indicates if an element is refinable. Possible reasons for being not refinable could be
+   * that the element has reached its max level.
+   * \param [in] elem   The element to check.
+   * \return            True if the element is refinable.
+   */
+  bool
+  element_is_refinable (const t8_element_t *elem) const;
+
 #ifdef T8_ENABLE_DEBUG
   /** Query whether a given element can be considered as 'valid' and it is
    *  safe to perform any of the above algorithms on it.

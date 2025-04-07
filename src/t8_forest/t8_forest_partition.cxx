@@ -114,7 +114,7 @@ t8_forest_partition_create_offsets (t8_forest_t forest)
   t8_shmem_array_end_writing (forest->element_offsets);
 }
 
-//#ifdef T8_ENABLE_DEBUG
+//#if T8_ENABLE_DEBUG
 /* Test if all first descendants of the elements in the first tree have
  * a greater or equal linear id than the stored first descendant. */
 static void
@@ -204,7 +204,7 @@ t8_forest_partition_test_desc (t8_forest_t forest)
 void
 t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t forest)
 {
-#ifdef T8_ENABLE_DEBUG
+#if T8_ENABLE_DEBUG
   T8_ASSERT (t8_forest_is_committed (forest));
   T8_ASSERT (forest->global_first_desc != NULL);
 
@@ -426,7 +426,7 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
     }
   }
   /* Collect all first global indices in the array */
-#ifdef T8_ENABLE_DEBUG
+#if T8_ENABLE_DEBUG
 #ifdef SC_ENABLE_MPI
   {
     /* We assert that we use the correct data size in the allgather call. */
@@ -439,7 +439,7 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
 #endif
   t8_shmem_array_allgather (&local_first_desc, 1, T8_MPI_LINEARIDX, forest->global_first_desc, 1, T8_MPI_LINEARIDX);
   t8_global_productionf("*(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank): %li \n", *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank));
-#ifdef T8_ENABLE_DEBUG
+#if T8_ENABLE_DEBUG
   {
     int iproc;
     char buffer[BUFSIZ] = {};

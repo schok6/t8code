@@ -906,6 +906,15 @@ t8_2_5dimension_scheme::element_general_function (const t8_element_t *elem, cons
   SC_ABORT ("This function is not implemented yet.\n");
 }
 
+bool
+t8_2_5dimension_scheme::element_is_refinable (const t8_element_t *elem) const
+{
+  T8_ASSERT (scheme->element_is_valid (eclass1, elem));
+  T8_ASSERT (scheme->element_is_valid (eclass2, elem));
+
+  return scheme->element_is_refinable (eclass1, elem) && scheme->element_is_refinable (eclass2, elem);
+}
+
 #ifdef T8_ENABLE_DEBUG
 
 int
