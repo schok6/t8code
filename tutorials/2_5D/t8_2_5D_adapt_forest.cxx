@@ -62,6 +62,29 @@
 #include <t8_types/t8_vec.h>                    /* Basic operations on 3D vectors. */
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
+/* Build a uniform forest on a cmesh 
+ * using the default refinement scheme.
+ * \param [in] comm   MPI Communicator to use.
+ * \param [in] cmesh  The coarse mesh to use.
+ * \param [in] level  The initial uniform refinement level.
+ * \return            A uniform forest with the given refinement level that is
+ *                    partitioned across the processes in \a comm.
+ */
+static t8_forest_t
+t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, int level2)
+{
+  t8_forest_t forest;
+
+  const t8_scheme *scheme_base = t8_scheme_new_default ();
+  const t8_scheme *scheme = t8_scheme_new_2_5dimension (scheme_base);
+
+  /* Create the refinement scheme. */
+  
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
+
+  return forest;
+}
+
 /* This is our own defined data that we will pass on to the
  * adaptation callback. */
 
@@ -182,7 +205,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   sc_MPI_Comm comm;
   t8_cmesh_t cmesh;
   t8_forest_t forest;
-  const t8_scheme *scheme_base = t8_scheme_new_default ();
+
   /* The prefix for our output files. */
   const char *prefix_uniform = "t8_2_5D_uniform_forest";
   const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_highlight";
@@ -225,7 +248,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
 //   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
-  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension (scheme_base), scheme_base, level1, level2, 0, comm);
+  forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
 
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
@@ -276,7 +299,10 @@ t8_2_5D_adapt_main (int argc, char **argv)
   T8_FREE (highlight);
 
   /* Destroy the forest. */
+  // t8_global_productionf("refcount: %i", forest->refcount.rc);
   t8_forest_unref (&forest);
+  // t8_global_productionf("refcount: %i", forest->refcount.rc);
+  // t8_forest_unref (&forest);
   t8_global_productionf (" [2_5D] Destroyed forest.\n");
 
   sc_finalize ();
