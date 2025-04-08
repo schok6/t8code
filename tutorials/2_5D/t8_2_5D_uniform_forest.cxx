@@ -90,7 +90,7 @@ t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, in
 
   /* Create the refinement scheme. */
   
-  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm); //@TODO - base scheme aus forest new
 
   return forest;
 }
@@ -128,6 +128,7 @@ main (int argc, char **argv)
   sc_MPI_Comm comm;
   t8_cmesh_t cmesh;
   t8_forest_t forest;
+  // const t8_scheme *base_scheme = t8_scheme_new_default (); //@TODO 
 
   /* The prefix for our output files. */
 
@@ -163,6 +164,7 @@ main (int argc, char **argv)
   // t8_cmesh_ref (cmesh);
   /* Build the uniform forest, it is automatically partitioned among the processes. */
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
+  // forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension(base_scheme), base_scheme, level1, level2, 0, comm);
   /* Get the local number of elements. */
   local_num_elements = t8_forest_get_local_num_elements (forest);
   /* Get the global number of elements. */
@@ -173,7 +175,7 @@ main (int argc, char **argv)
   t8_global_productionf (" [2_5D] Refinement level1:\t\t\t%i\n", level1);
   t8_global_productionf (" [2_5D] Refinement level2:\t\t\t%i\n", level2);
   t8_global_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
-  t8_global_productionf (" [2_5D] Global number of elements:\t%li\n", global_num_elements);
+  t8_global_productionf (" [2_5D] Global number of elements:\t\t%li\n", global_num_elements);
 
   /* Write forest to vtu files. */
   t8_2_5D_write_forest_vtk (forest, prefix);

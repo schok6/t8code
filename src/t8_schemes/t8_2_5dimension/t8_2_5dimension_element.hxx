@@ -29,17 +29,44 @@
 
 #include <t8_element.h>
 #include <t8_eclass.h>
-//#include <sc.h>
 #include <sc_functions.h>
-// #include <t8_schemes/t8_scheme.hxx>
+//#include <t8_schemes/t8_scheme.hxx>
 #include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 //#include <t8_element_c_interface.h>
 
-//#include <t8_schemes/t8_standalone/t8_standalone_cxx.hxx>
 
 /** Provide an implementation for 2 schemes and
- * refinement in x,y and z or x and y,z.
+ * refinement in x,y and z (or x and y,z).
 */
+
+/** This function assumes an sc_mempool_t as context.
+ * It is suitable as the 2_5D_elem_new callback in \ref t8_eclass_scheme_t???.
+ * We assume that the mempool has been created with the correct element size.
+ * \param [in,out] scheme_context   An element is allocated in this sc_mempool_t.
+ * \param [in]     length       Non-negative number of elements to allocate.
+ * \param [in,out] elem         Array of correct size whose members are filled.
+ */
+inline static void
+t8_2_5D_mempool_alloc (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
+
+/** This class independent function assumes an sc_mempool_t as context.
+ * It is suitable as the elem_destroy callback in \ref t8_eclass_scheme_t.
+ * We assume that the mempool has been created with the correct element size.
+ * \param [in,out] ts_context   An element is returned to this sc_mempool_t.
+ * \param [in]     length       Non-negative number of elements to destroy.
+ * \param [in,out] elem         Array whose members are returned to the mempool.
+ */
+inline static void
+t8_2_5D_mempool_free (sc_mempool_t *scheme_context, int length, t8_element_t **elem)
+{
+  T8_ASSERT (scheme_context != NULL);
+  T8_ASSERT (0 <= length);
+  T8_ASSERT (elem != NULL);
+
+  for (int i = 0; i < length; ++i) {
+    sc_mempool_free (scheme_context, elem[i]);
+  }
+}
 
 /* Forward declaration of the scheme so we can use it as an argument in the eclass schemes function. */
 class t8_scheme;
@@ -47,33 +74,20 @@ class t8_scheme;
 // struct t8_2_5dimension_scheme_c: public t8_eclass_scheme_c
 class t8_2_5dimension_scheme
 {
- public:
- //private unten
-  const t8_scheme *scheme;
-  t8_eclass eclass1;
-  t8_eclass eclass2;
-  /** The table for a particular implementation of an element class. */
-
-  /** Constructor. */
-  // t8_2_5dimension_scheme (t8_scheme *scheme1, t8_scheme *scheme2);
-  t8_2_5dimension_scheme (const t8_scheme *scheme, t8_eclass eclass1, t8_eclass eclass2);
-
-  protected:
+ protected:
   size_t element_size;  /**< The size in bytes of a 2.5D element of class \a eclass1 and class \a eclass2*/
   void *scheme_context; /**< Anonymous implementation context. */
 
-  public:
-  
+ public:
+  const t8_scheme *scheme;
+  t8_eclass eclass1;
+  t8_eclass eclass2;
+
   /** Destructor for 2.5D scheme */
   ~t8_2_5dimension_scheme ();
 
-  /**
-   * Decrease the reference count of the scheme.
-   * If the reference count reaches zero, the scheme is deleted.
-   * \return The remaining reference count. If 0 the scheme was deleted.
-   */
-  int
-  unref () const;
+  /** Constructor. */ //@TODO Move-constructor, Move-assignment constructor, copy constructor, copy-assignment constructor
+  t8_2_5dimension_scheme (const t8_scheme *scheme, t8_eclass eclass1, t8_eclass eclass2);
 
   /** Return the tree class of this scheme.
    * \return The tree class of this scheme.

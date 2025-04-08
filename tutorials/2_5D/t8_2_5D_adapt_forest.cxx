@@ -194,7 +194,7 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
   local_num_elements = t8_forest_get_local_num_elements (forest);
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
-  t8_global_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
+  t8_global_productionf (" [2_5D] Local number of elements:\t%i\n", local_num_elements);
   t8_global_productionf (" [2_5D] Global number of elements:\t%li\n", global_num_elements);
 }
 

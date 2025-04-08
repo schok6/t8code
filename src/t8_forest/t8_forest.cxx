@@ -55,30 +55,6 @@
 /* We want to export the whole implementation to be callable from "C" */
 T8_EXTERN_C_BEGIN ();
 
-void
-t8_forest_kontrolle (t8_forest_t forest) //@TODO
-{
-  //AB HIER ALLES WIEDER LÖSCHEN -> falscher x Wert für x
-      t8_global_productionf("Kontrolle!!!!!!!!!!!.\n");
-
-      t8_tree_t tree_test = (t8_tree_t) t8_sc_array_index_locidx (forest->trees, 1);
-      
-    //   t8_eclass_t tree_class_test = t8_cmesh_get_tree_class (forest->cmesh, 1);
-    //   t8_global_productionf (" tree_class_test : %i \n", tree_class_test);
-    //   t8_scheme *ts_test = forest->scheme->eclass_schemes[tree_class_test];
-
-      
-    //   const t8_element_t *element_test  = NULL;
-    //   //t8_tree_t tree_test = t8_forest_get_tree (forest, 0);
-
-    //   t8_global_productionf("tree1->elements_offset: %i \n", tree_test->elements_offset);
-    //   //element_test = t8_element_array_index_locidx_mutable (&tree_test->elements, tree_test->elements_offset + 0);
-    //   element_test = t8_forest_get_element (forest, tree_test->elements_offset + 0, NULL); //HIER ist der Fehler
-    //   // t8_global_productionf("element1->x: %i \n", ts_test->element_get_variable (const_cast<t8_element*>(element_test), 1, 1));
-    //   //t8_global_productionf("element1->y: %li \n", ts_test->element_get_variable (const_cast<t8_element*>(element_test), 2, 1));
-    // //BIS HIER
-}
-
 int
 t8_forest_num_children_tree_cmesh (t8_forest_t forest, int itree, int dir) //@TODO
 {
@@ -267,55 +243,7 @@ t8_forest_compute_maxlevel (t8_forest_t forest)
     }
   }
   T8_ASSERT (forest->maxlevel >= 0);
-  t8_debugf ("Computed maxlevel %i\n", forest->maxlevel);
 }
-
-// /* Compute the maximum possible refinement level in a forest. */
-// void
-// t8_forest_compute_maxlevel_2_5D (t8_forest_t forest)
-// {
-//   /* Ensure that the maxlevel does not increase the maximum level of any
-//    * class in the forest */
-//   int eclass_it1;
-//   int eclass_it2;
-//   int maxlevel;
-//   t8_eclass_scheme_c *ts;
-
-//   T8_ASSERT (t8_cmesh_is_committed (forest->cmesh));
-//   t8_global_productionf (" Test1- forest_maxlevel_2_5D \n");
-//   forest->maxlevel = -1;
-//   for (eclass_it1 = T8_ECLASS_VERTEX; eclass_it1 < T8_ECLASS_COUNT; eclass_it1++) {
-//     for (eclass_it2 = T8_ECLASS_VERTEX; eclass_it2 < T8_ECLASS_COUNT; eclass_it2++) { 
-//       // t8_global_productionf ("[eclass_it1] %i\n", eclass_it1);
-//       // t8_global_productionf ("forest->cmesh->num_trees_per_eclass[eclass_it1] %li\n", forest->cmesh->num_trees_per_eclass[eclass_it1]);
-//       // t8_global_productionf ("[eclass_it2] %i\n", eclass_it2);
-//       // t8_global_productionf ("forest->cmesh->num_trees_per_eclass[eclass_it2] %li\n", forest->cmesh->num_trees_per_eclass[eclass_it2]);
-//       if (forest->cmesh->num_trees_per_eclass[eclass_it1] > 0 && forest->cmesh->num_trees_per_eclass[eclass_it2] > 0
-//           &&                                              // ){
-//           eclass_it1 != eclass_it2 && eclass_it2 == 1) {  //remove second line for case 1_5D -> LINE & LINE
-//         /* If there are trees of this class, compute the maxlevel of the class */
-//         ts = t8_forest_get_eclass_scheme_before_commit_2_5D (forest, (t8_eclass_t) eclass_it1, (t8_eclass_t) eclass_it2);
-//         // ts = t8_forest_get_eclass_scheme_before_commit (forest, (t8_eclass_t) eclass_it1);
-//         t8_global_productionf ("[eclass_it1] %i\n", eclass_it1);
-//         // t8_global_productionf("forest->scheme_comb_cxx: %i \n", forest->scheme_comb_cxx);
-//         maxlevel = ts->t8_element_maxlevel ();
-//         t8_global_productionf ("[eclass_it1] %i\n", eclass_it1);
-//         t8_global_productionf (" maxlevel: %i \n", maxlevel);
-//         // t8_global_productionf (" Test2- forest_maxlevel_2_5D \n");
-//         /* Compute the minimum of this level and the stored maxlevel */
-//         if (forest->maxlevel == -1) {
-//           forest->maxlevel = maxlevel;
-//         }
-//         else {
-//           forest->maxlevel = SC_MIN (maxlevel, forest->maxlevel);
-//         }
-//       }
-//     }
-//   }
-//   t8_global_productionf (" Test3- forest_maxlevel_2_5D \n");
-//   T8_ASSERT (forest->maxlevel >= 0);
-//   t8_debugf ("Computed maxlevel %i\n", forest->maxlevel);
-// }
 
 /* Return the maximum level of a forest */
 int
@@ -1216,7 +1144,6 @@ t8_forest_compute_desc (t8_forest_t forest)
   T8_ASSERT (forest != NULL);
   /* Iterate over all trees */
   num_trees = t8_forest_get_num_local_trees (forest);
-  t8_global_productionf ("num_trees: %i \n", num_trees);
   for (itree_id = 0; itree_id < num_trees; itree_id++) {
     /* get a pointer to the tree */
     itree = t8_forest_get_tree (forest, itree_id);
@@ -1242,9 +1169,6 @@ t8_forest_compute_desc (t8_forest_t forest)
       std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel}; 
       /* calculate the first descendant of the first element */
       scheme->element_get_first_descendant (tree_class, first_element, itree->first_desc, maxlevels);
-      //Print coordinates
-      t8_global_productionf ("itree->first_desc coordinates in t8_forest_compute_desc: \n");
-      scheme->element_get_variable (tree_class, itree->first_desc, 0, 0);
     }
     /* get a pointer to the last element of itree */
     num_elements = t8_element_array_get_count (&itree->elements);
@@ -1316,12 +1240,9 @@ t8_forest_populate (t8_forest_t forest)
     num_local_trees = forest->last_local_tree - forest->first_local_tree + 1;
     forest->trees = sc_array_new_count (sizeof (t8_tree_struct_t), num_local_trees);
     first_ctree = t8_cmesh_get_first_treeid (forest->cmesh);
-    t8_global_productionf("forest->first_local_tree: %i & forest->last_local_tree: %i", forest->first_local_tree, forest->last_local_tree);
     for (jt = forest->first_local_tree, count_elements = 0; jt <= forest->last_local_tree; jt++) {
       tree = (t8_tree_t) t8_sc_array_index_locidx (forest->trees, jt - forest->first_local_tree);
       tree_class = tree->eclass = t8_cmesh_get_tree_class (forest->cmesh, jt - first_ctree);
-      t8_global_productionf ("tree_class: %i\n", tree_class);
-      int dim = t8_eclass_to_dimension[tree_class];
       tree->elements_offset = count_elements;
       const t8_scheme *scheme = forest->scheme;
       T8_ASSERT (scheme != NULL);
@@ -1342,32 +1263,10 @@ t8_forest_populate (t8_forest_t forest)
         element_succ = t8_element_array_index_locidx_mutable (telements, et - start);
         T8_ASSERT (scheme->element_get_level (tree_class, element) == forest->set_level);
         scheme->element_construct_successor (tree_class, element, element_succ);
-        if (dim ==2) {
-          int x1 = scheme->element_get_variable (tree_class, element_succ, 1);
-          int y1 = scheme->element_get_variable (tree_class, element_succ, 2);
-          t8_global_productionf ("element_succ coordinates: (%i,%i)\n", x1, y1);
-        }
-        else if (dim == 3) {
-          int x1 = scheme->element_get_variable (tree_class, element_succ, 1, 1);
-          int y1 = scheme->element_get_variable (tree_class, element_succ, 1, 2);
-          int z1 = scheme->element_get_variable (tree_class, element_succ, 2, 1);
-          t8_global_productionf ("element_succ coordinates: (%i,%i,%i)\n", x1, y1, z1);
-        }
-        else{
-          scheme->element_get_variable (tree_class, element_succ, 0);
-        }
-        /* TODO: process elements here */
         element = element_succ;
-        t8_global_productionf("Test in inner for loop.\n");
       }
-      t8_global_productionf("--------------------");
-      t8_global_productionf("Test after inner for loop.\n");
-      t8_global_productionf("--------------------");
     }
   }
-  t8_global_productionf("--------------------");
-  t8_global_productionf("Test after loop.\n");
-  t8_global_productionf("--------------------");
   forest->local_num_elements = count_elements;
   /* TODO: if no tree has pyramid type we can optimize this to global_num_elements = global_num_trees * 2^(dim*level) */
   t8_forest_comm_global_num_elements (forest);
@@ -1424,10 +1323,8 @@ t8_forest_populate_2_5D (t8_forest_t forest)
   else {
     /* for each tree, allocate elements */
     num_local_trees = forest->last_local_tree - forest->first_local_tree + 1;
-    t8_productionf ("num_local_trees: %i \n", num_local_trees);
     forest->trees = sc_array_new_count (sizeof (t8_tree_struct_t), num_local_trees);
     first_ctree = t8_cmesh_get_first_treeid (forest->cmesh);
-    t8_productionf("forest->first_local_tree: %i & forest->last_local_tree: %i", forest->first_local_tree, forest->last_local_tree);
     for (jt = forest->first_local_tree, count_elements = 0; jt <= forest->last_local_tree; jt++) {
       tree = (t8_tree_t) t8_sc_array_index_locidx (forest->trees, jt - forest->first_local_tree);
       tree_class = tree->eclass = t8_cmesh_get_tree_class (forest->cmesh, jt - first_ctree);
@@ -1440,7 +1337,6 @@ t8_forest_populate_2_5D (t8_forest_t forest)
       end = (jt == forest->last_local_tree) ? child_in_tree_end
                                             : scheme->count_leaves_from_root (tree_class, forest->set_level1,1) * scheme->count_leaves_from_root (tree_class, forest->set_level2,2);
       num_tree_elements = end - start;
-      t8_productionf ("num_tree_elements: %i \n", num_tree_elements);
       T8_ASSERT (num_tree_elements > 0);
       /* Allocate elements for this processor. */
       t8_element_array_init_size (telements, scheme, tree_class, num_tree_elements);
@@ -1449,13 +1345,7 @@ t8_forest_populate_2_5D (t8_forest_t forest)
       scheme->element_set_linear_id (tree_class, element, levels, start);
       count_elements++;
       for (et = start + 1; et < end; et++, count_elements++) { 
-        t8_global_productionf("et: %i \n", et); 
         element_succ = t8_element_array_index_locidx_mutable (telements, et - start);
-        t8_global_productionf("Test1 \n");
-        scheme->element_is_valid (tree_class, element);
-        t8_global_productionf("Test1.5 \n");
-        scheme->element_is_valid (tree_class, element_succ); //TESTING
-        t8_global_productionf("Test2 \n");
         T8_ASSERT (scheme->element_get_level (tree_class, element, 1) == forest->set_level1);
         T8_ASSERT (scheme->element_get_level(tree_class, element, 2) == forest->set_level2);
         scheme->element_construct_successor(tree_class, element, element_succ);
@@ -1464,9 +1354,6 @@ t8_forest_populate_2_5D (t8_forest_t forest)
       }
     }
   }
-  t8_productionf("--------------------\n");
-  t8_productionf("Test after loop.\n");
-  t8_productionf("--------------------\n");
   forest->local_num_elements = count_elements;
   /* TODO: if no tree has pyramid type we can optimize this to global_num_elements = global_num_trees * 2^(dim*level) */
   t8_forest_comm_global_num_elements (forest);
@@ -3408,9 +3295,7 @@ t8_forest_comm_global_num_elements (t8_forest_t forest)
   t8_gloidx_t global_num_el;
 
   local_num_el = (t8_gloidx_t) forest->local_num_elements;
-  t8_global_productionf("Test1.\n");
   mpiret = sc_MPI_Allreduce (&local_num_el, &global_num_el, 1, T8_MPI_GLOIDX, sc_MPI_SUM, forest->mpicomm);
-  t8_global_productionf("Test2.\n");
   SC_CHECK_MPI (mpiret);
   forest->global_num_elements = global_num_el;
 }
@@ -3679,7 +3564,6 @@ t8_forest_commit (t8_forest_t forest)
         }
       }
       else {
-        t8_global_productionf("Consider this case!!!!!! \n");
         /* This forest should only be adapted */
         t8_forest_copy_trees (forest, forest->set_from, 0);
         t8_forest_adapt (forest);
@@ -4491,19 +4375,14 @@ t8_forest_compute_elements_offset (t8_forest_t forest)
   current_offset = 0;
   /* Iterate through all trees, sum up the element counts and set it as
    * the element_offsets */
-  t8_global_productionf (" num_trees: %i \n", num_trees);
 
     for (itree = 0; itree < num_trees; itree++) {
-      t8_global_productionf (" itree: %i \n", itree);
       tree = t8_forest_get_tree (forest, itree);
       tree->elements_offset = current_offset;
-      t8_global_productionf (" t8_forest_get_tree_element_count (tree): %i \n", t8_forest_get_tree_element_count (tree));
       current_offset += t8_forest_get_tree_element_count (tree);
-      t8_global_productionf (" current_offset: %i \n", current_offset);
     } 
  
   /* At the end, we counted all elements */
-  t8_global_productionf (" current_offset == forest->local_num_elements: %i == %i ", current_offset, forest->local_num_elements);
   T8_ASSERT (current_offset == forest->local_num_elements);
 
 }
@@ -4540,7 +4419,6 @@ t8_forest_write_vtk_ext (t8_forest_t forest, const char *fileprefix, const int w
   }
   else {
     T8_ASSERT (!write_curved);
-    t8_global_productionf ("t8_forest_vtk_write_file \n");
     return t8_forest_vtk_write_file (forest, fileprefix, write_treeid, write_mpirank, write_level, write_element_id,
                                      write_ghosts, num_data, data);
   }
@@ -4643,8 +4521,7 @@ t8_forest_new_adapt (t8_forest_t forest_from, t8_forest_adapt_t adapt_fn, int re
   t8_forest_t forest;
 
   t8_forest_init (&forest);
-  forest->set_adapt_direction = direction; //better in function t8_forest_set_adapt
-  t8_global_productionf ("forest->set_adapt_direction: %i", forest->set_adapt_direction);
+  forest->set_adapt_direction = direction; //better in function t8_forest_set_adapt @TODO
   t8_forest_set_adapt (forest, forest_from, adapt_fn, recursive);//, direction);
   t8_forest_set_ghost (forest, do_face_ghost, T8_GHOST_FACES);
   if (user_data != NULL) {

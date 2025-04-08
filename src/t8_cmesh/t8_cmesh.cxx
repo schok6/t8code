@@ -1666,15 +1666,11 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
       global_num_children += cmesh->num_trees_per_eclass[tree_class] * children_per_tree1 * children_per_tree2;
     }
   }
-  t8_global_productionf("global_num_children: %li \n", global_num_children);
   T8_ASSERT (children_per_tree1 != 0);
   T8_ASSERT (children_per_tree2 != 0);
-  t8_productionf("children_per_tree1: %li \n", children_per_tree1);
-  t8_productionf("children_per_tree2: %li \n", children_per_tree2);
   
-  t8_productionf("cmesh->mpirank: %i \n", cmesh->mpirank);
+  /* Zero processes */
   if (cmesh->mpirank == 0) {
-    t8_global_productionf("Zero processes. \n");
     first_global_child = 0;
     if (child_in_tree_begin != NULL) {
       *child_in_tree_begin = 0;
@@ -1686,28 +1682,21 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
      * (total_num_children * p) / P
      * We cast to long double and double first to prevent integer overflow.
      */
-    t8_productionf("process %i of %i many processes. \n", cmesh->mpirank, cmesh->mpisize);
+    t8_debugf("process %i of %i many processes. \n", cmesh->mpirank, cmesh->mpisize);
     first_global_child = ((long double) global_num_children * cmesh->mpirank) / (double) cmesh->mpisize;
-    t8_productionf (" first_global_child: %li \n", first_global_child);
+    t8_debugf (" first_global_child: %li \n", first_global_child);
     // /* Check if processes are large enough*/
     // /* Columns sc_intpow(children_per_tree2, level2) shall be on one process */
     // // int num_elems_col = sc_intpow(children_per_tree2, level2);
 
     int check_first =  first_global_child % children_per_tree2;
-    t8_productionf ("check_first: %li \n", check_first);
     if (check_first != 0){
       first_global_child = first_global_child - check_first;
     }
-    t8_productionf (" first_global_child: %li \n", first_global_child);
   }
-  t8_productionf("cmesh->mpirank: %i , cmesh->mpisize: %i & cmesh->mpisize - 1: %i \n", cmesh->mpirank, cmesh->mpisize, cmesh->mpisize - 1);
   if (cmesh->mpirank != cmesh->mpisize - 1) {
     last_global_child = ((long double) global_num_children * (cmesh->mpirank + 1)) / (double) cmesh->mpisize;
-    t8_productionf ("last_global_child: %li \n", last_global_child);
-    // // int num_elems_col = sc_intpow(children_per_tree2, level2);
-    // // int check_last = last_global_child % num_elems_col;
     int check_last = last_global_child % children_per_tree2;
-    t8_productionf ("check_last: %li \n", check_last);
     if (check_last != 0){
       last_global_child -= check_last;
     }
@@ -1736,7 +1725,7 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   t8_productionf("children_per_tree2: %li \n", children_per_tree2);
   if (child_in_tree_end != NULL) {
     if (*last_local_tree > 0) {
-      //PASST DAS SO??
+      //PASST DAS SO?? @Lukas
       *child_in_tree_end = last_global_child - *last_local_tree * (children_per_tree1 * children_per_tree2); // *children_per_tree1
     }
     else {

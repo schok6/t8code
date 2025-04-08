@@ -35,11 +35,6 @@
 
 T8_EXTERN_C_BEGIN ();
 
-/* TODO: document */
-
-//Wieder löschen
-void
-t8_forest_kontrolle (t8_forest_t forest);
 
 /** Check whether or not \a elements contains a (in)complete family and 
  *  return the size of it or zero if no family is considered.

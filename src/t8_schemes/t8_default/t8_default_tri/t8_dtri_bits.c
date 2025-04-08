@@ -1445,7 +1445,6 @@ t8_dtri_linear_id (const t8_dtri_t *t, int level)
     exponent += T8_DTRI_DIM; /* multiply with 4 (2d) resp. 8  (3d) */
     type_temp = t8_dtri_cid_type_to_parenttype[cid][type_temp];
   }
-  t8_global_productionf("id: %li", id);
   return id;
 }
 

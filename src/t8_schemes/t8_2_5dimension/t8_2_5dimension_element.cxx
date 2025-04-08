@@ -34,25 +34,25 @@
 /* This functions are used by other element functions and we thus need to
  * declare it up here */
 
-/** This function assumes an sc_mempool_t as context.
- * It is suitable as the 2_5D_elem_new callback in \ref t8_eclass_scheme_t???.
- * We assume that the mempool has been created with the correct element size.
- * \param [in,out] scheme_context   An element is allocated in this sc_mempool_t.
- * \param [in]     length       Non-negative number of elements to allocate.
- * \param [in,out] elem         Array of correct size whose members are filled.
- */
-static void
-t8_2_5D_mempool_alloc (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
+// /** This function assumes an sc_mempool_t as context.
+//  * It is suitable as the 2_5D_elem_new callback in \ref t8_eclass_scheme_t???.
+//  * We assume that the mempool has been created with the correct element size.
+//  * \param [in,out] scheme_context   An element is allocated in this sc_mempool_t.
+//  * \param [in]     length       Non-negative number of elements to allocate.
+//  * \param [in,out] elem         Array of correct size whose members are filled.
+//  */
+// static void
+// t8_2_5D_mempool_alloc (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
 
-/** This class independent function assumes an sc_mempool_t as context.
- * It is suitable as the 2_5D_elem_destroy callback in \ref t8_eclass_scheme_t???.
- * We assume that the mempool has been created with the correct element size.
- * \param [in,out] scheme_context   An element is returned to this sc_mempool_t.
- * \param [in]     length       Non-negative number of elements to destroy.
- * \param [in,out] elem         Array whose members are returned to the mempool.
- */
-static void
-t8_2_5D_mempool_free (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
+// /** This class independent function assumes an sc_mempool_t as context.
+//  * It is suitable as the 2_5D_elem_destroy callback in \ref t8_eclass_scheme_t???.
+//  * We assume that the mempool has been created with the correct element size.
+//  * \param [in,out] scheme_context   An element is returned to this sc_mempool_t.
+//  * \param [in]     length       Non-negative number of elements to destroy.
+//  * \param [in,out] elem         Array whose members are returned to the mempool.
+//  */
+// static void
+// t8_2_5D_mempool_free (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
 
 t8_2_5dimension_scheme::t8_2_5dimension_scheme (const t8_scheme *scheme, t8_eclass eclass1, t8_eclass eclass2)
   : scheme{scheme}
@@ -78,9 +78,7 @@ t8_2_5dimension_scheme::~t8_2_5dimension_scheme ()
   T8_ASSERT (scheme_context != NULL);
   SC_ASSERT (((sc_mempool_t *) scheme_context)->elem_count == 0);
   sc_mempool_destroy ((sc_mempool_t *) scheme_context);
-  t8_global_productionf("scheme->rc: %i", scheme->rc.refcount);
   scheme->unref ();
-  // scheme->unref ();
 }
 
 size_t
@@ -186,8 +184,7 @@ t8_2_5dimension_scheme::element_get_parent (const t8_element_t *elem, t8_element
   t8_2_5D_t *parent2_5D = (t8_2_5D_t *) parent;
   /* return parent of eclass1*/
   if (dir == 1) {
-    scheme->element_get_parent (eclass1, el->elem1, parent2_5D->elem1);
-    scheme->element_copy (eclass2, el->elem2, parent2_5D->elem2);
+    SC_ABORT ("For now implemented in element_get_parent_2_5D.\n");
 }
   /* return parent of eclass2*/
   else if (dir == 2) {
@@ -276,6 +273,7 @@ t8_2_5dimension_scheme::element_get_sibling (const t8_element_t *elem, int sibid
     scheme->element_copy (eclass2, el->elem2, sib->elem2);
     /*TODO
     * iterativ auch weitere Elemente der Säule in Sibling bezüglich eclass1 verfeinern
+    * !!! sonst wird Säulenstruktur zerstört
     */
   } 
   else if (dir == 2) {
@@ -370,16 +368,18 @@ t8_2_5dimension_scheme::element_get_child (const t8_element_t *elem, int childid
     scheme->element_copy (eclass2, el->elem2, c->elem2);
     /*TODO
     * iterativ auch weitere Elemente der Säule in Kinder bezüglich eclass1 verfeinern
+    * !!! sonst wird Säulenstruktur zerstört
+    * 
+    * EXTRA CASE
+    * childid possible between 0 and element_get_num_children(elem, 1) (=max number of possible children) 
+    * SC_ABORT ("The function element_get_child is not uniquely defined for eclass1 so far.\n");
     */
   }
   else if (dir == 2) {
     scheme->element_copy (eclass1, el->elem1, c->elem1);
     scheme->element_get_child (eclass2, el->elem2, childid, c->elem2);
   }
-  /*EXTRA CASE
-  * childid possible between 0 and element_get_num_children(elem, 1) (=max number of possible children) 
-  * SC_ABORT ("The function element_get_child is not uniquely defined for eclass1.\n");
-  */
+
   else {
     SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
   }
@@ -388,7 +388,7 @@ t8_2_5dimension_scheme::element_get_child (const t8_element_t *elem, int childid
 void
 t8_2_5dimension_scheme::element_get_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir) const
 {
-  // //*c[] = *[t8_element_t, t8_element_t, t8_element_t, ...]
+  //*c[] = *[t8_element_t, t8_element_t, t8_element_t, ...]
   T8_ASSERT (element_is_valid (elem));
   #ifdef T8_ENABLE_DEBUG
   {
@@ -413,7 +413,6 @@ t8_2_5dimension_scheme::element_get_children (const t8_element_t *elem, int leng
     
     //only refined in dir1
     if (level2 == 0){
-
       for (int i = 0; i < num_children1; i++){
         scheme->element_copy (eclass1, c1[i], children[i]->elem1);
         scheme->element_copy (eclass2, el->elem2, children[i]->elem2);
@@ -426,7 +425,6 @@ t8_2_5dimension_scheme::element_get_children (const t8_element_t *elem, int leng
       for (int i = 0; i < num_children1; i++){
         scheme->element_copy (eclass1, c1[i], children[i * num_elems_per_column]->elem1);
         scheme->element_copy (eclass2, el->elem2, children[i * num_elems_per_column]->elem2);
-        t8_global_productionf ("i: %i", i);
         for (int j = 1; j < num_elems_per_column; j++){
           int pos = i * num_elems_per_column + j;
           scheme->element_copy (eclass1, c1[i], children[pos]->elem1);
@@ -495,7 +493,6 @@ t8_2_5dimension_scheme::elements_are_family (t8_element_t *const *fam, int dir) 
   int is_family;
 
   if (dir == 1) {
-    t8_global_productionf("CASE elements_are_family direction1");
     #ifdef T8_ENABLE_DEBUG
     {
       int i;
@@ -510,13 +507,11 @@ t8_2_5dimension_scheme::elements_are_family (t8_element_t *const *fam, int dir) 
     *-> horizontal refinement only done after uniform forest was constructed and before vertical refinement
     */
     int num_siblings1 = scheme->element_get_num_siblings (eclass1, f0->elem1);
-    t8_global_productionf ("num_siblings1: %i", num_siblings1);
 
     int level2_elem0 = scheme->element_get_level (eclass2, f0->elem2);
     int num_elems_dir2 = scheme->count_leaves_from_root (eclass2, level2_elem0);
 
-    t8_global_productionf ("num_elems_dir2: %i", num_elems_dir2);
-    //holds due to assumption thatin direction 2 uniform refined
+    //holds due to assumption that in direction 2 uniform refined
     int elems_in_family = num_siblings1 * num_elems_dir2;
 
     int level1_elem0 = scheme->element_get_level (eclass1, f0->elem1);
@@ -587,13 +582,12 @@ t8_2_5dimension_scheme::elements_are_family (t8_element_t *const *fam, int dir) 
     int level2_elem1 = scheme->element_get_level (eclass2, f1->elem2);
     std::vector<int> levels_elem1 = {level1_elem1, level2_elem1};
     int lin_id_elem2 = element_get_linear_id (fam[1], levels_elem1);
-    //+1 as this is dependent direction
+    //+1 as this is dependent direction and thus elements need to have a consecutive linear id
     if (lin_id_elem1 + 1 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0){ 
       t8_element **fam2;
       fam2 = T8_ALLOC (t8_element_t *, num_siblings2); 
       int is_equal = 0;
       for (int i = 0; i < num_siblings2; i++){
-        t8_global_productionf ("i: %i", i);
         const t8_2_5D_t *elem = (const t8_2_5D_t *) fam[i];
         fam2[i] = elem->elem2;
         if (i < num_siblings2 - 1){
@@ -704,13 +698,6 @@ t8_2_5dimension_scheme::element_get_last_descendant_face (const t8_element_t *el
   SC_ABORT ("[FACE] This function is not implemented yet. & Waiting for scheme interface.\n");
 }
 
-// void
-// t8_2_5dimension_scheme::element_boundary (const t8_element_t *elem, int min_dim, int length,
-//                                                t8_element_t **boundary) const
-// {
-//   SC_ABORT ("[FACE] This function is not implemented yet.\n");
-// }
-
 int
 t8_2_5dimension_scheme::element_is_root_boundary (const t8_element_t *elem, int face) const
 {
@@ -752,12 +739,9 @@ t8_2_5dimension_scheme::element_set_linear_id (t8_element_t *elem, std::vector<i
   std::vector<int> level2 = {levels[1]};
 
   int num_elems_per_column = scheme->count_leaves_from_root(eclass2, levels[1]);
-  t8_global_productionf ("num_elems_per_column: %i\n", num_elems_per_column);
   id_scheme = id / num_elems_per_column;
-  t8_global_productionf ("id for eclass1: %li\n", id_scheme);
   scheme->element_set_linear_id (eclass1, el->elem1, level1, id_scheme);
   id_scheme = id % num_elems_per_column;
-  t8_global_productionf ("id for eclass2: %li\n", id_scheme);
   scheme->element_set_linear_id (eclass2, el->elem2, level2, id_scheme);
 }
 
@@ -800,7 +784,6 @@ t8_2_5dimension_scheme::element_get_last_descendant (const t8_element_t *elem, t
   std::vector<int> level2 = {levels[1]};
 
   int level1_max = get_maxlevel(); 
-  t8_productionf("level1_max: %i", level1_max);
   int level1 = scheme->element_get_level (eclass1, el->elem1);
   if (level1_max == level1){
     scheme->element_copy (eclass1, el->elem1, d->elem1);
@@ -808,7 +791,6 @@ t8_2_5dimension_scheme::element_get_last_descendant (const t8_element_t *elem, t
   else{
     scheme->element_copy (eclass1, el->elem1, d->elem1);
     while (level1 < level1_max){
-      t8_productionf("level1: %i", level1);
       scheme->element_get_child(eclass1, d->elem1, 0, d->elem1);
       level1 += 1;
     }
@@ -821,14 +803,13 @@ void
 t8_2_5dimension_scheme::element_construct_successor (const t8_element_t *t, t8_element_t *s, [[maybe_unused]] int dir) const
 {
   T8_ASSERT (element_is_valid (t));
-  t8_global_productionf ("Test Succ");
   T8_ASSERT (element_is_valid (s));
 
   const t8_2_5D_t *tel = (const t8_2_5D_t *) t;
   t8_2_5D_t *sel = (t8_2_5D_t *) s;
 
-  int level1 = element_get_level (t, 1); //scheme->element_get_level (eclass1, tel->elem1);
-  int level2 = element_get_level (t, 2);
+  int level1 = scheme->element_get_level (eclass1, tel->elem1);
+  int level2 = scheme->element_get_level (eclass2, tel->elem2);
 
   std::vector<int> levels = {level1, level2};
   t8_linearidx_t lin_id = element_get_linear_id (t, levels);
@@ -868,7 +849,6 @@ t8_2_5dimension_scheme::element_get_reference_coords (const t8_element_t *elem, 
     scheme->element_get_reference_coords (eclass1, el->elem1, (ref_coords + (coord * (dim1 + dim2))), num_coords, (out_coords + (coord * (dim1 + dim2))));
     scheme->element_get_reference_coords (eclass2, el->elem2, ref_coords + (coord * (dim1 + dim2) + dim1), num_coords, out_coords + (coord * (dim1 + dim2) + dim1));
   }
-  size_t size = (dim1 + dim2)*num_coords;
 }
 
 t8_gloidx_t
@@ -1000,18 +980,6 @@ t8_2_5dimension_scheme::element_deinit (int length, t8_element_t *elem) const
     }
 }
 
-static void
-t8_2_5D_mempool_free (sc_mempool_t *scheme_context, int length, t8_element_t **elem)
-{
-  T8_ASSERT (scheme_context != NULL);
-  T8_ASSERT (0 <= length);
-  T8_ASSERT (elem != NULL);
-
-  for (int i = 0; i < length; ++i) {
-    sc_mempool_free (scheme_context, elem[i]);
-  }
-}
-
 void
 t8_2_5dimension_scheme::element_destroy (int length, t8_element_t **elem) const
 {
@@ -1032,7 +1000,7 @@ t8_2_5dimension_scheme::set_to_root (t8_element_t *elem) const
   scheme->set_to_root (eclass2, el->elem2);
 }
 
-int //besser: void
+int //besser: void -> needed for debugging
 t8_2_5dimension_scheme::element_get_variable (const t8_element_t *elem, int var, int dir) const
 {
   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;

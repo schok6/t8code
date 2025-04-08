@@ -499,7 +499,6 @@ t8_forest_vtk_write_cell_data (t8_forest_t forest, FILE *vtufile, const char *da
                                const char *component_string, const int max_columns,
                                t8_forest_vtk_cell_data_kernel kernel, const int write_ghosts, void *udata)
 {
-  t8_global_productionf ("t8_forest_vtk_write_cell_data \n ");
   int freturn;
   int countcols;
   t8_tree_t tree;
@@ -641,16 +640,12 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
 
   /* Write the connectivity information.
    * Thus for each tree we write the indices of its corner vertices. */
-  t8_global_productionf ("-------------------. \n");
-  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 1");
-  t8_global_productionf ("-------------------. \n");
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "connectivity", T8_VTK_LOCIDX, "", 8,
                                            t8_forest_vtk_cells_connectivity_kernel, write_ghosts, NULL);
   
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
-  t8_global_productionf ("Done with writing the connectivity \n");
   /* Done with writing the connectivity */
 
   /* Write the offsets, that is for each tree the index of the first entry
@@ -659,30 +654,22 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
    * For example if the trees are a square and a triangle, the offsets would
    * be 4 and 7, since indices 0,1,2,3 refer to the vertices of the square
    * and indices 4,5,6 to the indices of the triangle. */
-  t8_global_productionf ("-------------------. \n");
-  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 2");
-  t8_global_productionf ("-------------------. \n");
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "offsets", T8_VTK_LOCIDX, "", 8,
                                            t8_forest_vtk_cells_offset_kernel, write_ghosts, NULL);
   
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
-  t8_global_productionf ("Done with writing the offset \n");
   /* Done with writing the offsets */
 
   /* Write the element types. The type specifies the element class, thus
    * square/triangle/tet etc. */
-  t8_global_productionf ("-------------------. \n");
-  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 3");
-  t8_global_productionf ("-------------------. \n");
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "types", "Int32", "", 8, t8_forest_vtk_cells_type_kernel,
                                            write_ghosts, NULL);
   
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
-  t8_global_productionf ("Done with writing the types \n");
   /* Done with writing the types */
   freturn = fprintf (vtufile, "      </Cells>\n");
   if (freturn <= 0) {
@@ -697,32 +684,24 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
   if (write_treeid) {
     /* Write the tree ids. */
-    t8_global_productionf ("Write tree ids \n");
-    t8_global_productionf ("-------------------. \n");
-    t8_global_productionf ("t8_forest_vtk_write_cell_data -- write_cells -- 4");
-    t8_global_productionf ("-------------------. \n");
     freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "treeid", T8_VTK_GLOIDX, "", 8,
                                              t8_forest_vtk_cells_treeid_kernel, write_ghosts, NULL);
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
-    t8_global_productionf ("Done with writing the tree ids \n");
     /* Done with writing the tree ids */
   }
   if (write_mpirank) {
     /* Write the mpiranks. */
-    t8_global_productionf ("Write mpiranks \n");
     freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "mpirank", "Int32", "", 8,
                                              t8_forest_vtk_cells_rank_kernel, write_ghosts, NULL);
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
-    t8_global_productionf ("Done with writing the mpiranks \n");
     /* Done with writing the mpiranks */
   }
   if (write_level) {
     /* Write the element refinement levels. */
-    t8_global_productionf ("Write element refinement levels \n");
     if (forest->set_type == 1){
       freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level", "Int32", "", 8, t8_forest_vtk_cells_level_kernel,
                                              write_ghosts, NULL);
@@ -738,7 +717,6 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
-    t8_global_productionf ("Done with writing the levels \n");
     /* Done with writing the levels */
   }
 
@@ -755,7 +733,6 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
-    t8_global_productionf ("Done with writing the element ids \n");
     /* Done with writing the element ids */
   }
   /* Write the user defined data fields per element */
@@ -785,7 +762,6 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
 
   /* Function completed successfully */
-  t8_global_productionf ("Success: return 1 \n");
   return 1;
 t8_forest_vtk_cell_failure:
   /* Something went wrong */
@@ -801,7 +777,6 @@ static int
 t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_ghosts, const int num_data,
                             t8_vtk_data_field_t *data)
 {
-  t8_global_productionf ("t8_forest_vtk_write_points \n");
   int freturn;
   int sreturn;
   int idata;
@@ -815,9 +790,6 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
   if (freturn <= 0) {
     goto t8_forest_vtk_cell_failure;
   }
-  t8_global_productionf ("-------------------. \n");
-  t8_global_productionf ("t8_forest_vtk_write_cell_data -- write points -- 1");
-  t8_global_productionf ("-------------------. \n");
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "Position", T8_VTK_FLOAT_NAME, "NumberOfComponents=\"3\"",
                                            8, t8_forest_vtk_cells_vertices_kernel, write_ghosts, NULL);
   
@@ -828,7 +800,6 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
   if (freturn <= 0) {
     goto t8_forest_vtk_cell_failure;
   }
-  t8_global_productionf ("Done writing vertex coordinates \n");
   /* Done writing vertex coordinates */
 
   /* Write the user defined data fields per element */
@@ -842,9 +813,6 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
           /* The output was truncated */
           t8_debugf ("Warning: Truncated vtk point data description to '%s'\n", description);
         }
-        t8_global_productionf ("-------------------. \n");
-        t8_global_productionf ("t8_forest_vtk_write_cell_data -- write points -- 2");
-        t8_global_productionf ("-------------------. \n");
         freturn = t8_forest_vtk_write_cell_data (forest, vtufile, description, T8_VTK_FLOAT_NAME, "", 8,
                                                  t8_forest_vtk_vertices_scalar_kernel, write_ghosts, data[idata].data);
       }
@@ -972,7 +940,6 @@ t8_forest_vtk_write_ASCII (t8_forest_t forest, const char *fileprefix, const int
     /* writings points was not successful */
     goto t8_forest_vtk_failure;
   }
-  t8_global_productionf ("Next.");
   /* write the cell data */
   if (!t8_forest_vtk_write_cells (forest, vtufile, write_treeid, write_mpirank, write_level, write_element_id,
                                   write_ghosts, num_data, data)) {                                

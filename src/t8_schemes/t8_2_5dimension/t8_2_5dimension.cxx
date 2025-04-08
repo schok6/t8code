@@ -49,8 +49,6 @@ t8_scheme_new_2_5dimension (const t8_scheme *scheme)
   builder.add_eclass_scheme<t8_default_scheme_tet> (); //NULL
   builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_TRIANGLE, T8_ECLASS_LINE);
   builder.add_eclass_scheme<t8_default_scheme_pyramid> (); //NULL
-
-  t8_global_productionf("scheme->rc: %i", scheme->rc.refcount);
   
   return builder.build_scheme ();
 }

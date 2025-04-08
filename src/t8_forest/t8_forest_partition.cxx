@@ -137,31 +137,15 @@ t8_forest_partition_test_desc (t8_forest_t forest)
   /* Get the first descendant id of this rank */
   first_desc_id = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank);
   scheme->element_new (tree_class, 1, &elem_desc);
-  t8_productionf ("t8_forest_get_tree_element_count (tree): %i \n", t8_forest_get_tree_element_count (tree));
   for (ielem = 0; ielem < t8_forest_get_tree_element_count (tree); ielem++) {
-    t8_productionf ("---------------------------\n");
-    t8_productionf ("ielem: %i \n", ielem);
     /* Iterate over elems, for each one create the first descendant and check
      * its linear id versus the linear id of first_desc. */
     const t8_element_t *element = t8_element_array_index_locidx (&tree->elements, ielem);
-
-    //Print coordinates
-    // t8_productionf("element coordinates:");
-    // ts->t8_element_debug_print (element);
-
-    // ts->element_get_variable (tree_class, element, 0, 0);
-    // ts->element_get_variable (tree_class, element, 2);
-
-    // int x1_elem = ts->element_get_variable (tree_class, element, 1, 1);
-    // int y1_elem = ts->element_get_variable (tree_class, element, 2, 1);
-    // int x2_elem = ts->element_get_variable (tree_class, element, 1, 2);
-    // t8_global_productionf ("elem coordinates: (%i,%i) x %i\n", x1_elem, y1_elem, x2_elem);
 
     if (forest->set_type == 1) {
       std::vector<int> maxlevels = {forest->maxlevel};
       scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
       level = scheme->element_get_level (tree_class, elem_desc);
-      t8_global_productionf ("level: %i\n", level);
       T8_ASSERT (level == scheme->element_get_level (tree_class, elem_desc)); //wozu braucht man das?
       T8_ASSERT (level == forest->maxlevel);
       std::vector<int> levels = {level};
@@ -179,8 +163,6 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
       level1 = scheme->element_get_level (tree_class, elem_desc, 1);
       level2 = scheme->element_get_level (tree_class, elem_desc, 2);
-      // t8_global_productionf ("level1: %i\n", level1);
-      // t8_global_productionf ("level2: %i\n", level2);
       T8_ASSERT (level1 == scheme->element_get_level (tree_class, elem_desc, 1)); //wozu braucht man das?
       T8_ASSERT (level2 == scheme->element_get_level (tree_class, elem_desc, 2)); //wozu braucht man das?
       T8_ASSERT (level1 == forest->maxlevel);
@@ -390,11 +372,7 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
       }
     }
     else {
-      t8_global_productionf ("t8_forest_get_element_in_tree (forest, 0, 0) \n");
       first_element = t8_forest_get_element_in_tree (forest, 0, 0);
-      // t8_productionf ("-------------------- FIRST_ELEMENT");
-      // ts = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, 0));
-      // ts->t8_element_debug_print (first_element);
     }
     /* This process is not empty, the element was found, so we compute its first descendant. */
     if (first_element != NULL) {
@@ -403,25 +381,18 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, 0);
       scheme->element_new (tree_class, 1, &first_desc);
       if (forest->set_type == 1) {
-        t8_global_productionf ("forest->set_type == 1 \n");
         std::vector<int> maxlevels = {forest->maxlevel};
         scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);
-        // t8_productionf ("-------------------- FIRST_DESCENDANT");
-        // ts->t8_element_debug_print (first_desc);
         /* Compute the linear id of the descendant. */
         local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, maxlevels);
 
       }
       else if (forest->set_type == 2) {
-        t8_global_productionf ("forest->set_type == 2 \n");
         std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
         scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);
-        // t8_productionf ("-------------------- FIRST_DESCENDANT");
-        // ts->t8_element_debug_print (first_desc);
         /* Compute the linear id of the descendant. */
         local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, maxlevels);
       }
-      t8_productionf("local_first_desc: %li \n", local_first_desc);
       scheme->element_destroy (tree_class, 1, &first_desc);      
     }
   }
@@ -438,7 +409,6 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
 #endif
 #endif
   t8_shmem_array_allgather (&local_first_desc, 1, T8_MPI_LINEARIDX, forest->global_first_desc, 1, T8_MPI_LINEARIDX);
-  t8_global_productionf("*(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank): %li \n", *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank));
 #if T8_ENABLE_DEBUG
   {
     int iproc;
@@ -519,20 +489,6 @@ t8_forest_partition_create_tree_offsets (t8_forest_t forest)
     /* Communicate the new tree offsets */
     t8_shmem_array_allgather (&tree_offset, 1, T8_MPI_GLOIDX, forest->tree_offsets, 1, T8_MPI_GLOIDX);
   }
-
-    //   //AB HIER ALLES WIEDER LÖSCHEN -> falscher x Wert für x
-      // t8_global_productionf("Kontrolle!!!!!!!!!!!.\n");
-
-      // t8_eclass_scheme_c *ts_test = t8_forest_get_eclass_scheme (forest, t8_forest_get_tree_class (forest, 0));
-      // const t8_element_t *element_test  = NULL;
-      // t8_tree_t tree_test = t8_forest_get_tree (forest, 0);
-
-      // t8_global_productionf("tree1->elements_offset: %i \n", tree_test->elements_offset);
-
-      // element_test = t8_forest_get_element (forest, tree_test->elements_offset + 0, NULL); //HIER ist der Fehler
-      // t8_global_productionf("element1->x: %li \n", ts_test->element_get_variable (const_cast<t8_element*>(element_test), 1, 1));
-      // t8_global_productionf("element1->y: %li \n", ts_test->element_get_variable (const_cast<t8_element*>(element_test), 2, 1));
-    // //BIS HIER
 }
 
 /* Calculate the new element_offset for forest from

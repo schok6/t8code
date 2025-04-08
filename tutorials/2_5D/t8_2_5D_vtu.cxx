@@ -88,10 +88,8 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
       scheme = t8_forest_get_scheme(forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-      t8_global_productionf ("elems_in_tree: %li \n", elems_in_tree);
       element_index_in_tree = elems_in_tree;
       for (element_index = 0; element_index < element_index_in_tree; element_index++) {
-        t8_global_productionf ("element_index: %li \n", element_index);
         /* Get a pointer to the element */
         element = t8_forest_get_element (forest, tree->elements_offset + element_index, &itree);
 
@@ -99,11 +97,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
 
         sfc_index[element_index + elems_considered] = (scheme->element_get_linear_id (tree_class, element, levels));
       }
-      t8_global_productionf ("element_index: %li \n", element_index);
       elems_considered += elems_in_tree;
-      t8_global_productionf ("element_index: %li \n", element_index);
-      t8_global_productionf ("num_elements: %li \n", num_elements);
-      t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
     }
   }
 

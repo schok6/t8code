@@ -26,25 +26,25 @@
 /* We want to export the whole implementation to be callable from "C" */
 T8_EXTERN_C_BEGIN ();
 
-/** This class independent function assumes an sc_mempool_t as context.
- * It is suitable as the elem_new callback in \ref t8_eclass_scheme_c.
- * We assume that the mempool has been created with the correct element size.
- * \param [in,out] ts_context   An element is allocated in this sc_mempool_t.
- * \param [in]     length       Non-negative number of elements to allocate.
- * \param [in,out] elem         Array of correct size whose members are filled.
- */
-static void
-t8_default_mempool_alloc (sc_mempool_t *ts_context, int length, t8_element_t **elem);
+// /** This class independent function assumes an sc_mempool_t as context.
+//  * It is suitable as the elem_new callback in \ref t8_eclass_scheme_c.
+//  * We assume that the mempool has been created with the correct element size.
+//  * \param [in,out] ts_context   An element is allocated in this sc_mempool_t.
+//  * \param [in]     length       Non-negative number of elements to allocate.
+//  * \param [in,out] elem         Array of correct size whose members are filled.
+//  */
+// static void
+// t8_default_mempool_alloc (sc_mempool_t *ts_context, int length, t8_element_t **elem);
 
-/** This class independent function assumes an sc_mempool_t as context.
- * It is suitable as the elem_destroy callback in \ref t8_eclass_scheme_c.
- * We assume that the mempool has been created with the correct element size.
- * \param [in,out] ts_context   An element is returned to this sc_mempool_t.
- * \param [in]     length       Non-negative number of elements to destroy.
- * \param [in,out] elem         Array whose members are returned to the mempool.
- */
-static void
-t8_default_mempool_free (sc_mempool_t *ts_context, int length, t8_element_t **elem);
+// /** This class independent function assumes an sc_mempool_t as context.
+//  * It is suitable as the elem_destroy callback in \ref t8_eclass_scheme_c.
+//  * We assume that the mempool has been created with the correct element size.
+//  * \param [in,out] ts_context   An element is returned to this sc_mempool_t.
+//  * \param [in]     length       Non-negative number of elements to destroy.
+//  * \param [in,out] elem         Array whose members are returned to the mempool.
+//  */
+// static void
+// t8_default_mempool_free (sc_mempool_t *ts_context, int length, t8_element_t **elem);
 
 /* Destructor */
 t8_default_scheme_common_c::~t8_default_scheme_common_c ()

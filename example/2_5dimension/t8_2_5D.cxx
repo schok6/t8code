@@ -517,59 +517,47 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, struct MESSy_data_per_element *d
       const t8_scheme *scheme = t8_forest_get_scheme(forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
-      t8_global_productionf ("elems_in_tree: %li \n", elems_in_tree);
       element_index_in_tree = elems_in_tree;
       int level2_fixed = 21; 
       int shift = 1;
       int shift_check = 0;
       int id_prev = -1;
       for (element_index = 0; element_index < element_index_in_tree; element_index++, column_check++) {
-        t8_global_productionf ("element_index: %li \n", element_index);
         /* Get a pointer to the element */
         element = t8_forest_get_element (forest, tree->elements_offset + element_index, &itree);
         std::vector<int> levels = {level1, level2_fixed};
         lin_id = scheme->element_get_linear_id (tree_class, element, levels);
 
         int column = lin_id / pow(2, level2_fixed);
-        t8_global_productionf ("column: %li \n", column);
 
         int pos = (itree * pow(2,2*level1)) + column;
-        t8_global_productionf ("data->elems_per_column[column]: %li \n", data->elems_per_column[pos]);
 
-          float corr = lin_id / pow(2,level2_fixed);
-          int id = 90 * corr + (itree * pow(2,2*level1) * 90);
+        float corr = lin_id / pow(2,level2_fixed);
+        int id = 90 * corr + (itree * pow(2,2*level1) * 90);        
 
-          t8_global_productionf ("corr: %f \n", corr);
-          t8_global_productionf ("id: %li \n", id);          
-
-          if (id % 90 == 0){
+        if (id % 90 == 0){
+          height[element_index + elems_considered] = data->height[id];
+          temperature[element_index + elems_considered] = data->temperature[id];
+        }
+        else if (data->height[id] != height[element_index + elems_considered - 1] && id_prev < id){
+          height[element_index + elems_considered] = data->height[id];
+          temperature[element_index + elems_considered] = data->temperature[id];
+        }
+        else {
+          id = id_prev + 1;
+          if (id < (pos+1)*90){
             height[element_index + elems_considered] = data->height[id];
             temperature[element_index + elems_considered] = data->temperature[id];
           }
-          else if (data->height[id] != height[element_index + elems_considered - 1] && id_prev < id){
-            height[element_index + elems_considered] = data->height[id];
-            temperature[element_index + elems_considered] = data->temperature[id];
-          }
-          else {
-            id = id_prev + 1;
-            if (id < (pos+1)*90){
-              height[element_index + elems_considered] = data->height[id];
-              temperature[element_index + elems_considered] = data->temperature[id];
-            }
-            else{
-              height[element_index + elems_considered] = 0;
-              temperature[element_index + elems_considered] = 100;
-            } 
-          }
-          t8_global_productionf("height[element_index + elems_considered]: %f", height[element_index + elems_considered]);
+          else{
+            height[element_index + elems_considered] = 0;
+            temperature[element_index + elems_considered] = 100;
+          } 
+        }
 
-          id_prev = id;
+        id_prev = id;
       }
-      t8_global_productionf ("element_index: %li \n", element_index);
       elems_considered += elems_in_tree;
-      t8_global_productionf ("element_index: %li \n", element_index);
-      t8_global_productionf ("num_elements: %li \n", num_elements);
-      t8_global_productionf ("element_index_in_tree: %li \n", element_index_in_tree);
     }
   }
   
@@ -580,8 +568,6 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, struct MESSy_data_per_element *d
     for (int i = 0; i < pow(2,2*level1)*num_local_trees; i++){
       height_help[i] = data->height[(i+1)*90-1];
       temperature_help[i] = data->temperature[(i+1)*90-1];
-      t8_global_productionf("height_help[%i]: %f \n", i, height_help[i]);
-      t8_global_productionf("temperature_help[%i]: %f \n", i, temperature_help[i]);
     }
     int considered_elems_column = 0;
     for (int ielem = 0; ielem < num_elements; ++ielem) {

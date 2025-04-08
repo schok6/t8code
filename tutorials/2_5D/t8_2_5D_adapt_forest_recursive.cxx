@@ -266,7 +266,8 @@ t8_2_5D_adapt_forest_vertical (t8_forest_t forest)
 
   struct t8_2_5D_adapt_data adapt_data = {
     { 0.375, 0.0, 1.0 }, /* Midpoints of the sphere. */
-    0.3,             /* Refine if inside this radius. */
+    // 0.3,             /* Refine if inside this radius. */
+    0.2,
     0.4,              /* Coarsen if outside this radius. */
   };
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -323,8 +324,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
   const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 2; 
-  const int level2 = 3; 
+  const int level1 = 1; 
+  const int level2 = 2; 
 
   t8_gloidx_t global_num_elements;
 
@@ -424,11 +425,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_forest_write_vtk (forest, prefix_adapt_horizontal);
   t8_global_productionf (" [2_5D] Wrote adapted horizontal forest to vtu files: %s*\n", prefix_adapt_horizontal);
 
-  t8_global_productionf("----------------");
-  t8_global_productionf("AB HIER");
-  t8_global_productionf("----------------");
-
-    /* Get the global number of elements of adapted forest. */
+  /* Get the global number of elements of adapted forest. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
 
   double *highlight_adapt_horizontal = T8_ALLOC_ZERO (double, global_num_elements);
