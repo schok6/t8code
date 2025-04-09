@@ -318,6 +318,16 @@ class t8_scheme {
                        eclass_schemes[tree_class]);
   };
 
+  /*
+  *TODO
+  */
+  inline void
+  element_get_parent_2_5D (const t8_eclass_t tree_class, const t8_element_t *elem, t8_element_t *p[]) const
+  {
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_parent_2_5D (elem, p); },
+                       eclass_schemes[tree_class]);
+  };
+
   /** Compute the number of siblings of an element. That is the number of 
    * Children of its parent.
    * \param [in] tree_class    The eclass of the current tree.

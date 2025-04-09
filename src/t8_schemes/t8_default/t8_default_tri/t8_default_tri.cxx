@@ -437,6 +437,7 @@ t8_default_scheme_tri::element_get_first_descendant (const t8_element_t *elem, t
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
+  t8_global_productionf ("levels[0]: %i", levels[0]);
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
   t8_dtri_first_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, levels[0]);
 }

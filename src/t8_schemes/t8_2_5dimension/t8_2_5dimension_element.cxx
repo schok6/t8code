@@ -34,26 +34,6 @@
 /* This functions are used by other element functions and we thus need to
  * declare it up here */
 
-// /** This function assumes an sc_mempool_t as context.
-//  * It is suitable as the 2_5D_elem_new callback in \ref t8_eclass_scheme_t???.
-//  * We assume that the mempool has been created with the correct element size.
-//  * \param [in,out] scheme_context   An element is allocated in this sc_mempool_t.
-//  * \param [in]     length       Non-negative number of elements to allocate.
-//  * \param [in,out] elem         Array of correct size whose members are filled.
-//  */
-// static void
-// t8_2_5D_mempool_alloc (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
-
-// /** This class independent function assumes an sc_mempool_t as context.
-//  * It is suitable as the 2_5D_elem_destroy callback in \ref t8_eclass_scheme_t???.
-//  * We assume that the mempool has been created with the correct element size.
-//  * \param [in,out] scheme_context   An element is returned to this sc_mempool_t.
-//  * \param [in]     length       Non-negative number of elements to destroy.
-//  * \param [in,out] elem         Array whose members are returned to the mempool.
-//  */
-// static void
-// t8_2_5D_mempool_free (sc_mempool_t *scheme_context, int length, t8_element_t **elem);
-
 t8_2_5dimension_scheme::t8_2_5dimension_scheme (const t8_scheme *scheme, t8_eclass eclass1, t8_eclass eclass2)
   : scheme{scheme}
   , eclass1{eclass1}
@@ -111,7 +91,7 @@ t8_2_5dimension_scheme::refines_irregular (void) const
 int
 t8_2_5dimension_scheme::get_maxlevel (void) const
 {
-  return 21;
+  return 5; //21;
 }
 
 int
@@ -205,10 +185,14 @@ t8_2_5dimension_scheme::element_get_parent_2_5D (const t8_element_t *elem, t8_el
 
   const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
 
+  int level2 = scheme->element_get_level (eclass2, el->elem2);
+ 
+  int num_elems_per_column = scheme->count_leaves_from_root (eclass2, level2);  
+
   #ifdef T8_ENABLE_DEBUG
   {
     int i;
-    for (i = 0; i < scheme->element_get_num_children(eclass1, el->elem1, 1); i++) {
+    for (i = 0; i < num_elems_per_column; i++) {
       T8_ASSERT (element_is_valid (p[i]));
     }
   }
@@ -216,15 +200,11 @@ t8_2_5dimension_scheme::element_get_parent_2_5D (const t8_element_t *elem, t8_el
 
   t8_2_5D_t **parent = (t8_2_5D_t **) p;
 
-  int level2 = scheme->element_get_level (eclass2, el->elem2);
- 
-  int num_elems_per_column = scheme->count_leaves_from_root (eclass2, level2);  
-
-  scheme->element_get_parent (eclass1, el->elem1, parent[0]->elem1); 
+  scheme->element_get_parent (eclass1, el->elem1, parent[0]->elem1);
   scheme->element_copy (eclass2, el->elem2, parent[0]->elem2);
 
-  // scheme1->t8_element_debug_print (parent[0]->elem1);
-  // scheme2->t8_element_debug_print(parent[0]->elem2);
+  // scheme->element_debug_print (eclass1, parent[0]->elem1);
+  // scheme->element_debug_print (eclass2, parent[0]->elem2);
 
   for (int i = 1; i < num_elems_per_column; i++){
     scheme->element_get_parent (eclass1, el->elem1, parent[i]->elem1); //muss 4 mal berechnet werden
@@ -407,6 +387,7 @@ t8_2_5dimension_scheme::element_get_children (const t8_element_t *elem, int leng
     t8_element_t **c1 = T8_ALLOC(t8_element_t *, num_children1);
     int num_children2 = scheme->element_get_num_children (eclass2, el->elem2);
     int level2 = scheme->element_get_level (eclass2, el->elem2);
+    int num_elems_per_column = scheme->count_leaves_from_root(eclass2, level2);  
 
     scheme->element_new (eclass1, num_children1, c1);
     scheme->element_get_children (eclass1, el->elem1, num_children1, c1);
@@ -420,7 +401,7 @@ t8_2_5dimension_scheme::element_get_children (const t8_element_t *elem, int leng
     }
     else{
 
-      int num_elems_per_column = scheme->count_leaves_from_root(eclass2, level2);  
+      // int num_elems_per_column = scheme->count_leaves_from_root(eclass2, level2);  
 
       for (int i = 0; i < num_children1; i++){
         scheme->element_copy (eclass1, c1[i], children[i * num_elems_per_column]->elem1);
@@ -436,6 +417,15 @@ t8_2_5dimension_scheme::element_get_children (const t8_element_t *elem, int leng
     scheme->element_destroy (eclass1, num_children1, c1);
 
     T8_FREE(c1);
+
+    //for testing
+    t8_debugf ("... \n");
+    for (int i = 0; i < num_children1 * num_elems_per_column; i++){
+      t8_debugf ("Information child number %i: \n", i);
+      scheme->element_debug_print (eclass1, children[i]->elem1);
+      scheme->element_debug_print (eclass2, children[i]->elem2);
+
+    }
   }
   else if (dir == 2) {
 
@@ -889,10 +879,11 @@ t8_2_5dimension_scheme::element_general_function (const t8_element_t *elem, cons
 bool
 t8_2_5dimension_scheme::element_is_refinable (const t8_element_t *elem) const
 {
-  T8_ASSERT (scheme->element_is_valid (eclass1, elem));
-  T8_ASSERT (scheme->element_is_valid (eclass2, elem));
+  T8_ASSERT (element_is_valid (elem));
 
-  return scheme->element_is_refinable (eclass1, elem) && scheme->element_is_refinable (eclass2, elem);
+  const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
+
+  return scheme->element_is_refinable (eclass1, el->elem1) && scheme->element_is_refinable (eclass2, el->elem2);
 }
 
 #ifdef T8_ENABLE_DEBUG
@@ -970,7 +961,7 @@ t8_2_5dimension_scheme::element_init (int length, t8_element_t *elem) const
     }
 }
 
-void //@TODO Unterschied zu element_destroy
+void
 t8_2_5dimension_scheme::element_deinit (int length, t8_element_t *elem) const
 {
     for (int i = 0; i < length; i++) {

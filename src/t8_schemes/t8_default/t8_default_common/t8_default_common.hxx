@@ -271,6 +271,15 @@ class t8_default_scheme_common: public t8_crtp_operator<TUnderlyingEclassScheme,
     return sc_intpow (2, dim);
   }
 
+  /*
+  *TODO
+  */
+  inline void
+  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
+  {
+    SC_ABORT ("Necessary for 2.5D scheme \n");
+  }
+
   /** Count how many leaf descendants of a given uniform level the root element will produce.
    * \param [in] level A refinement level.
    * \return The value of \ref t8_element_count_leaves if the input element

@@ -44,7 +44,7 @@
 #define T8_DPRISM_CORNERS 6
 
 /** The maximum refinement level allowed for a prism. */
-#define T8_DPRISM_MAXLEVEL 21
+#define T8_DPRISM_MAXLEVEL 5 //21
 
 /** The length of the root prism in integer coordinates. */
 #define T8_DPRISM_ROOT_LEN (1 << (T8_DPRISM_MAXLEVEL))

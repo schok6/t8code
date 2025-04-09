@@ -152,6 +152,15 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
   void
   element_get_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const;
 
+  /*
+  *TODO
+  */
+  inline void
+  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
+  {
+    SC_ABORT ("Necessary for 2.5D scheme \n");
+  }
+
   /** Compute the number of siblings of an element. That is the number of Children of its parent.
    * \param [in] elem The element.
    * \return          The number of siblings of \a element.

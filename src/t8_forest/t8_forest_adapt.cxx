@@ -614,7 +614,17 @@ t8_forest_adapt (t8_forest_t forest)
          *                    -2 if the element should be removed. 
          */
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, tree->eclass, el_considered, scheme,
-                                       is_family, num_elements_to_adapt_callback, elements_from);                         
+                                       is_family, num_elements_to_adapt_callback, elements_from);
+        
+        t8_debugf ("----------------------- \n");
+        t8_debugf ("refine: %i \n", refine);
+        t8_debugf ("tree->eclass: %i \n", tree->eclass);
+  #if T8_ENABLE_DEBUG
+        for (int i=0; i < num_elements_to_adapt_callback; i++){
+          t8_debugf ("Information for element %i \n", i);
+          scheme->element_debug_print (tree->eclass, elements_from[i]);
+        }
+  #endif                         
 
         T8_ASSERT (is_family || refine != -1);
         int level;
@@ -635,6 +645,9 @@ t8_forest_adapt (t8_forest_t forest)
         if (refine == 1) { 
           /* The first element is to be refined */
           if (forest->set_adapt_direction == 1) {
+            /* uniform refined in vertical direction -> number of elements in vertical direction
+            * is known via level of element itself
+            */
             num_children = scheme->element_get_num_children (tree->eclass, elements_from[0], 1);            
           }
           else if (forest->set_adapt_direction == 2) {
@@ -644,7 +657,6 @@ t8_forest_adapt (t8_forest_t forest)
             num_children = scheme->element_get_num_children (tree->eclass,elements_from[0]);
           }
           if (num_children > curr_size_elements) {
-            t8_global_productionf("THIS HAPPENS.\n");
             elements = T8_REALLOC (elements, t8_element_t *, num_children);
             curr_size_elements = num_children;
           }
@@ -714,8 +726,8 @@ t8_forest_adapt (t8_forest_t forest)
             
             // //Print coordinates
             // t8_productionf("elements_from[0] coordinates:");
-            // scheme->t8_element_debug_print (elements_from[0]);
-            // scheme->t8_element_parent_2_5D (elements_from[0], elements);
+            // scheme->element_debug_print (elements_from[0]);
+            scheme->element_get_parent_2_5D (tree->eclass, elements_from[0], elements);
 
           }
           else {

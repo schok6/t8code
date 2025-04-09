@@ -152,6 +152,15 @@ class t8_default_scheme_tri: public t8_default_scheme_common<t8_default_scheme_t
   void
   element_get_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const;
 
+  /*
+  *TODO
+  */
+  inline void
+  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
+  {
+    SC_ABORT ("Necessary for 2.5D scheme \n");
+  }
+
   /** Compute a specific sibling of a given tri element \b elem and store it in \b sibling.
    * \b sibling needs to be an existing element. No memory is allocated by this function.
    * \b elem and \b sibling can point to the same element, then the entries of

@@ -379,6 +379,15 @@ struct t8_standalone_scheme
     T8_ASSERT (element_is_valid (parent));
   }
 
+  /*
+  *TODO
+  */
+  inline void
+  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
+  {
+    SC_ABORT ("Necessary for 2.5D scheme \n");
+  }
+
   /** Compute the number of siblings of an element. That is the number of 
    * elements with the same parent (if available).
    * \param [in] elem The element.
