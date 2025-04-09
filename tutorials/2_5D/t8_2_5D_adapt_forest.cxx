@@ -207,14 +207,14 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_forest_t forest;
 
   /* The prefix for our output files. */
-  const char *prefix_uniform = "t8_2_5D_uniform_forest";
-  const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_highlight";
-  const char *prefix_adapt = "t8_2_5D_adapted_forest";
-  const char prefix_adapt_highlight[BUFSIZ] = "t8_2_5D_adapt_highlight";
+  const char *prefix_uniform = "t8_2_5D_uniform_forest_ONLY";
+  const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_highlight_ONLY";
+  const char *prefix_adapt = "t8_2_5D_adapted_forest_ONLY";
+  const char prefix_adapt_highlight[BUFSIZ] = "t8_2_5D_adapt_highlight_ONLY";
 
   /* The uniform refinement level of the forest. */
   const int level1 = 2;
-  const int level2 = 3;
+  const int level2 = 2;
 
   t8_gloidx_t global_num_elements;
 
@@ -266,7 +266,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
-  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
 
 
 
@@ -291,7 +291,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_forest_write_vtk (forest, prefix_adapt);
   t8_global_productionf (" [2_5D] Wrote adapted forest to vtu files: %s*\n", prefix_adapt);
 
-  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_adapt_highlight);
+  // t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_adapt_highlight);
 
   /*
    * clean-up

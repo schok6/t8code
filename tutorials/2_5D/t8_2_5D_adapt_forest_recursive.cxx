@@ -303,7 +303,7 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
   local_num_elements = t8_forest_get_local_num_elements (forest);
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
-  t8_global_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
+  t8_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
   t8_global_productionf (" [2_5D] Global number of elements:\t%li\n", global_num_elements);
 }
 
@@ -316,16 +316,16 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_forest_t forest;
 
   /* The prefix for our output files. */
-  const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical_forest_2_3";
+  const char *prefix_uniform = "t8_2_5D_uniform_first_horizontal_then_vertical";
   const char prefix_uniform_highlight[BUFSIZ] = "t8_2_5D_uniform_first_horizontal_then_vertical_highlight";
-  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal";
+  const char *prefix_adapt_horizontal = "t8_2_5D_adapted_forest_horizontal_REC";
   const char prefix_adapt_horizontal_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_horizontal_highlight";
-  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical";
+  const char *prefix_adapt_vertical = "t8_2_5D_adapted_forest_vertical_REC";
   const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 1; 
-  const int level2 = 2; 
+  const int level1 = 3; 
+  const int level2 = 3; 
 
   t8_gloidx_t global_num_elements;
 
@@ -353,7 +353,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
    * Build cmesh and uniform forest.
    */
 
-  /* Build a cube cmesh with tet, hex or prism trees. */
+  /* Build a cube cmesh with hex or prism trees. */
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
   cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
