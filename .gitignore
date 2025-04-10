@@ -3,6 +3,7 @@ p4est/
 build-aux/
 build/
 
+.vscode/
 .deps/
 .libs/
 
@@ -23,6 +24,7 @@ Doxyfile
 doxygen/
 
 CMakeCache.txt
+CMakeLists.txt
 CMakeFiles/
 version.txt
 Testing/
