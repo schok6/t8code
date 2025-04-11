@@ -434,22 +434,6 @@ t8_default_scheme_line::element_new (int length, t8_element_t **elem) const
 #endif
 }
 
-int
-t8_default_scheme_line::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  t8_dline_t *el = (t8_dline_t *) elem;
-  // int x = el->x;
-  // t8_global_productionf ("element coordinate line: %i \n", x);
-  if (var == 1) {
-    // t8_global_productionf("el_line->x: %i \n", el->x);
-    return el->x;
-  }
-  else {
-    SC_ABORT ("Line is 1D.\n");
-  }
-  return 0;
-}
-
 void
 t8_default_scheme_line::element_init ([[maybe_unused]] int length, [[maybe_unused]] t8_element_t *elem) const
 {

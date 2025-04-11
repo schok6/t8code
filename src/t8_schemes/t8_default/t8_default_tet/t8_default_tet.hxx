@@ -72,12 +72,6 @@ class t8_default_scheme_tet: public t8_default_scheme_common<t8_default_scheme_t
   void
   element_new (int length, t8_element_t **elem) const;
 
-  /**
-  * TODO
-  */
-  int
-  element_get_variable (const t8_element_t *elem, int var, int dir) const; //@TODO int dir
-
   /** Initialize an array of allocated tet elements.
    * \param [in] length   The number of tet elements to be initialized.
    * \param [in,out] elems On input an array of \b length many allocated elements.

@@ -378,12 +378,6 @@ t8_element_to_string (const t8_scheme_c *scheme, const t8_eclass_t tree_class, c
 }
 #endif
 
-int
-t8_element_get_variable (const t8_scheme_c *scheme, const t8_eclass_t tree_class, const t8_element_t *elem, int var)
-{
-  return scheme->element_get_variable (tree_class, elem, var);
-}
-
 void
 t8_element_new (const t8_scheme_c *scheme, const t8_eclass_t tree_class, const int length, t8_element_t **elems)
 {

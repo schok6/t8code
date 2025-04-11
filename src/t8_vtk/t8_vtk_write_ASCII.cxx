@@ -540,12 +540,6 @@ t8_forest_vtk_write_cell_data (t8_forest_t forest, FILE *vtufile, const char *da
     for (element_index = 0; element_index < elems_in_tree; element_index++) {
       /* Get a pointer to the element */
       element = t8_forest_get_element (forest, tree->elements_offset + element_index, NULL);
-      // if (forest->set_type == 1) {
-      //   ts->t8_element_get_variable (element, 0);
-      // }
-      // else {
-      //   ts->t8_element_get_variable (element, 0);
-      // }
       T8_ASSERT (element != NULL);
       /* Execute the given callback on each element */
       if (!kernel (forest, itree, tree, element_index, element, tree_class, 0, vtufile, &countcols, &data,

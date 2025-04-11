@@ -536,32 +536,6 @@ t8_default_scheme_tri::element_new (int length, t8_element_t **elem) const
 #endif
 }
 
-int
-t8_default_scheme_tri::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  t8_dtri_t *el = (t8_dtri_t *) elem;
-  // if (dir == 0){
-  //   int x = el->x;
-  //   int y = el->y;
-  //   int type = el->type;
-  //   t8_global_productionf ("element coordinates tri: (%i,%i), type: %i \n", x, y, type);
-  // }
-  // else {
-    if (var == 1) {
-      // t8_global_productionf("el_tri->x: %i \n", el->x);
-      return el->x;
-    }
-    else if (var == 2) {
-      // t8_global_productionf("el_tri->y: %i \n", el->y);
-      return el->y;
-    }
-    else {
-      SC_ABORT ("Tri is 2D.\n");
-    }
-  // }
-  return 0;
-}
-
 void
 t8_default_scheme_tri::element_init ([[maybe_unused]] int length, [[maybe_unused]] t8_element_t *elem) const
 {

@@ -616,38 +616,6 @@ t8_default_scheme_hex::element_new (const int length, t8_element_t **elem) const
 #endif
 }
 
-int
-t8_default_scheme_hex::element_get_variable (const t8_element_t *elem, int var, int dir) const //@TODO
-{
-  p8est_quadrant_t *el = (p8est_quadrant_t *) elem;
-  if (dir == 0){
-    int x = el->x;
-    int y = el->y;
-    int z = el->z;
-    t8_global_productionf ("element coordinates hex: (%i,%i,%i) \n", x, y, z);
-  }
-  else if (dir == 1){
-    if (var == 1) {
-      return el->x;
-    }
-    else if(var == 2) {
-      return el->y;
-    }
-    else {
-      SC_ABORT ("Hex is 3D.\n");
-    }
-  }
-  else if (dir==2){
-    if (var == 1) {
-      return el->z;
-    }
-  }
-  else {
-    SC_ABORT ("Hex is 3D.\n");
-  }
-  return 0;
-}
-
 void
 t8_default_scheme_hex::element_init ([[maybe_unused]] const int length, [[maybe_unused]] t8_element_t *elem) const
 {

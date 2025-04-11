@@ -3056,9 +3056,11 @@ t8_forest_set_cmesh (t8_forest_t forest, t8_cmesh_t cmesh, sc_MPI_Comm comm)
   if (forest->cmesh != NULL) {
     t8_cmesh_unref (&forest->cmesh);
   }
+
   if (cmesh != NULL) {
     T8_ASSERT (t8_cmesh_comm_is_valid (cmesh, comm));
   }
+
   forest->cmesh = cmesh;
   do_dup = 0;
   t8_forest_set_mpicomm (forest, comm, do_dup);
@@ -3076,23 +3078,6 @@ t8_forest_set_scheme (t8_forest_t forest, const t8_scheme *scheme)
   T8_ASSERT (scheme != NULL);
 
   forest->scheme = scheme;
-}
-
-void
-t8_forest_set_scheme_2_5D (t8_forest_t forest, const t8_scheme *scheme, const t8_scheme *base_scheme)
-{
-  T8_ASSERT (forest != NULL);
-  T8_ASSERT (forest->rc.refcount > 0);
-  T8_ASSERT (!forest->committed);
-  T8_ASSERT (forest->scheme == NULL);
-  T8_ASSERT (forest->base_scheme == NULL);
-  T8_ASSERT (forest->set_from == NULL);
-
-  T8_ASSERT (scheme != NULL);
-  T8_ASSERT (base_scheme != NULL);
-
-  forest->scheme = scheme;
-  forest->base_scheme = base_scheme;
 }
 
 void
@@ -4471,7 +4456,7 @@ t8_forest_new_uniform (t8_cmesh_t cmesh, const t8_scheme *scheme, const int leve
 }
 
 t8_forest_t
-t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const t8_scheme *base_scheme, const int level1, const int level2, const int do_face_ghost,
+t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const int level1, const int level2, const int do_face_ghost,
                        sc_MPI_Comm comm)
 {
   t8_forest_t forest;
@@ -4499,7 +4484,7 @@ t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const t8_
   t8_global_productionf ("forest->set_type: %i \n", forest->set_type);
   /* Set the cmesh, scheme and level */
   t8_forest_set_cmesh (forest, cmesh, comm);
-  t8_forest_set_scheme_2_5D (forest, scheme, base_scheme);
+  t8_forest_set_scheme (forest, scheme);
   t8_forest_set_level_2_5D (forest, level1, level2);
   // t8_forest_set_profiling (forest, 1);
   if (do_face_ghost) {

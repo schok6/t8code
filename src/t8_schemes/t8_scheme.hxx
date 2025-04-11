@@ -141,30 +141,6 @@ class t8_scheme {
     }
     return remaining;
   }
-
-  // // /**
-  // //  * Decrease the reference count of the scheme.
-  // //  * If the reference count reaches zero, the scheme is deleted.
-  // //  * \return The remaining reference count. If 0 the scheme was deleted.
-  // //  */
-  // inline int
-  // unref_2_5D (const t8_scheme *scheme) const
-  // {
-  //   const int remaining = rc.refcount - 1;
-  //   t8_global_productionf("remaining: %i", remaining);
-  //   t8_productionf ("rc: %i.\n", rc);
-  //   if (t8_refcount_unref (&rc)) {
-  //     t8_debugf ("Deleting 2.5D scheme.\n");
-  //     t8_refcount_unref (&scheme->rc);
-  //     t8_refcount_unref (&scheme->rc);
-  //     if (t8_refcount_unref (&scheme->rc)) {
-  //       t8_debugf ("Deleting the scheme.\n");
-  //       delete scheme;
-  //     }
-  //     delete this;
-  //   }
-  //   return remaining;
-  // }
   
 
   /** Get the number of eclass schemes inside the scheme.
@@ -195,9 +171,9 @@ class t8_scheme {
    * \return                    The valid tree class for the eclass scheme.
    */
   inline t8_eclass_t
-  get_eclass_scheme_eclass (const t8_eclass_t tree_class) const
+  get_eclass_scheme_eclass (const t8_eclass_t tree_class, int dir = 0) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.get_eclass (); }, eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.get_eclass (dir); }, eclass_schemes[tree_class]);
   }
 
   /** Return the size of any element of a given class.
@@ -1024,16 +1000,6 @@ class t8_scheme {
                        eclass_schemes[tree_class]);
   };
 #endif
-
-
-  /**
-  * TODO
-  */
-  inline int
-  element_get_variable (const t8_eclass_t tree_class, const t8_element_t *elem, int var, int dir = 0) const
-  {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_variable (elem, var, dir); }, eclass_schemes[tree_class]);
-  };
 
   /** Allocate memory for \a length many elements of a given class and initialize them,
    * and put pointers to the elements in the provided array.

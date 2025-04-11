@@ -52,41 +52,6 @@ t8_default_scheme_prism::element_new (int length, t8_element_t **elem) const
 #endif
 }
 
-int
-t8_default_scheme_prism::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  const t8_default_prism_t *p = (const t8_default_prism_t *) elem;
-  if (dir == 0){
-    int x = p->tri.x;
-    int y = p->tri.y;
-    int z = p->line.x;
-    int type = p->tri.type;
-    t8_global_productionf ("element coordinates prism: (%i,%i,%i) & type: %i \n", x, y, z, type);
-  }
-  else if (dir == 1){
-    if (var == 1) {
-      int type = p->tri.type;
-      t8_global_productionf ("prism type: %i \n", type);
-      return p->tri.x;
-    }
-    else if(var == 2) {
-      return p->tri.y;
-    }
-    else {
-      SC_ABORT ("Hex is 3D.\n");
-    }
-  }
-  else if (dir==2){
-    if (var == 1) {
-      return p->line.x;
-    }
-  }
-  else {
-    SC_ABORT ("Prism is 3D.\n");
-  }
-  return 0;
-}
-
 void
 t8_default_scheme_prism::element_init ([[maybe_unused]] int length, [[maybe_unused]] t8_element_t *elem) const
 {

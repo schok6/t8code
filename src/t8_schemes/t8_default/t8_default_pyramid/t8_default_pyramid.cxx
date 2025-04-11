@@ -54,13 +54,6 @@ t8_default_scheme_pyramid::element_new (int length, t8_element_t **elem) const
 #endif
 }
 
-int
-t8_default_scheme_pyramid::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  T8_ASSERT( "Not implemented." );
-  return 0;
-}
-
 void
 t8_default_scheme_pyramid::element_init (int length, t8_element_t *elem) const
 {

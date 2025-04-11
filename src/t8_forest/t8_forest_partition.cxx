@@ -114,7 +114,7 @@ t8_forest_partition_create_offsets (t8_forest_t forest)
   t8_shmem_array_end_writing (forest->element_offsets);
 }
 
-//#if T8_ENABLE_DEBUG
+#if T8_ENABLE_DEBUG
 /* Test if all first descendants of the elements in the first tree have
  * a greater or equal linear id than the stored first descendant. */
 static void
@@ -146,16 +146,9 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       std::vector<int> maxlevels = {forest->maxlevel};
       scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
       level = scheme->element_get_level (tree_class, elem_desc);
-      T8_ASSERT (level == scheme->element_get_level (tree_class, elem_desc)); //wozu braucht man das?
       T8_ASSERT (level == forest->maxlevel);
       std::vector<int> levels = {level};
 
-      //Print coordinates
-      //t8_productionf("itree->first_desc coordinates:");
-      //ts->element_get_variable (tree_class, elem_desc, 0, 0);
-
-      // t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
-      // t8_global_productionf("first_desc_id: %li \n", first_desc_id);
       T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
     }
     else if (forest->set_type == 2) {
@@ -163,25 +156,16 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
       level1 = scheme->element_get_level (tree_class, elem_desc, 1);
       level2 = scheme->element_get_level (tree_class, elem_desc, 2);
-      T8_ASSERT (level1 == scheme->element_get_level (tree_class, elem_desc, 1)); //wozu braucht man das?
-      T8_ASSERT (level2 == scheme->element_get_level (tree_class, elem_desc, 2)); //wozu braucht man das?
       T8_ASSERT (level1 == forest->maxlevel);
       T8_ASSERT (level2 == forest->maxlevel);
 
-      //  Print coordinates
-      // t8_productionf("itree->first_desc coordinates:");
-      // ts->t8_element_debug_print (elem_desc);
-      // ts->element_get_variable (tree_class, elem_desc, 0, 0);
-
       std::vector<int> levels = {level1, level2};
-      // t8_global_productionf("ts->t8_element_get_linear_id (elem_desc, levels): %li \n", ts->t8_element_get_linear_id (elem_desc, levels));
-      // t8_global_productionf("first_desc_id: %li \n", first_desc_id);
       T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
     }
   }
   scheme->element_destroy (tree_class, 1, &elem_desc);
 }
-//#endif
+#endif
 
 void
 t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t forest)
@@ -275,9 +259,6 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     // possibility for different maxlevels
     std::vector<int> maxlevels = {forest->maxlevel, forest->maxlevel};
     scheme->element_get_last_descendant (tree_class, element_last, element_last_desc, maxlevels);
-    // t8_productionf ("-------------------- LAST_DESCENDANT");
-    // ts->t8_element_debug_print (element_last_desc);
-    // ts->element_get_variable (tree_class, element_last_desc, 0, 0);
   }
   T8_ASSERT (scheme->element_is_valid (tree_class, element_last_desc));
   if (forest->set_type == 1) {

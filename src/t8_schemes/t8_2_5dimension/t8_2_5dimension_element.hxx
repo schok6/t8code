@@ -93,7 +93,7 @@ class t8_2_5dimension_scheme
    * \return The tree class of this scheme.
    */
   t8_eclass_t
-  get_eclass (void) const;
+  get_eclass (int dir) const;
 
   /** Return the size of a 2.5D element.
   * \return  The size of a 2.5D element with 2 eclasses.
@@ -717,12 +717,6 @@ class t8_2_5dimension_scheme
    *       not element pointers? */
   void
   element_new (int length, t8_element_t **elem) const;
-
-  /**
-  * TODO
-  */
-  int
-  element_get_variable (const t8_element_t *elem, int var, int dir) const;
 
   /** Initialize an array of allocated elements.
    * \param [in] length   The number of elements to be initialized.

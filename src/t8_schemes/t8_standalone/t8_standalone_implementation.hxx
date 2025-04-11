@@ -105,7 +105,7 @@ struct t8_standalone_scheme
    * \return The tree class of this scheme.
    */
   constexpr t8_eclass_t
-  get_eclass (void) const
+  get_eclass ([[maybe_unused]] int dir) const
   {
     return TEclass;
   }
@@ -1383,13 +1383,6 @@ struct t8_standalone_scheme
       current_ref_coords += T8_ECLASS_MAX_DIM;
       current_out_coords += T8_ELEMENT_DIM[TEclass];
     }
-  }
-
-  int
-  element_get_variable (const t8_element_t *elem, int var, int dir) const
-  {
-    T8_ASSERT( "Not implemented." );
-    return 0;
   }
 
   // ################################################____MEMORY____################################################

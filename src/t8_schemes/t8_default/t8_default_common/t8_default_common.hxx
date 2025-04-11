@@ -162,7 +162,7 @@ class t8_default_scheme_common: public t8_crtp_operator<TUnderlyingEclassScheme,
    * \return The tree class of this scheme.
    */
   inline t8_eclass_t
-  get_eclass (void) const
+  get_eclass ([[maybe_unused]] int dir) const
   {
     return eclass;
   }

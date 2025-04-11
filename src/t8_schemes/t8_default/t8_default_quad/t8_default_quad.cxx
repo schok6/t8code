@@ -719,31 +719,6 @@ t8_default_scheme_quad::element_new (int length, t8_element_t **elem) const
   }
 }
 
-int
-t8_default_scheme_quad::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  p4est_quadrant_t *el = (p4est_quadrant_t *) elem;
-  // // if (dir == 0){
-  //   int x = el->x;
-  //   int y = el->y;
-  //   t8_global_productionf ("element coordinates quad: (%i,%i) \n", x, y);
-  // // }
-  // else {
-    if (var == 1) {
-      // t8_global_productionf("el_quad->x: %i \n", el->x);
-      return el->x;
-    }
-    else if (var == 2) {
-      // t8_global_productionf("el_quad->y: %i \n", el->y);
-      return el->y;
-    }
-    else {
-      SC_ABORT ("Quad is 2D.\n");
-    }
-  // }
-  return 0;
-}
-
 void
 t8_default_scheme_quad::element_init ([[maybe_unused]] int length, [[maybe_unused]] t8_element_t *elem) const
 {

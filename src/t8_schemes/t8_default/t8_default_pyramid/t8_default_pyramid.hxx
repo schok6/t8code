@@ -77,12 +77,6 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
   void
   element_new (const int length, t8_element_t **elem) const;
 
-  /**
-  * TODO
-  */
-  int
-  element_get_variable (const t8_element_t *elem, int var, int dir = 0) const;
-
   /** Initialize an array of allocated elements.
    * \param [in] length   The number of pyramid elements to be allocated.
    * \param [in,out] elems On input an array of \b length many allocated elements.

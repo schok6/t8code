@@ -67,12 +67,6 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
   void
   element_new (int length, t8_element_t **elem) const;
 
-  /**
-  * TODO
-  */
-  int
-  element_get_variable (const t8_element_t *elem, int var, int dir = 0) const;
-
   /** Initialize an array of allocated vertex elements.
    * \param [in] length   The number of vertex elements to be initialized.
    * \param [in,out] elems On input an array of \b length many allocated

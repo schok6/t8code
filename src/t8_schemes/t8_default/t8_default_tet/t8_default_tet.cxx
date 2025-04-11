@@ -523,13 +523,6 @@ t8_default_scheme_tet::element_new (int length, t8_element_t **elem) const
 #endif
 }
 
-int
-t8_default_scheme_tet::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  T8_ASSERT( "Not implemented." );
-  return 0;
-}
-
 void
 t8_default_scheme_tet::element_init ([[maybe_unused]] int length, [[maybe_unused]] t8_element_t *elem) const
 {

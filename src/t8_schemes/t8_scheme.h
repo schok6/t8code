@@ -716,12 +716,6 @@ t8_element_to_string (const t8_scheme_c *scheme, const t8_eclass_t tree_class, c
                       char *debug_string, const int string_size);
 #endif
 
-   /**
-  * TODO
-  */
-  int
-  t8_element_get_variable (const t8_scheme_c *scheme, const t8_eclass_t tree_class, const t8_element_t *elem, int var, int dir);
-
 /** Allocate memory for an array of elements of a given class and initialize them.
  * \param [in] scheme        The scheme of the forest.
  * \param [in] tree_class    The eclass of tree the elements are part of.

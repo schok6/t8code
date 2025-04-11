@@ -38,16 +38,26 @@ t8_scheme_new_2_5dimension (const t8_scheme *scheme)
 {
   t8_scheme_builder builder;
 
-  /* refcount of scheme is already one and needs to get increased to two*/
+  /* refcount of scheme is already one and needs to get increased to three*/
   scheme->ref ();
+  // scheme->ref ();
+  // scheme->ref ();
+
+  t8_debugf ("refcount scheme 1: %i", scheme->rc.refcount);
 
   builder.add_eclass_scheme<t8_default_scheme_vertex> ();
   builder.add_eclass_scheme<t8_default_scheme_line> ();
   builder.add_eclass_scheme<t8_default_scheme_quad> ();
+  // builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_LINE, T8_ECLASS_LINE);
+  t8_debugf ("refcount scheme after quad: %i \n", scheme->rc.refcount);
   builder.add_eclass_scheme<t8_default_scheme_tri> ();
-  builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_QUAD, T8_ECLASS_LINE);
+  builder.add_eclass_scheme<t8_default_scheme_hex> ();
+  // builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_QUAD, T8_ECLASS_LINE);
+
   builder.add_eclass_scheme<t8_default_scheme_tet> (); //NULL
-  builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_TRIANGLE, T8_ECLASS_LINE);
+  builder.add_eclass_scheme<t8_default_scheme_prism> ();
+  // builder.add_eclass_scheme<t8_2_5dimension_scheme> (scheme, T8_ECLASS_TRIANGLE, T8_ECLASS_LINE);
+
   builder.add_eclass_scheme<t8_default_scheme_pyramid> (); //NULL
   
   return builder.build_scheme ();

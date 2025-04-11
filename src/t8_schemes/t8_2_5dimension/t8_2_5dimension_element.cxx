@@ -39,9 +39,10 @@ t8_2_5dimension_scheme::t8_2_5dimension_scheme (const t8_scheme *scheme, t8_ecla
   , eclass1{eclass1}
   , eclass2{eclass2}
 {
-  if (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE)){
+  if (eclass2 == T8_ECLASS_LINE && (eclass1 == T8_ECLASS_QUAD || eclass1 == T8_ECLASS_TRIANGLE || eclass1 == T8_ECLASS_LINE)){
     element_size = 2 * sizeof (void *);
     scheme_context = sc_mempool_new (element_size);
+    t8_debugf ("refcount scheme constructor: %i \n", scheme->rc.refcount);
     return;
   }
   /* TODO:
@@ -67,19 +68,18 @@ t8_2_5dimension_scheme::get_element_size (void) const
   return 2 * sizeof (void *); //scheme->get_element_size(eclass1) * scheme->get_element_size(eclass2); //@TODO +? @Lukas
 }
 
-t8_eclass_t //@TODO add direction
-t8_2_5dimension_scheme::get_eclass (void) const
+t8_eclass_t
+t8_2_5dimension_scheme::get_eclass (int dir) const
 {
-  // if (dir == 1) {
-  //   return eclass1;
-  // }
-  // else if (dir == 2) {
-  //   return eclass2;
-  // }
-  // else {
-  //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-  // }
-  return eclass1;
+  if (dir == 1) {
+    return eclass1;
+  }
+  else if (dir == 2) {
+    return eclass2;
+  }
+  else {
+    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+  }
 }
 
 int
@@ -989,28 +989,6 @@ t8_2_5dimension_scheme::set_to_root (t8_element_t *elem) const
   t8_2_5D_t *el = (t8_2_5D_t *) elem;
   scheme->set_to_root (eclass1, el->elem1);
   scheme->set_to_root (eclass2, el->elem2);
-}
-
-int //besser: void -> needed for debugging
-t8_2_5dimension_scheme::element_get_variable (const t8_element_t *elem, int var, int dir) const
-{
-  const t8_2_5D_t *el = (const t8_2_5D_t *) elem;
-  if (dir == 0) {
-    int x = scheme->element_get_variable (eclass1, el->elem1, 1);
-    int y = scheme->element_get_variable (eclass1, el->elem1, 2);
-    int z = scheme->element_get_variable (eclass2, el->elem2, 1);
-    t8_global_productionf ("element coordinates 2_5D: (%i,%i) x %i \n", x, y, z);
-  }
-  else if (dir == 1) {
-    scheme->element_get_variable (eclass1, el->elem1, var);
-  }
-  else if (dir == 2) {
-    scheme->element_get_variable (eclass2, el->elem2, var);
-  }
-  else {
-    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-  }
-  return 0;
 }
 
 void
