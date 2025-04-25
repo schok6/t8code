@@ -471,8 +471,6 @@ t8_forest_adapt (t8_forest_t forest)
         num_children = scheme->element_get_num_children (tree->eclass, first_element_from, 1);
         curr_size_elements = num_children;
         curr_size_elements_from = scheme->element_get_num_siblings (tree->eclass, first_element_from, 1);
-        t8_global_productionf ("curr_size_elements direction 1: %i \n", curr_size_elements);
-        t8_global_productionf ("curr_size_elements_from direction 1: %i \n", curr_size_elements_from);
       }
       else if (forest->set_adapt_direction == 2){
         num_children = scheme->element_get_num_children (tree->eclass, first_element_from, 2);
@@ -615,16 +613,19 @@ t8_forest_adapt (t8_forest_t forest)
          */
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, tree->eclass, el_considered, scheme,
                                        is_family, num_elements_to_adapt_callback, elements_from);
-        
-        t8_debugf ("----------------------- \n");
-        t8_debugf ("refine: %i \n", refine);
-        t8_debugf ("tree->eclass: %i \n", tree->eclass);
-  #if T8_ENABLE_DEBUG
-        for (int i=0; i < num_elements_to_adapt_callback; i++){
-          t8_debugf ("Information for element %i \n", i);
-          scheme->element_debug_print (tree->eclass, elements_from[i]);
-        }
-  #endif                         
+     
+
+/* Testing */   
+  // #if T8_ENABLE_DEBUG
+  //       t8_debugf ("----------------------- \n");
+  //       t8_debugf ("refine: %i \n", refine);
+  //       t8_debugf ("tree->eclass: %i \n", tree->eclass);
+  //       for (int i=0; i < num_elements_to_adapt_callback; i++){
+  //         t8_debugf ("Information for element %i \n", i);
+  //         scheme->element_debug_print (tree->eclass, elements_from[i]);
+  //       }
+  // #endif
+/* Testing */                        
 
         T8_ASSERT (is_family || refine != -1);
         int level;
@@ -714,7 +715,6 @@ t8_forest_adapt (t8_forest_t forest)
 
           if (forest->set_adapt_direction == 1) {
             /* Make room for one new column of elements and insert the parent column. */
-            t8_global_productionf ("CASE: elements form family and parent is computed \n");
 
             /* Number of elements in the telements */
             num_telements = (t8_locidx_t) t8_element_array_get_count (telements);
@@ -724,9 +724,6 @@ t8_forest_adapt (t8_forest_t forest)
               elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
             }
             
-            // //Print coordinates
-            // t8_productionf("elements_from[0] coordinates:");
-            // scheme->element_debug_print (elements_from[0]);
             scheme->element_get_parent_2_5D (tree->eclass, elements_from[0], elements);
 
           }

@@ -3620,8 +3620,6 @@ t8_forest_commit (t8_forest_t forest)
     t8_forest_unref (&forest->set_from);
   } /* end set_from != NULL */
 
-  t8_global_productionf("forest->local_num_elements: %i \n", forest->local_num_elements);
-
   /* Compute the element offset of the trees */
   t8_forest_compute_elements_offset (forest);
 
