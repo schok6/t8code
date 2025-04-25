@@ -20,54 +20,43 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#include <t8.h>                         /* General t8code header, always include this. */
-#include <t8_cmesh.h>                   /* cmesh definition and basic interface. */
-//#include <t8_cmesh_vtk_writer.h>        /* cmesh-writer interface. */
-#include <t8_cmesh/t8_cmesh_examples.h> /* A collection of exemplary cmeshes */
-#include <t8_forest/t8_forest_general.h>            /* forest definition and general interface. */
-#include <t8_forest/t8_forest_io.h>                 /* forest io interface. */
+#include <t8.h>                          /* General t8code header, always include this. */
+#include <t8_cmesh.h>                    /* cmesh definition and basic interface. */
+#include <t8_cmesh/t8_cmesh_examples.h>  /* A collection of exemplary cmeshes */
+#include <t8_forest/t8_forest_general.h> /* forest definition and general interface. */
+#include <t8_forest/t8_forest_io.h>      /* forest io interface. */
 
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
-#include <t8_schemes/t8_default/t8_default.hxx>
+// #include <t8_schemes/t8_default/t8_default.hxx>
 
-
-#include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
-#include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
+// #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
+// #include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
 
 #include <tutorials/2_5D/t8_2_5D_vtu.hxx>
 
-
-
-/* Builds cmesh of shapes for eclass1 (LINE (1.5D), QUAD or TRIANGLE) and for eclass1 (LINE) that build up a unit cube.
+/* Builds cmesh of shapes for horizontal eclass (LINE (1.5D), QUAD or TRIANGLE) and for vertical eclass (LINE)
+ * and thus total eclass T8_ECLASS_{QUAD,HEX,PRISM} that build up a unit cube.
  * \param [in] comm   MPI Communicator to use.
  * \return            The coarse mesh.
  */
 static t8_cmesh_t
-// t8_2_5D_build_hypercube_coarse_mesh (t8_eclass_t eclass1, t8_eclass_t eclass2, sc_MPI_Comm comm)
 t8_2_5D_build_hypercube_coarse_mesh (sc_MPI_Comm comm)
 {
   t8_cmesh_t cmesh;
 
-  /* Build a coarse mesh of 1 linear/1 quadrilateral or 2 triangular tree/trees and 1linear tree that form a cube.
-   * You can modify the first and second parameter to build a cube with different
-   * tree shapes, i.e. T8_ECLASS_QUAD and T8_ECLASS_LINE for a unit cune with 1 quadrilateral tree and 1 linear tree.
-   * See t8_eclass.h, t8_cmesh.h for all possible shapes.
-   * 
-   * The third argument is the MPI communicator to use for this cmesh.
+  /* Build a coarse mesh 
+  * first parameter: T8_ECLASS_QUAD, T8_ECLASS_HEX or T8_ECLASS_PRISM
+   * The second argument is the MPI communicator to use for this cmesh.
    * The remaining arguments are 3 flags that control
    *   do_bcast     - If non-zero only the root process will build the cmesh and will broadcast it to the other processes. The result is the same.
    *   do_partition - If non-zero the cmesh will be partitioned among the processes. If 0 each process has a copy of the whole cmesh.
    *   periodic     - If non-zero the cube will have periodic boundaries. That is, i.e. the left face is connected to the right face.
    */
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
-  //cmesh = t8_cmesh_new_row_of_cubes (2, 1, 0, comm);
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
-  // // cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0); //Abort
 
-  // t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_QUAD.\n");
-  // t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_PRISM.\n");
-  t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_HEX.\n");
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
+  //cmesh = t8_cmesh_new_row_of_cubes (2, 1, 0, comm);
+
+  t8_global_productionf (" [2_5D] Constructed coarse mesh with T8_ECLASS_QUAD.\n");
 
   return cmesh;
 }
@@ -76,21 +65,21 @@ t8_2_5D_build_hypercube_coarse_mesh (sc_MPI_Comm comm)
  * using the default refinement scheme.
  * \param [in] comm   MPI Communicator to use.
  * \param [in] cmesh  The coarse mesh to use.
- * \param [in] level  The initial uniform refinement level.
- * \return            A uniform forest with the given refinement level that is
- *                    partitioned across the processes in \a comm.
+ * \param [in] level1  The initial uniform refinement level in horizontal direction.
+ * \param [in] level1  The initial uniform refinement level in vertical direction.
+ * \return            A uniform forest with the given refinement levels in horizontal 
+ *                    and vertical direction that is partitioned across the processes in \a comm.
  */
 static t8_forest_t
 t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, int level2)
 {
   t8_forest_t forest;
 
-  const t8_scheme *scheme_base = t8_scheme_new_default ();
-  const t8_scheme *scheme = t8_scheme_new_2_5dimension (scheme_base);
+  const t8_scheme *scheme = t8_scheme_new_2_5dimension ();
 
   /* Create the refinement scheme. */
-  
-  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm); //@TODO - base scheme aus forest new
+
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, level1, level2, 0, comm);
 
   return forest;
 }
@@ -128,15 +117,15 @@ main (int argc, char **argv)
   sc_MPI_Comm comm;
   t8_cmesh_t cmesh;
   t8_forest_t forest;
-  // const t8_scheme *base_scheme = t8_scheme_new_default (); //@TODO 
+  // const t8_scheme *base_scheme = t8_scheme_new_default (); //@TODO
 
   /* The prefix for our output files. */
 
-  const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_2_3"; 
-  const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_TRI_LINE_2_3_HIGHLIGHT_Partition";
+  const char prefix[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_1";
+  const char prefix_highlight[BUFSIZ] = "t8_2_5D_UNIFORM_FOREST_QUAD_LINE_1_1_HIGHLIGHT_Partition";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 1;
+  const int level1 = 2;
   const int level2 = 1;
   t8_locidx_t local_num_elements;
   t8_gloidx_t global_num_elements;
@@ -154,17 +143,17 @@ main (int argc, char **argv)
   /* Print a message on the root process. */
   t8_global_productionf (" [2_5D] \n");
   t8_global_productionf (" [2_5D] Hello, this is the example for the 2_5D scheme of t8code (with the old cmesh).\n");
-  t8_global_productionf (" [2_5D] In this example we build a uniform forest for two eclasses and output it to vtu files.\n");
+  t8_global_productionf (
+    " [2_5D] In this example we build a uniform forest for two eclasses and output it to vtu files.\n");
   t8_global_productionf (" [2_5D] \n");
 
-    /* We will use MPI_COMM_WORLD as a communicator. */
+  /* We will use MPI_COMM_WORLD as a communicator. */
   comm = sc_MPI_COMM_WORLD;
   /* Create the cmesh */
   cmesh = t8_2_5D_build_hypercube_coarse_mesh (comm);
   // t8_cmesh_ref (cmesh);
   /* Build the uniform forest, it is automatically partitioned among the processes. */
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
-  // forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension(base_scheme), base_scheme, level1, level2, 0, comm);
   /* Get the local number of elements. */
   local_num_elements = t8_forest_get_local_num_elements (forest);
   /* Get the global number of elements. */
@@ -184,7 +173,7 @@ main (int argc, char **argv)
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
-  t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_highlight);
+  t8_2_5D_output_data_to_vtu (forest, level1, level2, highlight, prefix_highlight);
 
   /* Destroy the forest. */
   // t8_cmesh_unref (&cmesh);
@@ -192,7 +181,7 @@ main (int argc, char **argv)
   t8_2_5D_destroy_forest (forest);
   t8_global_productionf (" [2_5D] Destroyed forest.\n");
 
-  T8_FREE(highlight);
+  T8_FREE (highlight);
 
   sc_finalize ();
 

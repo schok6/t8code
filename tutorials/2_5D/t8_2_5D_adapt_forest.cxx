@@ -51,15 +51,15 @@
  *     Do not refine an element if it has reached the maximum level. (Hint: ts->t8_element_level)
  */
 
-#include <t8.h>                                 /* General t8code header, always include this. */
-#include <t8_cmesh.h>                           /* cmesh definition and basic interface. */
-#include <t8_cmesh/t8_cmesh_examples.h>         /* A collection of exemplary cmeshes */
-#include <t8_forest/t8_forest_general.h>        /* forest definition and basic interface. */
-#include <t8_forest/t8_forest_io.h>             /* save forest */
-#include <t8_forest/t8_forest_geometrical.h>    /* geometrical information of the forest */
+#include <t8.h>                                           /* General t8code header, always include this. */
+#include <t8_cmesh.h>                                     /* cmesh definition and basic interface. */
+#include <t8_cmesh/t8_cmesh_examples.h>                   /* A collection of exemplary cmeshes */
+#include <t8_forest/t8_forest_general.h>                  /* forest definition and basic interface. */
+#include <t8_forest/t8_forest_io.h>                       /* save forest */
+#include <t8_forest/t8_forest_geometrical.h>              /* geometrical information of the forest */
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
-#include <t8_schemes/t8_default/t8_default.hxx> /* default refinement scheme. */
-#include <t8_types/t8_vec.h>                    /* Basic operations on 3D vectors. */
+#include <t8_schemes/t8_default/t8_default.hxx>           /* default refinement scheme. */
+#include <t8_types/t8_vec.h>                              /* Basic operations on 3D vectors. */
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
 /* Build a uniform forest on a cmesh 
@@ -75,12 +75,11 @@ t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, in
 {
   t8_forest_t forest;
 
-  const t8_scheme *scheme_base = t8_scheme_new_default ();
-  const t8_scheme *scheme = t8_scheme_new_2_5dimension (scheme_base);
+  const t8_scheme *scheme = t8_scheme_new_2_5dimension ();
 
   /* Create the refinement scheme. */
-  
-  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
+
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, level1, level2, 0, comm);
 
   return forest;
 }
@@ -157,8 +156,8 @@ t8_2_5D_adapt_forest (t8_forest_t forest)
   struct t8_2_5D_adapt_data adapt_data = {
     { 0.0, 0.0, 1 }, /* Midpoints of the sphere. */
     // 0.1,             /* Refine if inside this radius. */
-    0.5,             /* Refine if inside this radius. */
-    0.6             /* Coarsen if outside this radius. */
+    0.5, /* Refine if inside this radius. */
+    0.6  /* Coarsen if outside this radius. */
   };
 
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -213,7 +212,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   const char prefix_adapt_highlight[BUFSIZ] = "t8_2_5D_adapt_highlight_ONLY";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 2;
+  const int level1 = 1;
   const int level2 = 2;
 
   t8_gloidx_t global_num_elements;
@@ -243,10 +242,10 @@ t8_2_5D_adapt_main (int argc, char **argv)
    */
 
   /* Build a cube cmesh with tet, hex or prism trees. */
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
-//   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
+  //   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
 
@@ -261,14 +260,12 @@ t8_2_5D_adapt_main (int argc, char **argv)
 
   /* Write forest to vtu files. */
   t8_forest_write_vtk (forest, prefix_uniform);
-  t8_global_productionf (" [2_5D] Wrote uniform forest to vtu files: %s*\n", prefix_uniform);  
-  
+  t8_global_productionf (" [2_5D] Wrote uniform forest to vtu files: %s*\n", prefix_uniform);
+
   double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
   highlight[3] = 1;
 
   // t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
-
-
 
   /*
    *  Adapt the forest.

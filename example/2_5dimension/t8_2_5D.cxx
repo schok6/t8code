@@ -72,7 +72,7 @@ t8_2_5D_print_forest_information (t8_forest_t forest)
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
   t8_global_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
-  t8_global_productionf (" [2_5D] Global number of elements:\t%li\n", global_num_elements);
+  t8_global_productionf (" [2_5D] Global number of elements:\t\t%li\n", global_num_elements);
 }
 
 void
@@ -855,7 +855,9 @@ main (int argc, char **argv)
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   // const t8_scheme *scheme_base = t8_scheme_new_default ();
   level2 = 4;
-  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension (t8_scheme_new_default ()), t8_scheme_new_default(), level1, level2, 0, comm);
+  // forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension (t8_scheme_new_default ()), t8_scheme_new_default(), level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension (), level1, level2, 0, comm);
+
 
   /* Print information of the forest. */
   t8_global_productionf (" [2_5D] Created uniform forest.\n");

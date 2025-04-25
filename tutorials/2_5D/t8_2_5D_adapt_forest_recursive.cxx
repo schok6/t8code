@@ -51,15 +51,15 @@
  *     Do not refine an element if it has reached the maximum level. (Hint: ts->t8_element_level)
  */
 
-#include <t8.h>                                 /* General t8code header, always include this. */
-#include <t8_cmesh.h>                           /* cmesh definition and basic interface. */
-#include <t8_cmesh/t8_cmesh_examples.h>         /* A collection of exemplary cmeshes */
-#include <t8_forest/t8_forest_general.h>        /* forest definition and basic interface. */
-#include <t8_forest/t8_forest_io.h>             /* save forest */
-#include <t8_forest/t8_forest_geometrical.h>    /* geometrical information of the forest */
+#include <t8.h>                                           /* General t8code header, always include this. */
+#include <t8_cmesh.h>                                     /* cmesh definition and basic interface. */
+#include <t8_cmesh/t8_cmesh_examples.h>                   /* A collection of exemplary cmeshes */
+#include <t8_forest/t8_forest_general.h>                  /* forest definition and basic interface. */
+#include <t8_forest/t8_forest_io.h>                       /* save forest */
+#include <t8_forest/t8_forest_geometrical.h>              /* geometrical information of the forest */
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* default refinement scheme. */
-#include <t8_types/t8_vec.h>                    /* Basic operations on 3D vectors. */
+#include <t8_types/t8_vec.h>                              /* Basic operations on 3D vectors. */
 #include <tutorials/2_5D/t8_2_5D_adapt.hxx>
 
 //needed to write SFC index
@@ -78,12 +78,12 @@ t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, in
 {
   t8_forest_t forest;
 
-  const t8_scheme *scheme_base = t8_scheme_new_default ();
-  const t8_scheme *scheme = t8_scheme_new_2_5dimension (scheme_base);
+  const t8_scheme *scheme = t8_scheme_new_2_5dimension ();
 
   /* Create the refinement scheme. */
-  
-  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
+
+  // forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
+  forest = t8_forest_new_uniform_2_5D (cmesh, scheme, level1, level2, 0, comm);
 
   return forest;
 }
@@ -113,9 +113,9 @@ t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, in
  */
 int
 t8_2_5D_adapt_callback_horizontal (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree,
-                                  [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
-                                  [[maybe_unused]] const t8_scheme *scheme, const int is_family,
-                                  [[maybe_unused]] const int num_elements, t8_element_t *elements[])
+                                   [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
+                                   [[maybe_unused]] const t8_scheme *scheme, const int is_family,
+                                   [[maybe_unused]] const int num_elements, t8_element_t *elements[])
 {
   /* Our adaptation criterion is to look at the midpoint coordinates of the current element and if
    * they are inside a sphere around a given midpoint we refine, if they are outside, we coarsen. */
@@ -169,8 +169,8 @@ t8_2_5D_adapt_forest_horizontal (t8_forest_t forest)
     // // { 1, 0.1, 0.0 }, /* Midpoints of the sphere. */
     // // { 1, 0.9, 0.0 }, /* Midpoints of the sphere. */
     // // 0.1,             /* Refine if inside this radius. */
-    0.5,             /* Refine if inside this radius. */
-    sqrt(0.5)//0.4             /* Coarsen if outside this radius. */
+    0.5,        /* Refine if inside this radius. */
+    sqrt (0.5)  //0.4             /* Coarsen if outside this radius. */
     // 0.0,             /* Refine if inside this radius. */
     // 0.5//0.4             /* Coarsen if outside this radius. */
   };
@@ -216,9 +216,9 @@ t8_2_5D_adapt_forest_horizontal (t8_forest_t forest)
  */
 int
 t8_2_5D_adapt_callback_vertical (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree,
-                                [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
-                                [[maybe_unused]] const t8_scheme *scheme, const int is_family,
-                                [[maybe_unused]] const int num_elements, t8_element_t *elements[])
+                                 [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
+                                 [[maybe_unused]] const t8_scheme *scheme, const int is_family,
+                                 [[maybe_unused]] const int num_elements, t8_element_t *elements[])
 {
   /* Our adaptation criterion is to look at the midpoint coordinates of the current element and if
    * they are inside a sphere around a given midpoint we refine, if they are outside, we coarsen. */
@@ -268,7 +268,11 @@ t8_2_5D_adapt_forest_vertical (t8_forest_t forest)
     { 0.375, 0.0, 1.0 }, /* Midpoints of the sphere. */
     // 0.3,             /* Refine if inside this radius. */
     0.2,
-    0.4,              /* Coarsen if outside this radius. */
+    0.4 /* Coarsen if outside this radius. */
+    // { 0.0, 0.0, 1 }, /* Midpoints of the sphere. */
+    // // 0.1,             /* Refine if inside this radius. */
+    // 0.5, /* Refine if inside this radius. */
+    // 0.6  /* Coarsen if outside this radius. */
   };
   /* Check that forest is a committed, that is valid and usable, forest. */
   T8_ASSERT (t8_forest_is_committed (forest));
@@ -304,7 +308,7 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
   /* Get the global number of elements. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
   t8_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
-  t8_global_productionf (" [2_5D] Global number of elements:\t%li\n", global_num_elements);
+  t8_global_productionf (" [2_5D] Global number of elements:\t\t%li\n", global_num_elements);
 }
 
 int
@@ -324,8 +328,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
   const char prefix_adapt_vertical_highlight[BUFSIZ] = "t8_2_5D_adapted_forest_vertical_highlight";
 
   /* The uniform refinement level of the forest. */
-  const int level1 = 3; 
-  const int level2 = 3; 
+  const int level1 = 1;
+  const int level2 = 3;
 
   t8_gloidx_t global_num_elements;
 
@@ -354,8 +358,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
    */
 
   /* Build a cube cmesh with hex or prism trees. */
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
@@ -371,38 +375,21 @@ t8_2_5D_adapt_main (int argc, char **argv)
 
   /* Write forest to vtu files. */
   t8_forest_write_vtk (forest, prefix_uniform);
-  t8_global_productionf (" [2_5D] Wrote uniform forest to vtu files: %s*\n", prefix_uniform);  
-  
-  double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
-  for (int i=0; i<16; i++){
-    highlight[i] = 1;
-  }
-  for (int i=22; i<24; i++){
-    highlight[i] = 2;
-  }
+  t8_global_productionf (" [2_5D] Wrote uniform forest to vtu files: %s*\n", prefix_uniform);
 
+  double *highlight = T8_ALLOC_ZERO (double, global_num_elements);
+  // for (int i = 0; i < 16; i++) {
+  //   highlight[i] = 1;
+  // }
+  // for (int i = 22; i < 24; i++) {
+  //   highlight[i] = 2;
+  // }
 
   // t8_2_5D_output_data_to_vtu(forest, level1, level2, highlight, prefix_uniform_highlight);
 
-  T8_FREE(highlight);
+  T8_FREE (highlight);
 
-
-
-  // /*Für Masterarbeit Grafik*/
-
-  // t8_forest_t forest1 = t8_forest_new_uniform_2_5D (cmesh, t8_scheme_new_2_5dimension_cxx (), level1, level2+2, 0, comm);
-
-  // t8_forest_write_vtk (forest1, "uniform_1_2");
-
-  // global_num_elements = t8_forest_get_global_num_elements (forest1);
-
-  // double *highlight_forest1 = T8_ALLOC_ZERO (double, global_num_elements);
-  // highlight_forest1[16] = 1;
-
-  // t8_2_5D_output_data_to_vtu(forest1, level1+1, level2+2, highlight_forest1, "uniform_1_2_SFCindex");
-
-  t8_global_productionf("-----------------------");
-  t8_global_productionf("Adapt the forest horizontal.");
+  // t8_debugf ("Adapt the forest horizontal. \n");
 
   /*
    *  Adapt the forest horizontal.
@@ -429,20 +416,23 @@ t8_2_5D_adapt_main (int argc, char **argv)
   global_num_elements = t8_forest_get_global_num_elements (forest);
 
   double *highlight_adapt_horizontal = T8_ALLOC_ZERO (double, global_num_elements);
-  for (int i=0; i<4; i++){
+  for (int i = 0; i < 4; i++) {
     highlight_adapt_horizontal[i] = 1;
   }
-  for (int i=10; i<12; i++){
+  for (int i = 10; i < 12; i++) {
     highlight_adapt_horizontal[i] = 2;
   }
 
-  // t8_2_5D_output_data_to_vtu(forest, level1+1, level2, highlight_adapt_horizontal, prefix_adapt_horizontal_highlight);
+  t8_2_5D_output_data_to_vtu (forest, level1 + 1, level2, highlight_adapt_horizontal,
+                              prefix_adapt_horizontal_highlight);
 
-  T8_FREE(highlight_adapt_horizontal);
+  T8_FREE (highlight_adapt_horizontal);
 
   /*
    *  Adapt the forest verical.
    */
+
+  t8_debugf ("Test \n");
 
   /* Adapt the forest. We can reuse the forest variable, since the new adapted
    * forest will take ownership of the old forest and destroy it.
@@ -462,7 +452,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_forest_write_vtk (forest, prefix_adapt_vertical);
   t8_global_productionf (" [2_5D] Wrote adapted forest to vtu files: %s*\n", prefix_adapt_vertical);
 
-    /* Get the global number of elements of adapted forest. */
+  /* Get the global number of elements of adapted forest. */
   global_num_elements = t8_forest_get_global_num_elements (forest);
 
   double *highlight_adapt_vertical = T8_ALLOC_ZERO (double, global_num_elements);
@@ -475,10 +465,12 @@ t8_2_5D_adapt_main (int argc, char **argv)
   // highlight_adapt_vertical[9]=1;
   // highlight_adapt_vertical[21]=1;
 
-  // t8_2_5D_output_data_to_vtu(forest, level1+1, level2+2, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
-  // t8_2_5D_output_data_to_vtu(forest, level1+1, level2+1, highlight_adapt_vertical, prefix_adapt_vertical_highlight);
+  t8_2_5D_output_data_to_vtu (forest, level1 + 1, level2 + 2, highlight_adapt_vertical,
+                              prefix_adapt_vertical_highlight);
+  t8_2_5D_output_data_to_vtu (forest, level1 + 1, level2 + 1, highlight_adapt_vertical,
+                              prefix_adapt_vertical_highlight);
 
-  T8_FREE(highlight_adapt_vertical);
+  T8_FREE (highlight_adapt_vertical);
 
   /*
    * clean-up
