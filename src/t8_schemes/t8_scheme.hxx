@@ -50,6 +50,9 @@
 // Only needed for t8_debug_print_type
 #include <typeinfo>
 
+class line_class1;
+class line_class2;
+
 /**
  * Get the type of the template parameter as a string.
  * \tparam TType          The template parameter to get the type of.
@@ -63,6 +66,22 @@ t8_debug_print_type ()
   return type_name;
 }
 #endif  // T8_ENABLE_DEBUG
+
+// template<typename... Types>
+// struct type_list_scheme_t {}; 
+
+// template<typename... Types_1, typename... Types_2>
+// class two_schemes< type_list_scheme_t<Types_1...>, type_list_scheme_t<Types_2> >
+// {
+//   public:
+//     using variant_t = std::variant<Types_1>;
+//     using variant_t = std::variant<Types_2>;
+
+//     variant_t variant_scheme1;
+//     variant_t variant_scheme2;
+// };
+
+// using types_for_scheme = type_list_scheme_t<class, class>;
 
 /** This class holds one or more element schemes.
  * It also relays the function calls to the specific schemes. */
@@ -102,7 +121,9 @@ class t8_scheme {
                                 t8_standalone_scheme<T8_ECLASS_QUAD>,
                                 t8_standalone_scheme<T8_ECLASS_HEX>,
                                 /* 2.5D scheme */
-                                t8_2_5dimension_scheme
+                                t8_2_5dimension_scheme <line_class1, t8_dline_t, line_class2, t8_dline_t>,
+                                t8_2_5dimension_scheme<t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t>,
+                                t8_2_5dimension_scheme<t8_default_scheme_tri, t8_dtri_t, t8_default_scheme_line, t8_dline_t>
                                 >;
   /* clang-format on */
 
