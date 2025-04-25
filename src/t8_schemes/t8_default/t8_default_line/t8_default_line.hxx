@@ -46,7 +46,8 @@ class t8_scheme;
 class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_line> {
  public:
   /** Constructor which calls the specialized constructor for the base. */
-  t8_default_scheme_line (): t8_default_scheme_common (T8_ECLASS_LINE, sizeof (t8_dline_t)) {};
+  t8_default_scheme_line (): t8_default_scheme_common (T8_ECLASS_LINE, sizeof (t8_dline_t)) {
+  };
 
   /** Destructor */
   ~t8_default_scheme_line () {};
@@ -158,7 +159,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   void
-  element_get_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const;
+  element_get_parent (const t8_element_t *elem, t8_element_t *parent, int dir = 0) const;
 
   /*
   *TODO
@@ -182,7 +183,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    */
   void
   element_get_sibling ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] const int sibid,
-                       [[maybe_unused]] t8_element_t *sibling, [[maybe_unused]] int dir) const
+                       [[maybe_unused]] t8_element_t *sibling, [[maybe_unused]] int dir = 0) const
   {
     SC_ABORT ("This function is not implemented yet.\n");
     return; /* suppresses compiler warning */
@@ -254,7 +255,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * It is valid to call this function with elem = child.
      */
   void
-  element_get_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir) const;
+  element_get_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir = 0) const;
 
   /** Construct all children of a given element.
    * \param [in] elem     This must be a valid element, bigger than maxlevel.
@@ -267,14 +268,14 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \see element_get_num_children
      */
   void
-  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir) const;
+  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir = 0) const;
 
   /** Compute the child id of an element.
    * \param [in] elem     This must be a valid element.
    * \return              The child id of elem.
    */
   int
-  element_get_child_id (const t8_element_t *elem, int dir) const;
+  element_get_child_id (const t8_element_t *elem, int dir = 0) const;
 
   /** Compute the ancestor id of an element, that is the child id
    * at a given level.
@@ -284,7 +285,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \note The ancestor id at elem.level is the same as the child id.
    */
   int
-  element_get_ancestor_id (const t8_element_t *elem, int level, int dir) const;
+  element_get_ancestor_id (const t8_element_t *elem, int level, int dir = 0) const;
 
   /** Query whether a given set of elements is a family or not.
    * \param [in] fam      An array of as many elements as an element of class
@@ -293,7 +294,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \note level 0 elements do not form a family.
    */
   int
-  elements_are_family (t8_element_t *const *fam, int dir) const;
+  elements_are_family (t8_element_t *const *fam, int dir = 0) const;
 
   /** Compute the nearest common ancestor of two elements. That is,
    * the element with highest level that still has both given elements as
@@ -306,7 +307,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    *                      \b elem1 and \b elem2.
    */
   void
-  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir) const;
+  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir = 0) const;
 
   /** Compute the shape of the face of an element.
    * \param [in] elem     The element.
@@ -355,7 +356,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    *                      that coincides with \a face_child.
    */
   int
-  element_face_get_child_face (const t8_element_t *elem, int face, int face_child, int dir) const;
+  element_face_get_child_face (const t8_element_t *elem, int face, int face_child, int dir = 0) const;
 
   /** Given a face of an element return the face number
      * of the parent of the element that matches the element's face. Or return -1 if
@@ -368,7 +369,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
      * \note For the root element this function always returns \a face.
      */
   int
-  element_face_get_parent_face (const t8_element_t *elem, int face, int dir) const;
+  element_face_get_parent_face (const t8_element_t *elem, int face, int dir = 0) const;
 
   /** Given an element and a face of this element. If the face lies on the
    *  tree boundary, return the face number of the tree face.
@@ -421,7 +422,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    *                      with \a face.
    */
   int
-  element_extrude_face (const t8_element_t *face, t8_element_t *elem, int root_face, const t8_scheme *scheme, int dir) const;
+  element_extrude_face (const t8_element_t *face, t8_element_t *elem, int root_face, const t8_scheme *scheme, int dir = 0) const;
 
   /** Construct the first descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -432,7 +433,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \param [in] level     The level, at which the first descendant is constructed
    */
   void
-  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level, int dir) const;
+  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level, int dir = 0) const;
 
   /** Construct the last descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -443,7 +444,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \param [in] level     The level, at which the last descendant is constructed
    */
   void
-  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level, int dir) const;
+  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level, int dir = 0) const;
 
   /** Construct the boundary element at a specific face.
    * \param [in] elem     The input element.
