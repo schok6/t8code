@@ -36,7 +36,7 @@ create_from_scheme_id (const int scheme_id)
   case 1:
     return t8_scheme_new_standalone ();
   case 2:
-    return t8_scheme_new_2_5dimension (t8_scheme_new_default ());
+    return t8_scheme_new_2_5dimension ();
   default:
     SC_ABORT_NOT_REACHED ();
     return nullptr;
