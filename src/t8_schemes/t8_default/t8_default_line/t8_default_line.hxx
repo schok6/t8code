@@ -46,8 +46,7 @@ class t8_scheme;
 class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_line> {
  public:
   /** Constructor which calls the specialized constructor for the base. */
-  t8_default_scheme_line (): t8_default_scheme_common (T8_ECLASS_LINE, sizeof (t8_dline_t)) {
-  };
+  t8_default_scheme_line (): t8_default_scheme_common (T8_ECLASS_LINE, sizeof (t8_dline_t)) {};
 
   /** Destructor */
   ~t8_default_scheme_line () {};
@@ -422,7 +421,8 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    *                      with \a face.
    */
   int
-  element_extrude_face (const t8_element_t *face, t8_element_t *elem, int root_face, const t8_scheme *scheme, int dir = 0) const;
+  element_extrude_face (const t8_element_t *face, t8_element_t *elem, int root_face, const t8_scheme *scheme,
+                        int dir = 0) const;
 
   /** Construct the first descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -433,7 +433,8 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \param [in] level     The level, at which the first descendant is constructed
    */
   void
-  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level, int dir = 0) const;
+  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level,
+                                     int dir = 0) const;
 
   /** Construct the last descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -444,7 +445,8 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \param [in] level     The level, at which the last descendant is constructed
    */
   void
-  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level, int dir = 0) const;
+  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level,
+                                    int dir = 0) const;
 
   /** Construct the boundary element at a specific face.
    * \param [in] elem     The input element.
@@ -492,7 +494,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   void
-  element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const;
+  element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
@@ -501,7 +503,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \return              The linear id of the element.
    */
   t8_linearidx_t
-  element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const;
+  element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -510,7 +512,8 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const; //@TODO const std::vector<int>& levels
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc,
+                                std::vector<int> &levels) const;  //@TODO const std::vector<int>& levels
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -519,7 +522,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
 
   //???
   /** Construct the successor in a uniform refinement of a given element.
