@@ -182,7 +182,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    */
   void
   element_get_sibling ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] const int sibid,
-                       [[maybe_unused]] t8_element_t *sibling, [[maybe_unused]] int dir) const
+                       [[maybe_unused]] t8_element_t *sibling) const
   {
     SC_ABORT ("This function is not implemented yet.\n");
     return; /* suppresses compiler warning */
@@ -254,7 +254,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * It is valid to call this function with elem = child.
      */
   void
-  element_get_child (const t8_element_t *elem, const int childid, t8_element_t *child, int dir) const;
+  element_get_child (const t8_element_t *elem, const int childid, t8_element_t *child) const;
 
   /** Construct all children of a given element.
    * \param [in] elem   This must be a valid element, bigger than maxlevel.
@@ -282,7 +282,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \note The ancestor id at elem.level is the same as the child id.
    */
   int
-  element_get_ancestor_id (const t8_element_t *elem, const int level, int dir) const;
+  element_get_ancestor_id (const t8_element_t *elem, const int level) const;
 
   /** Query whether a given set of elements is a family or not.
    * \param [in] fam  An array of as many elements as an element of class \b scheme has siblings.
@@ -300,7 +300,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    *                      On output the unique nearest common ancestor of \b elem1 and \b elem2.
    */
   void
-  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir) const;
+  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const;
 
   /** Return the shape of an allocated element according its type. For example, a child of an element can be an 
    * element of a different shape and has to be handled differently - according to its shape.
@@ -319,7 +319,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * children.
    */
   t8_gloidx_t
-  element_count_leaves (const t8_element_t *t, const int level, int dir) const;
+  element_count_leaves (const t8_element_t *t, const int level) const;
 
   /** Compute the shape of the face of an element.
    * \param [in] elem   The element.
@@ -363,7 +363,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \return                  The face number of the face of a child of \a elem that coincides with \a face_child.
    */
   int
-  element_face_get_child_face (const t8_element_t *elem, const int face, const int face_child, int dir) const;
+  element_face_get_child_face (const t8_element_t *elem, const int face, const int face_child) const;
 
   /** Given a face of an element return the face number of the parent of the element that matches the element's face. 
    * Or return -1 if no face of the parent matches the face 
@@ -374,7 +374,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \note For the root element this function always returns \a face.
    */
   int
-  element_face_get_parent_face (const t8_element_t *elem, const int face, int dir) const;
+  element_face_get_parent_face (const t8_element_t *elem, const int face) const;
 
   /** Given an element and a face of this element. If the face lies on the
    *  tree boundary, return the face number of the tree face.
@@ -424,7 +424,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    */
   int
   element_extrude_face (const t8_element_t *face, t8_element_t *elem, const int root_face,
-                        const t8_scheme *scheme, int dir) const;
+                        const t8_scheme *scheme) const;
 
   /** Construct the first descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -434,7 +434,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \param [in] level     The level, at which the first descendant is constructed
    */
   void
-  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level, int dir) const;
+  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level) const;
 
   /** Construct the last descendant of an element at a given level that touches a given face.
    * \param [in] elem      The input element.
@@ -444,7 +444,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \param [in] level     The level, at which the last descendant is constructed
    */
   void
-  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level, int dir) const;
+  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level) const;
 
   /** Construct the boundary element at a specific face.
    * \param [in] elem     The input element.
@@ -487,7 +487,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   void
-  element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const;
+  element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform refinement of a given level.
    * \param [in] elem     The element whose id we compute.
@@ -495,7 +495,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \return              The linear id of the element.
    */
   t8_linearidx_t
-  element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const;
+  element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -503,7 +503,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -511,7 +511,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
 
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
@@ -519,7 +519,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \param [in] level    The level of the uniform refinement to consider.
    */
   void
-  element_construct_successor (const t8_element_t *elem, t8_element_t *succ, [[maybe_unused]] int dir = 0) const;
+  element_construct_successor (const t8_element_t *elem, t8_element_t *succ) const;
 
   /** Get the integer coordinates of the anchor node of an element. The default scheme implements the Morton type SFCs. 
    * In these SFCs the elements are positioned in a cube [0,1]^(dL) with dimension d (=0,1,2,3) and L the maximum 

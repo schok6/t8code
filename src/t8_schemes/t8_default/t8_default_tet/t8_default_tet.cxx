@@ -72,7 +72,8 @@ t8_default_scheme_tet::element_is_equal (const t8_element_t *elem1, const t8_ele
 }
 
 void
-t8_default_scheme_tet::element_get_parent (const t8_element_t *elem, t8_element_t *parent, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_parent (const t8_element_t *elem, t8_element_t *parent,
+                                           [[maybe_unused]] int dir) const
 {
   const t8_default_tet_t *t = (const t8_default_tet_t *) elem;
   t8_default_tet_t *p = (t8_default_tet_t *) parent;
@@ -83,7 +84,7 @@ t8_default_scheme_tet::element_get_parent (const t8_element_t *elem, t8_element_
 }
 
 void
-t8_default_scheme_tet::element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling, int dir) const
+t8_default_scheme_tet::element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const
 {
   const t8_default_tet_t *t = (const t8_default_tet_t *) elem;
   t8_default_tet_t *s = (t8_default_tet_t *) sibling;
@@ -107,7 +108,8 @@ t8_default_scheme_tet::element_get_max_num_faces ([[maybe_unused]] const t8_elem
 }
 
 int
-t8_default_scheme_tet::element_get_num_children ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_num_children ([[maybe_unused]] const t8_element_t *elem,
+                                                 [[maybe_unused]] int dir) const
 {
   T8_ASSERT (element_is_valid (elem));
   return T8_DTET_CHILDREN;
@@ -131,7 +133,7 @@ t8_default_scheme_tet::element_get_face_corner ([[maybe_unused]] const t8_elemen
 }
 
 void
-t8_default_scheme_tet::element_get_child (const t8_element_t *elem, int childid, t8_element_t *child, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_child (const t8_element_t *elem, int childid, t8_element_t *child) const
 {
   const t8_default_tet_t *t = (const t8_default_tet_t *) elem;
   t8_default_tet_t *c = (t8_default_tet_t *) child;
@@ -142,8 +144,8 @@ t8_default_scheme_tet::element_get_child (const t8_element_t *elem, int childid,
 }
 
 void
-t8_default_scheme_tet::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length,
-                                             t8_element_t *c[], [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length, t8_element_t *c[],
+                                             [[maybe_unused]] int dir) const
 {
   T8_ASSERT (length == T8_DTET_CHILDREN);
   T8_ASSERT (element_is_valid (elem));
@@ -163,7 +165,7 @@ t8_default_scheme_tet::element_get_child_id (const t8_element_t *elem, [[maybe_u
 }
 
 int
-t8_default_scheme_tet::element_get_ancestor_id (const t8_element_t *elem, int level, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_ancestor_id (const t8_element_t *elem, int level) const
 {
   return t8_dtet_ancestor_id ((t8_dtet_t *) elem, level);
 }
@@ -180,7 +182,7 @@ t8_default_scheme_tet::elements_are_family (t8_element_t *const *fam, [[maybe_un
 }
 
 void
-t8_default_scheme_tet::element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const
 {
   const t8_default_tet_t *t1 = (const t8_default_tet_t *) elem1;
   const t8_default_tet_t *t2 = (const t8_default_tet_t *) elem2;
@@ -223,7 +225,7 @@ t8_default_scheme_tet::element_get_children_at_face (const t8_element_t *elem, i
 }
 
 int
-t8_default_scheme_tet::element_face_get_child_face (const t8_element_t *elem, int face, int face_child, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_face_get_child_face (const t8_element_t *elem, int face, int face_child) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (0 <= face && face < T8_DTET_FACES);
@@ -232,7 +234,7 @@ t8_default_scheme_tet::element_face_get_child_face (const t8_element_t *elem, in
 }
 
 int
-t8_default_scheme_tet::element_face_get_parent_face (const t8_element_t *elem, int face, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_face_get_parent_face (const t8_element_t *elem, int face) const
 {
   T8_ASSERT (0 <= face && face < T8_DTET_FACES);
 
@@ -254,7 +256,7 @@ t8_default_scheme_tet::element_get_tree_face (const t8_element_t *elem, int face
  * for tets. */
 int
 t8_default_scheme_tet::element_extrude_face (const t8_element_t *face, t8_element_t *elem, int root_face,
-                                             [[maybe_unused]] const t8_scheme *scheme, [[maybe_unused]] int dir) const
+                                             [[maybe_unused]] const t8_scheme *scheme) const
 {
   const t8_dtri_t *b = (const t8_dtri_t *) face;
   t8_dtet_t *t = (t8_dtet_t *) elem;
@@ -297,7 +299,7 @@ t8_default_scheme_tet::element_extrude_face (const t8_element_t *face, t8_elemen
 
 void
 t8_default_scheme_tet::element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc,
-                                                          int level, [[maybe_unused]] int dir) const
+                                                          int level) const
 {
   int corner;
   T8_ASSERT (0 <= face && face < T8_DTET_FACES);
@@ -311,7 +313,7 @@ t8_default_scheme_tet::element_get_first_descendant_face (const t8_element_t *el
 
 void
 t8_default_scheme_tet::element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc,
-                                                         int level, [[maybe_unused]] int dir) const
+                                                         int level) const
 {
   T8_ASSERT (0 <= face && face < T8_DTET_FACES);
   T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
@@ -398,7 +400,7 @@ t8_default_scheme_tet::element_get_face_neighbor_inside (const t8_element_t *ele
 }
 
 void
-t8_default_scheme_tet::element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) const
+t8_default_scheme_tet::element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const
 {
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
   T8_ASSERT (id < ((t8_linearidx_t) 1) << 3 * levels[0]);
@@ -408,7 +410,7 @@ t8_default_scheme_tet::element_set_linear_id (t8_element_t *elem, std::vector<in
 }
 
 t8_linearidx_t
-t8_default_scheme_tet::element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const
+t8_default_scheme_tet::element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
@@ -417,7 +419,7 @@ t8_default_scheme_tet::element_get_linear_id (const t8_element_t *elem, std::vec
 }
 
 void
-t8_default_scheme_tet::element_construct_successor (const t8_element_t *elem1, t8_element_t *elem2, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_construct_successor (const t8_element_t *elem1, t8_element_t *elem2) const
 {
   T8_ASSERT (element_is_valid (elem1));
   T8_ASSERT (element_is_valid (elem2));
@@ -427,7 +429,8 @@ t8_default_scheme_tet::element_construct_successor (const t8_element_t *elem1, t
 }
 
 void
-t8_default_scheme_tet::element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
+t8_default_scheme_tet::element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc,
+                                                     std::vector<int> &levels) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
@@ -436,7 +439,8 @@ t8_default_scheme_tet::element_get_first_descendant (const t8_element_t *elem, t
 }
 
 void
-t8_default_scheme_tet::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const
+t8_default_scheme_tet::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc,
+                                                    std::vector<int> &levels) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));

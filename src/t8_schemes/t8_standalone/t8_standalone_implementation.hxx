@@ -105,7 +105,7 @@ struct t8_standalone_scheme
    * \return The tree class of this scheme.
    */
   constexpr t8_eclass_t
-  get_eclass ([[maybe_unused]] int dir) const
+  get_eclass () const
   {
     return TEclass;
   }
@@ -426,7 +426,7 @@ struct t8_standalone_scheme
    */
   static constexpr void
   element_get_sibling ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] const int sibid,
-                       [[maybe_unused]] t8_element_t *sibling, [[maybe_unused]] int dir = 0) noexcept
+                       [[maybe_unused]] t8_element_t *sibling) noexcept
   {
     SC_ABORT ("This function is not implemented yet.\n");
   }
@@ -444,7 +444,7 @@ struct t8_standalone_scheme
    * \see t8_element_child_eclass
    */
   static constexpr void
-  element_get_child (const t8_element_t *elem, const int childid, t8_element_t *child, [[maybe_unused]] int dir = 0) noexcept
+  element_get_child (const t8_element_t *elem, const int childid, t8_element_t *child) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (0 <= childid);
@@ -512,7 +512,8 @@ struct t8_standalone_scheme
    * \see t8_element_child_eclass
    */
   static constexpr void
-  element_get_children (const t8_element_t *elem, const int length, t8_element_t *c[], [[maybe_unused]] int dir = 0) noexcept
+  element_get_children (const t8_element_t *elem, const int length, t8_element_t *c[],
+                        [[maybe_unused]] int dir = 0) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -560,7 +561,7 @@ struct t8_standalone_scheme
    * \return              The child_id of \a elem in regard to its \a level ancestor.
    */
   static constexpr int
-  element_get_ancestor_id (const t8_element_t *elem, const t8_element_level level, [[maybe_unused]] int dir = 0) noexcept
+  element_get_ancestor_id (const t8_element_t *elem, const t8_element_level level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (0 <= level && level <= T8_ELEMENT_MAXLEVEL[TEclass]);
@@ -622,7 +623,7 @@ struct t8_standalone_scheme
    *                      \b elem1 and \b elem2.
    */
   static constexpr void
-  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, [[maybe_unused]] int dir = 0) noexcept
+  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) noexcept
   {
     T8_ASSERT (element_is_valid (elem1));
     T8_ASSERT (element_is_valid (elem2));
@@ -651,7 +652,7 @@ struct t8_standalone_scheme
    */
   static constexpr void
   // element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept @Lukas
-  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) noexcept
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -676,7 +677,7 @@ struct t8_standalone_scheme
    */
   static constexpr void
   // element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept
-  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) noexcept
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -775,7 +776,7 @@ struct t8_standalone_scheme
     */
   static constexpr int
   element_face_get_child_face ([[maybe_unused]] const t8_element_t *elem, const int face,
-                               [[maybe_unused]] const int face_child, [[maybe_unused]] int dir = 0) noexcept
+                               [[maybe_unused]] const int face_child) noexcept
   {
     return face;
   }
@@ -791,7 +792,7 @@ struct t8_standalone_scheme
     * \note For the root element this function always returns \a face.
     */
   static constexpr int
-  element_face_get_parent_face ([[maybe_unused]] const t8_element_t *elem, const int face, [[maybe_unused]] int dir) noexcept
+  element_face_get_parent_face ([[maybe_unused]] const t8_element_t *elem, const int face) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (0 <= face && face < T8_ELEMENT_NUM_FACES[TEclass]);
@@ -823,7 +824,7 @@ struct t8_standalone_scheme
    */
   static constexpr void
   element_get_first_descendant_face (const t8_element_t *elem, const int face, t8_element_t *first_desc,
-                                     const t8_element_level level, [[maybe_unused]] int dir) noexcept
+                                     const t8_element_level level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (0 <= face && face < T8_ELEMENT_NUM_FACES[TEclass]);
@@ -858,7 +859,7 @@ struct t8_standalone_scheme
    */
   static constexpr void
   element_get_last_descendant_face ([[maybe_unused]] const t8_element_t *elem, const int face, t8_element_t *last_desc,
-                                     const t8_element_level level, [[maybe_unused]] int dir) noexcept
+                                    const t8_element_level level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (0 <= face && face < T8_ELEMENT_NUM_FACES[TEclass]);
@@ -1046,7 +1047,7 @@ struct t8_standalone_scheme
    */
   static constexpr int
   element_extrude_face ([[maybe_unused]] const t8_element_t *face, [[maybe_unused]] t8_element_t *elem,
-                        [[maybe_unused]] const int root_face, [[maybe_unused]] const t8_scheme *scheme, [[maybe_unused]] int dir = 0) noexcept
+                        [[maybe_unused]] const int root_face, [[maybe_unused]] const t8_scheme *scheme) noexcept
   {
     const t8_eclass_t TFaceEclass = get_face_eclass ();
     T8_ASSERT (0 <= root_face && root_face < T8_ELEMENT_NUM_FACES[TEclass]);
@@ -1122,7 +1123,7 @@ struct t8_standalone_scheme
   static constexpr void
   // element_set_linear_id (t8_element_t *elem, std::vector<t8_element_level>& levels, t8_linearidx_t id) noexcept @Lukas
   // element_set_linear_id (t8_element_t *elem, const t8_element_level level, t8_linearidx_t id) noexcept //warum ging das mit t8_element_level
-  element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, t8_linearidx_t id) noexcept
+  element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) noexcept
   {
 
     t8_standalone_element<TEclass> *el = (t8_standalone_element<TEclass> *) elem;
@@ -1184,7 +1185,7 @@ struct t8_standalone_scheme
    */
   static constexpr t8_linearidx_t
   // element_get_linear_id (const t8_element_t *elem, const t8_element_level level) noexcept
-  element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) noexcept
+  element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     const t8_standalone_element<TEclass> *el = (const t8_standalone_element<TEclass> *) elem;
@@ -1227,7 +1228,7 @@ struct t8_standalone_scheme
    * \param [in,out] elem2  The element whose entries will be set.
    */
   static constexpr void
-  element_construct_successor (const t8_element_t *elem1, t8_element_t *elem2, [[maybe_unused]] int dir = 0) noexcept
+  element_construct_successor (const t8_element_t *elem1, t8_element_t *elem2) noexcept
   {
     T8_ASSERT (element_is_valid (elem1));
 
@@ -1265,7 +1266,7 @@ struct t8_standalone_scheme
    *  Thus, if \a t's level is 0, and \a level = 3, the return value is 2^3 = 8.
    */
   static constexpr t8_gloidx_t
-  element_count_leaves (const t8_element_t *elem, const t8_element_level level, [[maybe_unused]] int dir = 0) noexcept
+  element_count_leaves (const t8_element_t *elem, const t8_element_level level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (0 <= level && level <= T8_ELEMENT_MAXLEVEL[TEclass]);
@@ -1313,7 +1314,7 @@ struct t8_standalone_scheme
     const t8_standalone_element<TEclass> *e2 = (const t8_standalone_element<TEclass> *) elem2;
 
     // const int maxlvl = SC_MAX (e1->level, e2->level);
-    std::vector<int> maxlvl = {SC_MAX (e1->level, e2->level)};
+    std::vector<int> maxlvl = { SC_MAX (e1->level, e2->level) };
 
     const t8_linearidx_t id1 = element_get_linear_id ((const t8_element_t *) e1, maxlvl);
     const t8_linearidx_t id2 = element_get_linear_id ((const t8_element_t *) e2, maxlvl);
@@ -1448,7 +1449,7 @@ struct t8_standalone_scheme
     /* Set all values to 0 */
     for (int ielem = 0; ielem < length; ielem++) {
       // std::vector<t8_element_level> null = {0};
-      std::vector<int> null = {0};
+      std::vector<int> null = { 0 };
       element_set_linear_id ((t8_element_t *) (el + ielem), null, 0);
       T8_ASSERT (element_is_valid ((t8_element_t *) (el + ielem)));
     }

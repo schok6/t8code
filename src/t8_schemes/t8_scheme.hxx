@@ -30,6 +30,7 @@
 
 #include <variant>
 #include <vector>
+// #include <cstdint>
 #include <t8_refcount.h>
 #include <t8_eclass.h>
 #include <t8_schemes/t8_default/t8_default.hxx>
@@ -68,7 +69,7 @@ t8_debug_print_type ()
 #endif  // T8_ENABLE_DEBUG
 
 // template<typename... Types>
-// struct type_list_scheme_t {}; 
+// struct type_list_scheme_t {};
 
 // template<typename... Types_1, typename... Types_2>
 // class two_schemes< type_list_scheme_t<Types_1...>, type_list_scheme_t<Types_2> >
@@ -131,12 +132,12 @@ class t8_scheme {
 
  private:
   scheme_container eclass_schemes; /**< The container holding the eclass schemes. */
-  // mutable t8_refcount_t
+                                   // mutable t8_refcount_t
   //   rc; /**< The reference count of the scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
 
  public:
   mutable t8_refcount_t
-  rc; /**< The reference count of the scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
+    rc; /**< The reference count of the scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
 
   /**
    * Increase the reference count of the scheme.
@@ -162,7 +163,6 @@ class t8_scheme {
     }
     return remaining;
   }
-  
 
   /** Get the number of eclass schemes inside the scheme.
    * \return The number of eclass schemes.
@@ -192,9 +192,9 @@ class t8_scheme {
    * \return                    The valid tree class for the eclass scheme.
    */
   inline t8_eclass_t
-  get_eclass_scheme_eclass (const t8_eclass_t tree_class, int dir = 0) const
+  get_eclass_scheme_eclass (const t8_eclass_t tree_class) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.get_eclass (dir); }, eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.get_eclass (); }, eclass_schemes[tree_class]);
   }
 
   /** Return the size of any element of a given class.
@@ -238,7 +238,8 @@ class t8_scheme {
   inline int
   element_get_level (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_level (elem, dir); }, eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_level (elem, dir); },
+                       eclass_schemes[tree_class]);
   };
 
   /** Copy all entries of \a source to \a dest. \a dest must be an existing
@@ -353,9 +354,9 @@ class t8_scheme {
    */
   inline void
   element_get_sibling (const t8_eclass_t tree_class, const t8_element_t *elem, const int sibid,
-                       t8_element_t *sibling, int dir = 0) const
+                       t8_element_t *sibling) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_sibling (elem, sibid, sibling, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_sibling (elem, sibid, sibling); },
                        eclass_schemes[tree_class]);
   };
 
@@ -472,9 +473,9 @@ class t8_scheme {
    */
   inline void
   element_get_child (const t8_eclass_t tree_class, const t8_element_t *elem, const int childid,
-                     t8_element_t *child, int dir = 0) const
+                     t8_element_t *child) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_child (elem, childid, child, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_child (elem, childid, child); },
                        eclass_schemes[tree_class]);
   };
 
@@ -489,8 +490,8 @@ class t8_scheme {
    * \see t8_element_num_children
    */
   inline void
-  element_get_children (const t8_eclass_t tree_class, const t8_element_t *elem, const int length,
-                        t8_element_t *c[], int dir = 0) const
+  element_get_children (const t8_eclass_t tree_class, const t8_element_t *elem, const int length, t8_element_t *c[],
+                        int dir = 0) const
   {
     return std::visit ([&] (auto &&scheme) { return scheme.element_get_children (elem, length, c, dir); },
                        eclass_schemes[tree_class]);
@@ -504,7 +505,8 @@ class t8_scheme {
   inline int
   element_get_child_id (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_child_id (elem, dir); }, eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_child_id (elem, dir); },
+                       eclass_schemes[tree_class]);
   };
 
   /** Compute the ancestor id of an element, that is the child id
@@ -516,9 +518,9 @@ class t8_scheme {
    * \note The ancestor id at elem.level is the same as the child id.
    */
   inline int
-  element_get_ancestor_id (const t8_eclass_t tree_class, const t8_element_t *elem, const int level, int dir = 0) const
+  element_get_ancestor_id (const t8_eclass_t tree_class, const t8_element_t *elem, const int level) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_ancestor_id (elem, level, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_ancestor_id (elem, level); },
                        eclass_schemes[tree_class]);
   };
 
@@ -532,7 +534,8 @@ class t8_scheme {
   inline bool
   elements_are_family (const t8_eclass_t tree_class, t8_element_t *const *fam, int dir = 0) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.elements_are_family (fam, dir); }, eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.elements_are_family (fam, dir); },
+                       eclass_schemes[tree_class]);
   };
 
   /** Compute the nearest common ancestor of two elements. That is,
@@ -548,9 +551,9 @@ class t8_scheme {
    */
   inline void
   element_get_nca (const t8_eclass_t tree_class, const t8_element_t *elem1, const t8_element_t *elem2,
-                   t8_element_t *const nca, int dir = 0) const
+                   t8_element_t *const nca) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_nca (elem1, elem2, nca, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_nca (elem1, elem2, nca); },
                        eclass_schemes[tree_class]);
   };
 
@@ -619,9 +622,9 @@ class t8_scheme {
    */
   inline int
   element_face_get_child_face (const t8_eclass_t tree_class, const t8_element_t *elem, const int face,
-                               const int face_child, int dir = 0) const
+                               const int face_child) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_face_get_child_face (elem, face, face_child, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_face_get_child_face (elem, face, face_child); },
                        eclass_schemes[tree_class]);
   };
 
@@ -636,9 +639,9 @@ class t8_scheme {
    * \note For the root element this function always returns \a face.
    */
   inline int
-  element_face_get_parent_face (const t8_eclass_t tree_class, const t8_element_t *elem, const int face, int dir = 0) const
+  element_face_get_parent_face (const t8_eclass_t tree_class, const t8_element_t *elem, const int face) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_face_get_parent_face (elem, face, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_face_get_parent_face (elem, face); },
                        eclass_schemes[tree_class]);
   };
 
@@ -709,10 +712,13 @@ class t8_scheme {
    */
   inline int
   element_extrude_face (const t8_eclass_t tree_class, const t8_element_t *face, t8_element_t *elem,
-                        const int root_face, int dir = 0) const
+                        const int root_face) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_extrude_face (face, elem, root_face, this, dir); }, //this); }, //@LUKAS wozu braucht man this hier?
-                       eclass_schemes[tree_class]);
+    return std::visit (
+      [&] (auto &&scheme) {
+        return scheme.element_extrude_face (face, elem, root_face, this);
+      },  //this); }, //@LUKAS wozu braucht man this hier?
+      eclass_schemes[tree_class]);
   };
 
   /** Construct the boundary element at a specific face.
@@ -745,10 +751,10 @@ class t8_scheme {
    */
   inline void
   element_get_first_descendant_face (const t8_eclass_t tree_class, const t8_element_t *elem, const int face,
-                                     t8_element_t *first_desc, const int level, int dir = 0) const
+                                     t8_element_t *first_desc, const int level) const
   {
     return std::visit (
-      [&] (auto &&scheme) { return scheme.element_get_first_descendant_face (elem, face, first_desc, level, dir); },
+      [&] (auto &&scheme) { return scheme.element_get_first_descendant_face (elem, face, first_desc, level); },
       eclass_schemes[tree_class]);
   };
 
@@ -763,10 +769,10 @@ class t8_scheme {
    */
   inline void
   element_get_last_descendant_face (const t8_eclass_t tree_class, const t8_element_t *elem, const int face,
-                                    t8_element_t *last_desc, const int level, int dir = 0) const
+                                    t8_element_t *last_desc, const int level) const
   {
     return std::visit (
-      [&] (auto &&scheme) { return scheme.element_get_last_descendant_face (elem, face, last_desc, level, dir); },
+      [&] (auto &&scheme) { return scheme.element_get_last_descendant_face (elem, face, last_desc, level); },
       eclass_schemes[tree_class]);
   };
 
@@ -831,8 +837,8 @@ class t8_scheme {
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   inline void
-  element_set_linear_id (const t8_eclass_t tree_class, t8_element_t *elem, std::vector<int>& levels,
-                         const t8_linearidx_t id) const//const std::vector<int>& levelsgeht nicht @TODO
+  element_set_linear_id (const t8_eclass_t tree_class, t8_element_t *elem, std::vector<int> &levels,
+                         const t8_linearidx_t id) const  //const std::vector<int>& levelsgeht nicht @TODO
   {
     // const std::vector<int> levels = {level};
 
@@ -848,7 +854,8 @@ class t8_scheme {
    * \return              The linear id of the element.
    */
   inline t8_linearidx_t
-  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem, std::vector<int>& levels) const //const std::vector<int>& levelsgeht nicht @TODO
+  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem,
+                         std::vector<int> &levels) const  //const std::vector<int>& levelsgeht nicht @TODO
   {
     // const std::vector<int> levels = {level};
 
@@ -892,9 +899,9 @@ class t8_scheme {
    * \param [in,out] elem2  The element whose entries will be set.
    */
   inline void
-  element_construct_successor (const t8_eclass_t tree_class, const t8_element_t *t, t8_element_t *s, int dir = 0) const
+  element_construct_successor (const t8_eclass_t tree_class, const t8_element_t *t, t8_element_t *s) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_construct_successor (t, s, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_construct_successor (t, s); },
                        eclass_schemes[tree_class]);
   };
 
@@ -948,9 +955,9 @@ class t8_scheme {
    *  Thus, if \a t's level is 0, and \a level = 3, the return value is 2^3 = 8.
    */
   inline t8_gloidx_t
-  element_count_leaves (const t8_eclass_t tree_class, const t8_element_t *t, const int level, int dir = 0) const
+  element_count_leaves (const t8_eclass_t tree_class, const t8_element_t *t, const int level) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_count_leaves (t, level, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_count_leaves (t, level); },
                        eclass_schemes[tree_class]);
   };
 

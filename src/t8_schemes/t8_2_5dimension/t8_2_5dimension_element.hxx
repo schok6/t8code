@@ -172,17 +172,18 @@ class t8_2_5dimension_scheme:
    * \return The tree class of this scheme.
    */
   inline t8_eclass_t
-  get_eclass (int dir) const
+  get_eclass () const
   {
-    if (dir == 1) {
-      return TUnderlyingEclassScheme1::get_eclass ();
-    }
-    else if (dir == 2) {
-      return TUnderlyingEclassScheme2::get_eclass ();
-    }
-    else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-    }
+    SC_ABORT ("Not implemented yet.\n");
+    // if (dir == 1) {
+    //   return TUnderlyingEclassScheme1::get_eclass ();
+    // }
+    // else if (dir == 2) {
+    //   return TUnderlyingEclassScheme2::get_eclass ();
+    // }
+    // else {
+    //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    // }
   }
 
   /** Return the size of a 2.5D element.
@@ -218,7 +219,7 @@ class t8_2_5dimension_scheme:
    * \return             The level of \b elem.
    */
   inline int
-  element_get_level (const t8_element_t *elem, int dir) const
+  element_get_level (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -316,7 +317,8 @@ class t8_2_5dimension_scheme:
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   inline void
-  element_get_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const
+  element_get_parent (const t8_element_t *elem, t8_element_t *parent,
+                      int dir) const  //@Lukas - wie soll parent aussehen?
   {
     T8_ASSERT (element_is_valid (elem));
     T8_ASSERT (element_is_valid (parent));
@@ -388,7 +390,7 @@ class t8_2_5dimension_scheme:
    * Note that this number is >= 1, since we count the element itself as a sibling.
    */
   inline int
-  element_get_num_siblings (const t8_element_t *elem, int dir) const
+  element_get_num_siblings (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -426,33 +428,34 @@ class t8_2_5dimension_scheme:
    *                    and match the element class of the sibling.
    */
   inline void
-  element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling, int dir) const
+  element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const  //for what needed?
   {
-    T8_ASSERT (element_is_valid (elem));
-    T8_ASSERT (element_is_valid (sibling));
+    SC_ABORT ("For what is this needed?\n");
+    // T8_ASSERT (element_is_valid (elem));
+    // T8_ASSERT (element_is_valid (sibling));
 
-    const element_2_5D *el = (const element_2_5D *) elem;
-    element_2_5D *sib = (element_2_5D *) sibling;
-    /*direct sibling in eclass1 */
-    if (dir == 1) {
-      TUnderlyingEclassScheme1::element_get_sibling ((t8_element_t *) &el->linear_element1, sibid,
-                                                     (t8_element_t *) &sib->linear_element1);
-      TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
-                                              (t8_element_t *) &sib->linear_element2);
-      /*TODO
-      * iterativ auch weitere Elemente der Säule in Sibling bezüglich eclass1 verfeinern
-      * !!! sonst wird Säulenstruktur zerstört
-      */
-    }
-    else if (dir == 2) {
-      TUnderlyingEclassScheme1::element_copy ((t8_element_t *) &el->linear_element1,
-                                              (t8_element_t *) &sib->linear_element1);
-      TUnderlyingEclassScheme2::element_get_sibling ((t8_element_t *) &el->linear_element2, sibid,
-                                                     (t8_element_t *) &sib->linear_element2);
-    }
-    else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-    }
+    // const element_2_5D *el = (const element_2_5D *) elem;
+    // element_2_5D *sib = (element_2_5D *) sibling;
+    // /*direct sibling in eclass1 */
+    // if (dir == 1) {
+    //   TUnderlyingEclassScheme1::element_get_sibling ((t8_element_t *) &el->linear_element1, sibid,
+    //                                                  (t8_element_t *) &sib->linear_element1);
+    //   TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
+    //                                           (t8_element_t *) &sib->linear_element2);
+    //   /*TODO
+    //   * iterativ auch weitere Elemente der Säule in Sibling bezüglich eclass1 verfeinern
+    //   * !!! sonst wird Säulenstruktur zerstört
+    //   */
+    // }
+    // else if (dir == 2) {
+    //   TUnderlyingEclassScheme1::element_copy ((t8_element_t *) &el->linear_element1,
+    //                                           (t8_element_t *) &sib->linear_element1);
+    //   TUnderlyingEclassScheme2::element_get_sibling ((t8_element_t *) &el->linear_element2, sibid,
+    //                                                  (t8_element_t *) &sib->linear_element2);
+    // }
+    // else {
+    //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    // }
   }
 
   /** Compute the number of corners of a given element.
@@ -497,7 +500,7 @@ class t8_2_5dimension_scheme:
    * \return            The number of children of \a elem if it is to be refined.
    */
   inline int
-  element_get_num_children (const t8_element_t *elem, int dir) const
+  element_get_num_children (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
     const element_2_5D *el = (const element_2_5D *) elem;
     if (dir == 1) {
@@ -590,38 +593,39 @@ class t8_2_5dimension_scheme:
    * \see t8_element_child_eclass
    */
   inline void
-  element_get_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir) const
+  element_get_child (const t8_element_t *elem, int childid, t8_element_t *child) const
   {
-    T8_ASSERT (element_is_valid (elem));
-    T8_ASSERT (element_is_valid (child));
+    SC_ABORT ("For what is this needed?\n");
+    // T8_ASSERT (element_is_valid (elem));
+    // T8_ASSERT (element_is_valid (child));
 
-    const element_2_5D *el = (const element_2_5D *) elem;
-    element_2_5D *c = (element_2_5D *) child;
-    /*direct child in eclass1 */
-    if (dir == 1) {
-      TUnderlyingEclassScheme1::element_get_child ((t8_element_t *) &el->linear_element1, childid,
-                                                   (t8_element_t *) &c->linear_element1);
-      TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
-                                              (t8_element_t *) &c->linear_element2);
-      /*TODO
-      * iterativ auch weitere Elemente der Säule in Kinder bezüglich eclass1 verfeinern
-      * !!! sonst wird Säulenstruktur zerstört
-      * 
-      * EXTRA CASE
-      * childid possible between 0 and element_get_num_children(elem, 1) (=max number of possible children) 
-      * SC_ABORT ("The function element_get_child is not uniquely defined for eclass1 so far.\n");
-      */
-    }
-    else if (dir == 2) {
-      TUnderlyingEclassScheme1::element_copy ((t8_element_t *) &el->linear_element1,
-                                              (t8_element_t *) &c->linear_element1);
-      TUnderlyingEclassScheme2::element_get_child ((t8_element_t *) &el->linear_element2, childid,
-                                                   (t8_element_t *) &c->linear_element2);
-    }
+    // const element_2_5D *el = (const element_2_5D *) elem;
+    // element_2_5D *c = (element_2_5D *) child;
+    // /*direct child in eclass1 */
+    // if (dir == 1) {
+    //   TUnderlyingEclassScheme1::element_get_child ((t8_element_t *) &el->linear_element1, childid,
+    //                                                (t8_element_t *) &c->linear_element1);
+    //   TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
+    //                                           (t8_element_t *) &c->linear_element2);
+    //   /*TODO
+    //   * iterativ auch weitere Elemente der Säule in Kinder bezüglich eclass1 verfeinern
+    //   * !!! sonst wird Säulenstruktur zerstört
+    //   *
+    //   * EXTRA CASE
+    //   * childid possible between 0 and element_get_num_children(elem, 1) (=max number of possible children)
+    //   * SC_ABORT ("The function element_get_child is not uniquely defined for eclass1 so far.\n");
+    //   */
+    // }
+    // else if (dir == 2) {
+    //   TUnderlyingEclassScheme1::element_copy ((t8_element_t *) &el->linear_element1,
+    //                                           (t8_element_t *) &c->linear_element1);
+    //   TUnderlyingEclassScheme2::element_get_child ((t8_element_t *) &el->linear_element2, childid,
+    //                                                (t8_element_t *) &c->linear_element2);
+    // }
 
-    else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-    }
+    // else {
+    //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    // }
   }
 
   /** Construct all children of a given element.
@@ -634,7 +638,8 @@ class t8_2_5dimension_scheme:
    * \see t8_element_num_children
    */
   inline void
-  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir) const
+  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[],
+                        int dir) const  //@need it in 2 directions!!!
   {
     //*c[] = *[t8_element_t, t8_element_t, t8_element_t, ...]
     T8_ASSERT (element_is_valid (elem));
@@ -727,7 +732,7 @@ class t8_2_5dimension_scheme:
    * \return              The child id of elem.
    */
   inline int
-  element_get_child_id (const t8_element_t *elem, int dir) const
+  element_get_child_id (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
     const element_2_5D *el = (const element_2_5D *) elem;
     if (dir == 1) {
@@ -748,18 +753,19 @@ class t8_2_5dimension_scheme:
    * \return              The child_id of \a elem in regard to its \a level ancestor.
    */
   inline int
-  element_get_ancestor_id (const t8_element_t *elem, int level, int dir) const
+  element_get_ancestor_id (const t8_element_t *elem, int level) const
   {
-    const element_2_5D *el = (const element_2_5D *) elem;
-    if (dir == 1) {
-      return TUnderlyingEclassScheme1::element_get_ancestor_id ((t8_element_t *) &el->linear_element1, level);
-    }
-    else if (dir == 2) {
-      return TUnderlyingEclassScheme2::element_get_ancestor_id ((t8_element_t *) &el->linear_element2, level);
-    }
-    else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
-    }
+    SC_ABORT ("Not implemented yet.\n");
+    // const element_2_5D *el = (const element_2_5D *) elem;
+    // if (dir == 1) {
+    //   return TUnderlyingEclassScheme1::element_get_ancestor_id ((t8_element_t *) &el->linear_element1, level);
+    // }
+    // else if (dir == 2) {
+    //   return TUnderlyingEclassScheme2::element_get_ancestor_id ((t8_element_t *) &el->linear_element2, level);
+    // }
+    // else {
+    //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    // }
   }
 
   /** Query whether a given set of elements is a family or not.
@@ -906,8 +912,9 @@ class t8_2_5dimension_scheme:
    *                      \b elem1 and \b elem2.
    */
   inline void
-  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir) const
+  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const
   {
+    SC_ABORT ("Not implemented yet.\n");
     // if (dir == 1) {
     //   return TUnderlyingEclassScheme1::element_get_nca (elem1, elem2, nca);
     // }
@@ -915,7 +922,7 @@ class t8_2_5dimension_scheme:
     //   return TUnderlyingEclassScheme2::element_get_nca (elem1, elem2, nca);
     // }
     // else {
-    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    // SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
     // }
   }
 
@@ -976,7 +983,7 @@ class t8_2_5dimension_scheme:
    *                      that coincides with \a face_child.
    */
   inline int
-  element_face_get_child_face (const t8_element_t *elem, int face, int face_child, int dir) const
+  element_face_get_child_face (const t8_element_t *elem, int face, int face_child) const
   {
     SC_ABORT ("[FACE] This function is not implemented yet. Waiting for scheme interface.\n");
     return 0;
@@ -993,7 +1000,7 @@ class t8_2_5dimension_scheme:
      * \note For the root element this function always returns \a face.
      */
   inline int
-  element_face_get_parent_face (const t8_element_t *elem, int face, int dir) const
+  element_face_get_parent_face (const t8_element_t *elem, int face) const
   {
     SC_ABORT ("[FACE] This function is not implemented yet. Waiting for scheme interface.\n");
     return 0;
@@ -1061,8 +1068,8 @@ class t8_2_5dimension_scheme:
    *                      with \a face.
    */
   inline int
-  element_extrude_face (const t8_element_t *face, t8_element_t *elem, const int root_face, const t8_scheme *scheme,
-                        int dir) const
+  element_extrude_face (const t8_element_t *face, t8_element_t *elem, const int root_face,
+                        const t8_scheme *scheme) const
   {
     SC_ABORT ("[FACE] Waiting for scheme interface.\n");
     return 0;
@@ -1095,8 +1102,7 @@ class t8_2_5dimension_scheme:
    * \param [in] level     The level, at which the first descendant is constructed
    */
   inline void
-  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level,
-                                     int dir) const
+  element_get_first_descendant_face (const t8_element_t *elem, int face, t8_element_t *first_desc, int level) const
   {
     SC_ABORT ("[FACE] This function is not implemented yet. & Waiting for scheme interface.\n");
   }
@@ -1110,8 +1116,7 @@ class t8_2_5dimension_scheme:
    * \param [in] level     The level, at which the last descendant is constructed
    */
   inline void
-  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level,
-                                    int dir) const
+  element_get_last_descendant_face (const t8_element_t *elem, int face, t8_element_t *last_desc, int level) const
   {
     SC_ABORT ("[FACE] This function is not implemented yet. & Waiting for scheme interface.\n");
   }
@@ -1290,7 +1295,7 @@ class t8_2_5dimension_scheme:
   * \param [in,out] elem2  The element whose entries will be set.
   */
   inline void
-  element_construct_successor (const t8_element_t *t, t8_element_t *s, int dir) const
+  element_construct_successor (const t8_element_t *t, t8_element_t *s) const
   {
     T8_ASSERT (element_is_valid (t));
     T8_ASSERT (s != NULL);
@@ -1381,8 +1386,9 @@ class t8_2_5dimension_scheme:
    *  Thus, if \a t's level is 0, and \a level = 3, the return value is 2^3 = 8.
    */
   inline t8_gloidx_t
-  element_count_leaves (const t8_element_t *t, const int level, int dir) const  //@TODO!!
+  element_count_leaves (const t8_element_t *t, const int level) const  //@TODO!!
   {
+    SC_ABORT ("Not implemented yet.\n");
     // if (dir == 1) {
     //   return TUnderlyingEclassScheme1::element_count_leaves (elem, level);
     // }
@@ -1390,7 +1396,7 @@ class t8_2_5dimension_scheme:
     //   return TUnderlyingEclassScheme2::element_count_leaves (elem, level);
     // }
     // else {
-    SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    // SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
     // }
   }
 
@@ -1403,7 +1409,7 @@ class t8_2_5dimension_scheme:
    * \ref t8_element_count_leaves.
    */
   inline t8_gloidx_t
-  count_leaves_from_root (const int level, int dir) const
+  count_leaves_from_root (const int level, int dir) const  //@need it in 2 directions!!!
   {
     if (dir == 1) {
       return TUnderlyingEclassScheme1::count_leaves_from_root (level);

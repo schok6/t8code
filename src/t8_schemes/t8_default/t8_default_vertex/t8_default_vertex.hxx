@@ -165,7 +165,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    *                    and match the element class of the sibling.
    */
   void
-  element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling, int dir) const;
+  element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const;
 
   /** Compute the number of faces of a given element.
    * \param [in] elem The element.
@@ -235,7 +235,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * It is valid to call this function with elem = child.
      */
   void
-  element_get_child (const t8_element_t *elem, int childid, t8_element_t *child, int dir) const;
+  element_get_child (const t8_element_t *elem, int childid, t8_element_t *child) const;
 
   /** Construct all children of a given element.
    * \param [in] elem     This must be a valid element, bigger than maxlevel.
@@ -265,7 +265,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \note The ancestor id at elem.level is the same as the child id.
    */
   int
-  element_get_ancestor_id (const t8_element_t *elem, int level, int dir) const;
+  element_get_ancestor_id (const t8_element_t *elem, int level) const;
 
   /** Query whether a given set of elements is a family or not.
    * \param [in] fam      An array of as many elements as an element of class
@@ -287,7 +287,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    *                      \b elem1 and \b elem2.
    */
   void
-  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca, int dir) const;
+  element_get_nca (const t8_element_t *elem1, const t8_element_t *elem2, t8_element_t *nca) const;
 
   /** Compute the shape of the face of an element.
    * \param [in] elem     The element.
@@ -346,7 +346,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    */
   int
   element_face_get_child_face ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int face,
-                               [[maybe_unused]] int face_child, [[maybe_unused]] int dir) const
+                               [[maybe_unused]] int face_child) const
   {
     SC_ABORT ("Not implemented.\n");
     return 0; /* prevents compiler warning */
@@ -363,7 +363,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
      * \note For the root element this function always returns \a face.
      */
   int
-  element_face_get_parent_face ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int face, [[maybe_unused]] int dir) const
+  element_face_get_parent_face ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int face) const
   {
     SC_ABORT ("Not implemented.\n");
     return 0; /* prevents compiler warning */
@@ -425,7 +425,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    */
   int
   element_extrude_face ([[maybe_unused]] const t8_element_t *face, [[maybe_unused]] t8_element_t *elem,
-                        [[maybe_unused]] int root_face, [[maybe_unused]] const t8_scheme *scheme, [[maybe_unused]] int dir) const
+                        [[maybe_unused]] int root_face, [[maybe_unused]] const t8_scheme *scheme) const
   {
     SC_ABORT ("Not implemented.\n");
     return 0; /* prevents compiler warning */
@@ -441,7 +441,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    */
   void
   element_get_first_descendant_face ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int face,
-                                     [[maybe_unused]] t8_element_t *first_desc, [[maybe_unused]] int level, [[maybe_unused]] int dir) const
+                                     [[maybe_unused]] t8_element_t *first_desc, [[maybe_unused]] int level) const
   {
     SC_ABORT ("Not implemented.\n");
     return; /* prevents compiler warning */
@@ -457,7 +457,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    */
   void
   element_get_last_descendant_face ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int face,
-                                    [[maybe_unused]] t8_element_t *last_desc, [[maybe_unused]] int level, [[maybe_unused]] int dir) const
+                                    [[maybe_unused]] t8_element_t *last_desc, [[maybe_unused]] int level) const
   {
     SC_ABORT ("Not implemented.\n");
     return; /* prevents compiler warning */
@@ -519,7 +519,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   static void
-  element_set_linear_id (t8_element_t *elem, std::vector<int>& levels, const t8_linearidx_t id);
+  element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, const t8_linearidx_t id);
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
@@ -528,7 +528,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \return              The linear id of the element.
    */
   t8_linearidx_t
-  element_get_linear_id (const t8_element_t *elem, std::vector<int>& levels) const;
+  element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -537,7 +537,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -546,7 +546,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int>& levels) const;
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
 
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
@@ -554,7 +554,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \param [in] level    The level of the uniform refinement to consider.
    */
   void
-  element_construct_successor ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] t8_element_t *succ, [[maybe_unused]] int dir = 0) const
+  element_construct_successor ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] t8_element_t *succ) const
   {
     SC_ABORT ("Not implemented.\n");
     return; /* prevents compiler warning */

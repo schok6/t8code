@@ -35,7 +35,6 @@
 
 T8_EXTERN_C_BEGIN ();
 
-
 /** Check whether or not \a elements contains a (in)complete family and 
  *  return the size of it or zero if no family is considered.
  * \param [in]      forest          The forest.
@@ -65,12 +64,6 @@ t8_forest_compute_desc (t8_forest_t forest);
  * of the coarse mesh. */
 void
 t8_forest_populate (t8_forest_t forest);
-
-/**
- * TODO
-*/
-void
-t8_forest_populate_2_5D (t8_forest_t forest);
 
 /** Return the scheme associated to a forest.
  * This function does not check whether the given forest is committed, use with
