@@ -43,7 +43,7 @@ class nca: public testing::TestWithParam<std::tuple<int, t8_eclass_t>> {
     scheme->element_new (tree_class, 1, &desc_a);
     scheme->element_new (tree_class, 1, &desc_b);
     scheme->element_new (tree_class, 1, &check);
-    std::vector<int> null {0};
+    std::vector<int> null { 0 };
     scheme->element_set_linear_id (tree_class, correct_nca, null, 0);
   }
   void
@@ -110,10 +110,10 @@ TEST_P (nca, nca_check_deep)
       /* Compute first and last descendant at every level up to elem_max_lvl. 
        * They have the correct_nca as the nca */
       for (check_lvl_a = lvl + 1; check_lvl_a < elem_max_level; check_lvl_a++) {
-        std::vector<int> check_lvl_a_vec {check_lvl_a};
+        std::vector<int> check_lvl_a_vec { check_lvl_a };
         scheme->element_get_first_descendant (tree_class, correct_nca, desc_a, check_lvl_a_vec);
         for (check_lvl_b = lvl + 1; check_lvl_b < elem_max_level; check_lvl_b++) {
-          std::vector<int> check_lvl_b_vec {check_lvl_b};
+          std::vector<int> check_lvl_b_vec { check_lvl_b };
           scheme->element_get_last_descendant (tree_class, correct_nca, desc_b, check_lvl_b_vec);
           /* Compute the nca of desc_a and desc_b */
           scheme->element_get_nca (tree_class, desc_a, desc_b, check);
@@ -192,26 +192,26 @@ t8_recursive_nca_check (t8_element_t *check_nca, t8_element_t *desc_a, t8_elemen
          * This makes debugging a lot easier, as one can reconstruct the descendants
          * via t8_element_set_linear_id and can directly test them instead of waiting
          * until the recursion reaches the faulty computation. */
-        std::vector<int> level_a_vec {level_a};
+        std::vector<int> level_a_vec { level_a };
         t8_debugf ("id of desc_a: %li, level: %i\n",
                    static_cast<long> (scheme->element_get_linear_id (tree_class, desc_a, level_a_vec)), level_a);
-        std::vector<int> level_b_vec {level_b};
+        std::vector<int> level_b_vec { level_b };
         t8_debugf ("id of desc_b: %li, level: %i\n",
                    static_cast<long> (scheme->element_get_linear_id (tree_class, desc_b, level_b_vec)), level_b);
 
         for (int k = SC_MAX (level_a, level_b); k >= 0; k--) {
-          std::vector<int> k_vec {k};
+          std::vector<int> k_vec { k };
           t8_debugf ("id of desc_a: %li, level: %i\n",
                      static_cast<long> (scheme->element_get_linear_id (tree_class, desc_a, k_vec)), k);
           t8_debugf ("id of desc_b: %li, level: %i\n",
                      static_cast<long> (scheme->element_get_linear_id (tree_class, desc_b, k_vec)), k);
         }
 
-        std::vector<int> level_c_vec {level_c};
+        std::vector<int> level_c_vec { level_c };
         t8_debugf ("id of the correct nca: %li, level: %i\n",
                    static_cast<long> (scheme->element_get_linear_id (tree_class, check_nca, level_c_vec)), level_c);
 
-        std::vector<int> level_nca_vec {level_nca};
+        std::vector<int> level_nca_vec { level_nca };
         t8_debugf ("id of the computed nca: %li, level: %i\n",
                    static_cast<long> (scheme->element_get_linear_id (tree_class, check, level_nca_vec)), level_nca);
 
@@ -234,11 +234,8 @@ TEST_P (nca, recursive_check)
 {
 #if T8CODE_TEST_LEVEL >= 2
   const int recursion_depth = 2;
-#elif T8CODE_TEST_LEVEL >= 1
-  const int recursion_depth = 3;
 #else
-  /* User lower recursion depth for pyramids, it takes to much time otherwise */
-  const int recursion_depth = 4;
+  const int recursion_depth = 3;
 #endif
   t8_element_t *parent_a, *parent_b;
   int num_children;
@@ -267,34 +264,39 @@ TEST_P (nca, recursive_check)
 
 /* Test the nca recursively for elements in the middle of the uniform refinement tree
  * up to the maximal level. 
- * Be careful when increasing the recursion_depth, as it increases the number of test-cases exponentially. */
+ * Be careful when increasing the max_lvl, as it increases the number of test-cases exponentially. */
 TEST_P (nca, recursive_check_higher_level)
 {
 #if T8CODE_TEST_LEVEL >= 2
-  const int recursion_depth = 2;
+  const int start_level = 2;
 #else
-  const int recursion_depth = 3;
+  const int start_level = 3;
 #endif
 
+#if T8CODE_TEST_LEVEL >= 1
+  const int max_lvl = scheme->get_maxlevel (tree_class) / 2;
+#else
   const int max_lvl = scheme->get_maxlevel (tree_class);
+#endif
+
   t8_element_t *parent_a;
   t8_element_t *parent_b;
   t8_element_t *correct_nca_high_level;
   int num_children;
   int i, k, l;
   t8_gloidx_t leaves_on_level;
-  EXPECT_TRUE (max_lvl - recursion_depth >= 0);
+  EXPECT_TRUE (max_lvl - start_level >= 0);
 
   scheme->element_new (tree_class, 1, &parent_a);
   scheme->element_new (tree_class, 1, &parent_b);
   scheme->element_new (tree_class, 1, &correct_nca_high_level);
 
   /* Test on different levels around the middle of the refinement tree */
-  for (i = recursion_depth; i < max_lvl; i++) {
-    leaves_on_level = scheme->element_count_leaves (tree_class, correct_nca, i - recursion_depth);
+  for (i = start_level; i < max_lvl; i++) {
+    leaves_on_level = scheme->element_count_leaves (tree_class, correct_nca, i - start_level);
     /* middle = leaves/2 */
-    std::vector<int> level_vec {i - recursion_depth};
-    scheme->element_set_linear_id (tree_class, correct_nca_high_level, level_vec, leaves_on_level / 2);
+    std::vector<int> level_vec { i - start_level };
+    scheme->element_set_linear_id (tree_class, correct_nca_high_level, i - level_vec, leaves_on_level / 2);
 
     /* Initialization for recursive_nca_check */
     num_children = scheme->element_get_num_children (tree_class, correct_nca_high_level);

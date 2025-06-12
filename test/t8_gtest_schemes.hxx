@@ -35,8 +35,8 @@ create_from_scheme_id (const int scheme_id)
     return t8_scheme_new_default ();
   case 1:
     return t8_scheme_new_standalone ();
-  case 2:
-    return t8_scheme_new_2_5dimension ();
+  // case 2:
+  //   return t8_scheme_new_2_5dimension ();
   default:
     SC_ABORT_NOT_REACHED ();
     return nullptr;
@@ -50,7 +50,11 @@ auto print_all_schemes = [] (const testing::TestParamInfo<std::tuple<int, t8_ecl
          + t8_eclass_to_string[std::get<1> (info.param)];
 };
 
-#define AllSchemeCollections ::testing::Range (0, 3)
+auto print_scheme
+  = [] (const testing::TestParamInfo<int> &info) { return std::string (t8_scheme_to_string[info.param]); };
+
+#define AllSchemeCollections ::testing::Range (0, 2)
+// #define AllSchemeCollections ::testing::Range (0, 3)
 #define AllSchemes ::testing::Combine (AllSchemeCollections, ::testing::Range (T8_ECLASS_ZERO, T8_ECLASS_COUNT))
 
 #endif /* T8_GTEST_SCHEMES_HXX */

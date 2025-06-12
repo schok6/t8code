@@ -346,8 +346,9 @@ t8_forest_adapt_refine_recursive (t8_forest_t forest, t8_locidx_t ltreeid, t8_ec
     T8_ASSERT (refine != -1);
     if (refine == 1) {
       /* The element should be refined */
-      if (scheme->element_get_level (tree_class, el_buffer[0]) < forest->maxlevel) {
-        /* only refine, if we do not exceed the maximum allowed level */
+      if (scheme->element_get_level (tree_class, el_buffer[0]) < forest->maxlevel
+          && scheme->element_is_refinable (tree_class, el_buffer[0])) {
+        /* only refine if element is refinable and if we do not exceed the maximum allowed level */
         /* Create the children and add them to the list */
         scheme->element_new (tree_class, num_children - 1, el_buffer + 1);
         scheme->element_get_children (tree_class, el_buffer[0], num_children, el_buffer);
@@ -396,7 +397,6 @@ t8_forest_adapt (t8_forest_t forest)
   int num_children;
   int num_siblings;
   int curr_size_elements_from;
-  int curr_size_elements;
   int num_elements_to_adapt_callback;
   int zz;
   int ci;
@@ -419,12 +419,12 @@ t8_forest_adapt (t8_forest_t forest)
      * even if you do not want this output. It fixes a bug that occurred on JUQUEEN, where the
      * runtimes were computed to 0.
      * Only delete the line, if you know what you are doing. */
-    t8_global_productionf ("Start adadpt %f %f\n", sc_MPI_Wtime (), forest->profile->adapt_runtime);
+    t8_global_productionf ("Start adapt %f %f\n", sc_MPI_Wtime (), forest->profile->adapt_runtime);
   }
 
   forest_from = forest->set_from;
   t8_global_productionf ("Into t8_forest_adapt from %lld total elements\n",
-                         (long long) forest_from->global_num_elements);
+                         (long long) forest_from->global_num_leaf_elements);
 
   T8_ASSERT (forest_from->incomplete_trees != -1);
   T8_ASSERT (forest->incomplete_trees == -1);
@@ -435,7 +435,7 @@ t8_forest_adapt (t8_forest_t forest)
   if (forest->set_adapt_recursive) {
     refine_list = sc_list_new (NULL);
   }
-  forest->local_num_elements = 0;
+  forest->local_num_leaf_elements = 0;
   el_offset = 0;
   num_trees = t8_forest_get_num_local_trees (forest);
   /* Iterate over the trees and build the new element arrays for each one. */
@@ -443,15 +443,15 @@ t8_forest_adapt (t8_forest_t forest)
     /* Get the new and old tree and the new and old element arrays */
     tree = t8_forest_get_tree (forest, ltree_id);
     tree_from = t8_forest_get_tree (forest_from, ltree_id);
-    telements = &tree->elements;
+    telements = &tree->leaf_elements;
 
     /* Number of elements in the telements */
     t8_locidx_t num_telements = (t8_locidx_t) t8_element_array_get_count (telements);
 
-    telements_from = &tree_from->elements;
+    telements_from = &tree_from->leaf_elements;
     /* Number of elements in the old tree */
     num_el_from = (t8_locidx_t) t8_element_array_get_count (telements_from);
-    T8_ASSERT (num_el_from == t8_forest_get_tree_num_elements (forest_from, ltree_id));
+    T8_ASSERT (num_el_from == t8_forest_get_tree_num_leaf_elements (forest_from, ltree_id));
     /* Continue only if tree_from is not empty.
      * Otherwise there is nothing to adapt, since elements can't be inserted. */
     if (num_el_from > 0) {
@@ -487,7 +487,7 @@ t8_forest_adapt (t8_forest_t forest)
         curr_size_elements_from = scheme_mixed->element_get_num_siblings (tree->eclass, first_element_from, 2);
       }
       else {
-        num_children = scheme->element_get_num_children (tree->eclass, first_element_from);
+        num_children = scheme->get_max_num_children (tree->eclass);
         curr_size_elements = num_children;
         curr_size_elements_from = scheme->element_get_num_siblings (tree->eclass, first_element_from);
       }
@@ -650,7 +650,7 @@ t8_forest_adapt (t8_forest_t forest)
         else {
           level = scheme->element_get_level (tree->eclass, elements_from[0]);
         }
-        if (refine > 0 && level >= forest->maxlevel && scheme->element_is_refinable (tree->eclass, elements_from[0])) {
+        if (refine > 0 && level >= forest->maxlevel || !scheme->element_is_refinable (tree->eclass, elements_from[0])) {
           /* Only refine an element if it does not exceed the maximum level and if it is refinable */
           refine = 0;
         }
@@ -837,7 +837,7 @@ t8_forest_adapt (t8_forest_t forest)
       tree->elements_offset = el_offset;
       el_offset += el_inserted;
       /* Add to the new number of local elements. */
-      forest->local_num_elements += el_inserted;
+      forest->local_num_leaf_elements += el_inserted;
       t8_productionf ("tree->elements_offset: %i", tree->elements_offset);
       t8_productionf ("forest->local_num_elements: %i", forest->local_num_elements);
       t8_productionf ("el_inserted: %i", el_inserted);
@@ -863,7 +863,7 @@ t8_forest_adapt (t8_forest_t forest)
 
   /* We now adapted all local trees */
   /* Compute the new global number of elements */
-  t8_forest_comm_global_num_elements (forest);
+  t8_forest_comm_global_num_leaf_elements (forest);
 
   /* Updating other processes about local (in)complete trees.
    * If the old forest already contained incomplete trees, 
@@ -886,7 +886,8 @@ t8_forest_adapt (t8_forest_t forest)
 
   t8_productionf ("forest_from->set_type: %i \n", forest_from->set_type);
 
-  t8_global_productionf ("Done t8_forest_adapt with %lld total elements\n", (long long) forest->global_num_elements);
+  t8_global_productionf ("Done t8_forest_adapt with %lld total elements\n",
+                         (long long) forest->global_num_leaf_elements);
 
   /* if profiling is enabled, measure runtime */
   if (forest->profile != NULL) {
@@ -895,7 +896,7 @@ t8_forest_adapt (t8_forest_t forest)
      * even if you do not want this output. It fixes a bug that occurred on JUQUEEN, where the
      * runtimes were computed to 0.
      * Only delete the line, if you know what you are doing. */
-    t8_global_productionf ("End adadpt %f %f\n", sc_MPI_Wtime (), forest->profile->adapt_runtime);
+    t8_global_productionf ("End adapt %f %f\n", sc_MPI_Wtime (), forest->profile->adapt_runtime);
   }
 }
 
