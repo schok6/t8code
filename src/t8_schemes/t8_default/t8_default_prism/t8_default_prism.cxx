@@ -150,7 +150,7 @@ t8_default_scheme_prism::element_get_num_faces ([[maybe_unused]] const t8_elemen
 }
 
 int
-t8_default_scheme_prism::element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_prism::element_get_child_id (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dprism_child_id ((const t8_dprism_t *) elem);

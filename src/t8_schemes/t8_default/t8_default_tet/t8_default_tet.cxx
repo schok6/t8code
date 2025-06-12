@@ -156,7 +156,7 @@ t8_default_scheme_tet::element_get_children (const t8_element_t *elem, [[maybe_u
 }
 
 int
-t8_default_scheme_tet::element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_child_id (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dtet_child_id ((const t8_dtet_t *) elem);

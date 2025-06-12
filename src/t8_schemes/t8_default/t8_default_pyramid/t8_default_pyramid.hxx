@@ -263,7 +263,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \return              The child id of elem.
    */
   int
-  element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const;
+  element_get_child_id (const t8_element_t *elem) const;
 
   /** Compute the ancestor id of an element, that is the child id
    * at a given level.

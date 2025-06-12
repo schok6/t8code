@@ -171,7 +171,7 @@ t8_default_scheme_tri::element_get_children (const t8_element_t *elem, [[maybe_u
 }
 
 int
-t8_default_scheme_tri::element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_tri::element_get_child_id (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dtri_child_id ((t8_dtri_t *) elem);

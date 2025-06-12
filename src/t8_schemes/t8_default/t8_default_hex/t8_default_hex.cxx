@@ -184,7 +184,7 @@ t8_default_scheme_hex::element_get_children (const t8_element_t *elem, [[maybe_u
 }
 
 int
-t8_default_scheme_hex::element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_hex::element_get_child_id (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return p8est_quadrant_child_id ((const p8est_quadrant_t *) elem);

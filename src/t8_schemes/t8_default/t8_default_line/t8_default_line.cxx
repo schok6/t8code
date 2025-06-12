@@ -361,7 +361,7 @@ t8_default_scheme_line::element_get_num_face_children ([[maybe_unused]] const t8
 }
 
 int
-t8_default_scheme_line::element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_line::element_get_child_id (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dline_child_id ((const t8_dline_t *) elem);

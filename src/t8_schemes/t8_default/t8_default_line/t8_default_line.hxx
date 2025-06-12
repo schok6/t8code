@@ -265,7 +265,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \return              The child id of elem.
    */
   int
-  element_get_child_id (const t8_element_t *elem, int dir = 0) const;
+  element_get_child_id (const t8_element_t *elem) const;
 
   /** Compute the ancestor id of an element, that is the child id
    * at a given level.

@@ -101,19 +101,6 @@ class t8_mixed_scheme: public t8_scheme {
     return remaining;
   }
 
-  // /** Return the size of any element of a given class.
-  //  * \param [in] tree_class    The eclass of the current tree.
-  //  * \return                      The size of an element of class \a tree_class.
-  //  * We provide a default implementation of this routine that should suffice
-  //  * for most use cases.
-  //  */
-  // inline size_t
-  // get_element_size (const t8_eclass_t tree_class) const
-  // {
-  //   return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.get_element_size (); },
-  //                      eclass_schemes_mixed[tree_class]);
-  // };
-
   /** Return the level of a particular element.
    * \param [in] tree_class    The eclass of the current tree.
    * \param [in] elem    The element whose level should be returned.
@@ -182,79 +169,6 @@ class t8_mixed_scheme: public t8_scheme {
                        eclass_schemes_mixed[tree_class]);
   };
 
-  // /** Return the number of children of an element's face when the element is refined.
-  //  * \param [in] tree_class    The eclass of the current tree.
-  //  * \param [in] elem   The element whose face is considered.
-  //  * \param [in] face   A face of \a elem.
-  //  * \return            The number of children of \a face if \a elem is to be refined.
-  //  */
-  // inline int
-  // element_get_num_face_children (const t8_eclass_t tree_class, const t8_element_t *elem, const int face) const
-  // {
-  //   return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_get_num_face_children (elem, face); },
-  //                      eclass_schemes[tree_class]);
-  // };
-
-  // /** Return the corner number of an element's face corner.
-  //  * Example quad: 2 x --- x 3
-  //  *                 |     |
-  //  *                 |     |   face 1
-  //  *               0 x --- x 1
-  //  *      Thus for face = 1 the output is: corner=0 : 1, corner=1: 3
-  //  *
-  //  * \param [in] tree_class    The eclass of the current tree.
-  //  * \param [in] element  The element.
-  //  * \param [in] face     A face index for \a element.
-  //  * \param [in] corner   A corner index for the face 0 <= \a corner < num_face_corners.
-  //  * \return              The corner number of the \a corner-th vertex of \a face.
-  //  */
-  // inline int
-  // element_get_face_corner (const t8_eclass_t tree_class, const t8_element_t *element, const int face,
-  //                          const int corner) const
-  // {
-  //   return std::visit (
-  //     [&] (auto &&scheme_mixed) { return scheme_mixed.element_get_face_corner (element, face, corner); },
-  //     eclass_schemes[tree_class]);
-  // };
-
-  /** Return the face numbers of the faces sharing an element's corner.
-   * Example quad: 2 x --- x 3
-   *                 |     |
-   *                 |     |   face 1
-   *               0 x --- x 1
-   *                  face 2
-   * Thus for corner = 1 the output is: face=0 : 2, face=1: 1
-   * \param [in] tree_class    The eclass of the current tree.
-   * \param [in] element  The element.
-   * \param [in] corner   A corner index for the face.
-   * \param [in] face     A face index for \a corner.
-   * \return              The face number of the \a face-th face at \a corner.
-   */
-  inline int
-  element_get_corner_face (const t8_eclass_t tree_class, const t8_element_t *element, const int corner,
-                           const int face) const
-  {
-    return std::visit (
-      [&] (auto &&scheme_mixed) { return scheme_mixed.element_get_corner_face (element, corner, face); },
-      eclass_schemes[tree_class]);
-  };
-
-  /** Construct the child element of a given number.
-   * \param [in] tree_class    The eclass of the current tree.
-   * \param [in] elem     This must be a valid element, bigger than maxlevel.
-   * \param [in] childid  The number of the child to construct.
-   * \param [in,out] child        The storage for this element must exist.
-   *                              On output, a valid element.
-   * It is valid to call this function with elem = child.
-   */
-  inline void
-  element_get_child (const t8_eclass_t tree_class, const t8_element_t *elem, const int childid,
-                     t8_element_t *child) const
-  {
-    return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_get_child (elem, childid, child); },
-                       eclass_schemes[tree_class]);
-  };
-
   /** Construct all children of a given element.
    * \param [in] tree_class    The eclass of the current tree.
    * \param [in] elem     This must be a valid element, bigger than maxlevel.
@@ -279,10 +193,10 @@ class t8_mixed_scheme: public t8_scheme {
    * \return              The child id of elem.
    */
   inline int
-  element_get_child_id (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
+  element_get_child_id (const t8_eclass_t tree_class, const t8_element_t *elem, int dir) const
   {
     return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_get_child_id (elem, dir); },
-                       eclass_schemes[tree_class]);
+                       eclass_schemes_mixed[tree_class]);
   };
 
   /** Query whether a given set of elements is a family or not.

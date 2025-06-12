@@ -159,8 +159,7 @@ t8_default_scheme_vertex::element_get_children (const t8_element_t *elem, [[mayb
 }
 
 int
-t8_default_scheme_vertex::element_get_child_id ([[maybe_unused]] const t8_element_t *elem,
-                                                [[maybe_unused]] int dir) const
+t8_default_scheme_vertex::element_get_child_id ([[maybe_unused]] const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return 0;

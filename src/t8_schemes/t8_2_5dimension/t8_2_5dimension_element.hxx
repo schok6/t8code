@@ -775,6 +775,12 @@ class t8_2_5dimension_scheme:
    * \return              The child id of elem.
    */
   inline int
+  element_get_child_id (const t8_element_t *elem) const
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
+  }
+
+  inline int
   element_get_child_id (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
     const element_2_5D *el = (const element_2_5D *) elem;

@@ -479,10 +479,9 @@ class t8_scheme {
    * \return              The child id of elem.
    */
   inline int
-  element_get_child_id (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
+  element_get_child_id (const t8_eclass_t tree_class, const t8_element_t *elem) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_child_id (elem, dir); },
-                       eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_child_id (elem); }, eclass_schemes[tree_class]);
   };
 
   /** Compute the ancestor id of an element, that is the child id

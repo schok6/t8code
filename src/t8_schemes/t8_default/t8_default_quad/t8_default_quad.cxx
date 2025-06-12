@@ -222,7 +222,7 @@ t8_default_scheme_quad::element_get_children (const t8_element_t *elem, [[maybe_
 }
 
 int
-t8_default_scheme_quad::element_get_child_id (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_quad::element_get_child_id (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return p4est_quadrant_child_id ((const p4est_quadrant_t *) elem);

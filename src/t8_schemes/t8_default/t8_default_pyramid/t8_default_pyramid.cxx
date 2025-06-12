@@ -196,7 +196,7 @@ t8_default_scheme_pyramid::element_get_face_shape (const t8_element_t *elem, int
 }
 
 int
-t8_default_scheme_pyramid::element_get_child_id (const t8_element_t *p, [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::element_get_child_id (const t8_element_t *p) const
 {
   T8_ASSERT (element_is_valid (p));
   return t8_dpyramid_child_id ((const t8_dpyramid_t *) p);
