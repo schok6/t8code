@@ -28,6 +28,14 @@
 #define T8_2_5D_HXX
 
 #include <t8_element.h>
+#include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
+#include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
+
+class line_class1: public t8_default_scheme_line {};
+class line_class2: public t8_default_scheme_line {};
+
+class invalid_scheme: public t8_2_5dimension_scheme<line_class1, t8_dline_t, line_class2, t8_dline_t> {};
 
 typedef struct t8_2_5D
 {

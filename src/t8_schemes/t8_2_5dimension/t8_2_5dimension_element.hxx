@@ -88,7 +88,7 @@ class t8_2_5dimension_scheme:
   t8_2_5dimension_scheme ()
     : element_size_2_5D (sizeof (element_2_5D)), scheme_2_5D_pool (sc_mempool_new (element_size_2_5D))
   {
-    t8_productionf ("This is the constuctor of 2.5D\n");
+    t8_productionf ("This is the constuctor of 2.5D for this: %p\n", this);
   };
 
   /** Constructor. */  //@TODO Move-constructor, Move-assignment constructor, copy constructor, copy-assignment constructor
@@ -102,17 +102,23 @@ class t8_2_5dimension_scheme:
 
   /** Move constructor */
   t8_2_5dimension_scheme (t8_2_5dimension_scheme &&other) noexcept
+    //   : element_size_2_5D (other.element_size_2_5D), scheme_2_5D_pool (other.scheme_2_5D_pool)
+    // {
+    //   t8_productionf ("This is the move constructor of 2.5D for %p\n", other);
+    //   other.element_size_2_5D = 0;
+    //   sc_mempool_destroy ((sc_mempool_t *) other.scheme_2_5D_pool);
+    // }
     : TUnderlyingEclassScheme1 (std::move (other)), TUnderlyingEclassScheme2 (std::move (other)),
       element_size_2_5D (other.element_size_2_5D), scheme_2_5D_pool (std::exchange (other.scheme_2_5D_pool, nullptr))
   {
-    t8_productionf ("This is the move constructor of 2.5D\n");
+    t8_productionf ("This is the move constructor of 2.5D for this: %p and other: %p\n", this, other);
   }
 
   /** Move assignment operator */
   t8_2_5dimension_scheme &
   operator= (t8_2_5dimension_scheme &&other) noexcept
   {
-    t8_productionf ("This is the move assignment operator of 2.5D\n");
+    t8_productionf ("This is the move assignment operator of 2.5D for this: %p and other:%p\n", this, other);
     if (this != &other) {
       // Free existing resources of moved-to object
       if (scheme_2_5D_pool) {
@@ -136,14 +142,14 @@ class t8_2_5dimension_scheme:
     : TUnderlyingEclassScheme1 (other), TUnderlyingEclassScheme2 (other), element_size_2_5D (other.element_size_2_5D),
       scheme_2_5D_pool (sc_mempool_new (other.element_size_2_5D))
   {
-    t8_productionf ("This is the copy constructor of 2.5D\n");
+    t8_productionf ("This is the copy constructor of 2.5D for this: %p and other: %p\n", this, &other);
   }
 
   /** Copy assignment operator */
   t8_2_5dimension_scheme &
   operator= (const t8_2_5dimension_scheme &other)
   {
-    t8_productionf ("This is the copy assignment operator of 2.5D\n");
+    t8_productionf ("This is the copy assignment operator of 2.5D for this: %p and other: %p\n", this, &other);
     if (this != &other) {
       // Free existing resources of assigned-to object
       if (scheme_2_5D_pool) {
@@ -162,10 +168,11 @@ class t8_2_5dimension_scheme:
   /** Destructor for 2.5D scheme */
   ~t8_2_5dimension_scheme ()
   {
-    t8_productionf ("This is the destructor of 2.5D\n");
-    T8_ASSERT (scheme_2_5D_pool != NULL);
-    SC_ASSERT (((sc_mempool_t *) scheme_2_5D_pool)->elem_count == 0);
-    sc_mempool_destroy ((sc_mempool_t *) scheme_2_5D_pool);
+    t8_productionf ("This is the destructor of 2.5D for %p\n", this);
+    if (scheme_2_5D_pool != NULL) {
+      SC_ASSERT (((sc_mempool_t *) scheme_2_5D_pool)->elem_count == 0);
+      sc_mempool_destroy ((sc_mempool_t *) scheme_2_5D_pool);
+    }
   }
 
   /** Return the tree class of this scheme.
@@ -212,6 +219,16 @@ class t8_2_5dimension_scheme:
   get_maxlevel (void) const
   {
     return 5;  //21;
+  }
+
+  /** Return the level of a particular element.
+   * \param [in] elem    The element whose level should be returned.
+   * \return             The level of \b elem.
+   */
+  inline int
+  element_get_level (const t8_element_t *elem) const  //@need it in 2 directions!!!
+  {
+    SC_ABORT ("Not implemented for 2.5 dimensional scheme.\n");
   }
 
   /** Return the level of a particular element.
@@ -317,6 +334,12 @@ class t8_2_5dimension_scheme:
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   inline void
+  element_get_parent (const t8_element_t *elem, t8_element_t *parent) const
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
+  }
+
+  inline void
   element_get_parent (const t8_element_t *elem, t8_element_t *parent,
                       int dir) const  //@Lukas - wie soll parent aussehen?
   {
@@ -389,6 +412,12 @@ class t8_2_5dimension_scheme:
    * \return          The number of siblings of \a element.
    * Note that this number is >= 1, since we count the element itself as a sibling.
    */
+  inline int
+  element_get_num_siblings (const t8_element_t *elem) const
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
+  }
+
   inline int
   element_get_num_siblings (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
@@ -499,6 +528,13 @@ class t8_2_5dimension_scheme:
    * \param [in] elem   The element whose number of children is returned.
    * \return            The number of children of \a elem if it is to be refined.
    */
+
+  inline int
+  element_get_num_children ([[maybe_unused]] const t8_element_t *elem) const
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
+  }
+
   inline int
   element_get_num_children (const t8_element_t *elem, int dir) const  //@need it in 2 directions!!!
   {
@@ -637,6 +673,13 @@ class t8_2_5dimension_scheme:
    * It is valid to call this function with elem = c[0].
    * \see t8_element_num_children
    */
+
+  inline void
+  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[]) const
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
+  }
+
   inline void
   element_get_children (const t8_element_t *elem, int length, t8_element_t *c[],
                         int dir) const  //@need it in 2 directions!!!
@@ -766,6 +809,18 @@ class t8_2_5dimension_scheme:
     // else {
     //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
     // }
+  }
+
+  /** Query whether a given set of elements is a family or not.
+   * \param [in] fam      An array of as many elements as an element of class
+   *                      \b ts has siblings.
+   * \return              Zero if \b fam is not a family, nonzero if it is.
+   * \note level 0 elements do not form a family.
+   */
+  inline int
+  elements_are_family (t8_element_t *const *fam) const
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
   }
 
   /** Query whether a given set of elements is a family or not.
@@ -1409,8 +1464,23 @@ class t8_2_5dimension_scheme:
    * \ref t8_element_count_leaves.
    */
   inline t8_gloidx_t
+  count_leaves_from_root (const int level) const  //@need it in 2 directions!!!
+  {
+    SC_ABORT ("Not implemented for 2.5D.\n");
+  }
+
+  /** Count how many leaf descendants of a given uniform level the root element will produce.
+   * \param [in] level A refinement level.
+   * \return The value of \ref t8_element_count_leaves if the input element
+   *      is the root (level 0) element.
+   *
+   * This is a convenience function, and can be implemented via
+   * \ref t8_element_count_leaves.
+   */
+  inline t8_gloidx_t
   count_leaves_from_root (const int level, int dir) const  //@need it in 2 directions!!!
   {
+    t8_global_productionf ("This happens. /n");
     if (dir == 1) {
       return TUnderlyingEclassScheme1::count_leaves_from_root (level);
     }

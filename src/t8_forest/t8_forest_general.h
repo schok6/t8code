@@ -739,7 +739,6 @@ t8_forest_get_cmesh (t8_forest_t forest);
 t8_element_t *
 t8_forest_get_element (t8_forest_t forest, t8_locidx_t lelement_id, t8_locidx_t *ltreeid);
 
-
 /** Return an element of a local tree in a forest.
  * \param [in]      forest      The forest.
  * \param [in]      ltreeid     An id of a local tree in the forest.
@@ -802,6 +801,10 @@ t8_forest_get_first_local_element_id (t8_forest_t forest);
  */
 const t8_scheme_c *
 t8_forest_get_scheme (const t8_forest_t forest);
+
+/* TODO */
+const t8_mixed_scheme_c *
+t8_forest_get_scheme_2_5D (const t8_forest_t forest);
 
 /** Return the eclass of the tree in which a face neighbor of a given element
  * lies.
@@ -894,13 +897,12 @@ t8_forest_t
 t8_forest_new_uniform (t8_cmesh_t cmesh, const t8_scheme_c *scheme, const int level, const int do_face_ghost,
                        sc_MPI_Comm comm);
 
-
 /**
  * TODO
 */
 t8_forest_t
-t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme_c *scheme, const int level1, 
-                            const int level2, const int do_face_ghost, sc_MPI_Comm comm);
+t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme_c *scheme, const int level1, const int level2,
+                            const int do_face_ghost, sc_MPI_Comm comm);
 
 /** Build a adapted forest from another forest.
  * \param [in]    forest_from The forest to refine

@@ -44,15 +44,12 @@
 #include <t8_schemes/t8_default/t8_default_pyramid/t8_default_pyramid.hxx>
 #include <t8_schemes/t8_standalone/t8_standalone.hxx>
 #include <t8_schemes/t8_standalone/t8_standalone_implementation.hxx>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
 #include <string>
 #if T8_ENABLE_DEBUG
 // Only needed for t8_debug_print_type
 #include <typeinfo>
-
-class line_class1;
-class line_class2;
 
 /**
  * Get the type of the template parameter as a string.
@@ -68,21 +65,10 @@ t8_debug_print_type ()
 }
 #endif  // T8_ENABLE_DEBUG
 
-// template<typename... Types>
-// struct type_list_scheme_t {};
+class line_class1;
+class line_class2;
 
-// template<typename... Types_1, typename... Types_2>
-// class two_schemes< type_list_scheme_t<Types_1...>, type_list_scheme_t<Types_2> >
-// {
-//   public:
-//     using variant_t = std::variant<Types_1>;
-//     using variant_t = std::variant<Types_2>;
-
-//     variant_t variant_scheme1;
-//     variant_t variant_scheme2;
-// };
-
-// using types_for_scheme = type_list_scheme_t<class, class>;
+class invalid_scheme;
 
 /** This class holds one or more element schemes.
  * It also relays the function calls to the specific schemes. */
@@ -98,6 +84,7 @@ class t8_scheme {
   ~t8_scheme ()
   {
     if (sc_refcount_is_active (&rc)) {
+      t8_debugf ("refcount scheme: %i", rc.refcount);
       T8_ASSERT (t8_refcount_is_last (&rc));
       t8_refcount_unref (&rc);
     }
@@ -121,7 +108,8 @@ class t8_scheme {
                                 t8_standalone_scheme<T8_ECLASS_LINE>,
                                 t8_standalone_scheme<T8_ECLASS_QUAD>,
                                 t8_standalone_scheme<T8_ECLASS_HEX>,
-                                /* 2.5D scheme */
+                                // /* 2.5D scheme */ //-> introduce T8_CODE_BUILD_WITH_2_5D and otherwise remove this from here
+                                invalid_scheme,
                                 t8_2_5dimension_scheme <line_class1, t8_dline_t, line_class2, t8_dline_t>,
                                 t8_2_5dimension_scheme<t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t>,
                                 t8_2_5dimension_scheme<t8_default_scheme_tri, t8_dtri_t, t8_default_scheme_line, t8_dline_t>
@@ -130,15 +118,13 @@ class t8_scheme {
 
   using scheme_container = std::vector<scheme_var>; /**< Container type for holding eclass schemes. */
 
- private:
+ protected:
   scheme_container eclass_schemes; /**< The container holding the eclass schemes. */
-                                   // mutable t8_refcount_t
-  //   rc; /**< The reference count of the scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
 
- public:
   mutable t8_refcount_t
     rc; /**< The reference count of the scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
 
+ public:
   /**
    * Increase the reference count of the scheme.
    */
@@ -206,6 +192,7 @@ class t8_scheme {
   inline size_t
   get_element_size (const t8_eclass_t tree_class) const
   {
+    t8_productionf ("eclass_schemes[tree_class]: %p \n", eclass_schemes[tree_class]);
     return std::visit ([&] (auto &&scheme) { return scheme.get_element_size (); }, eclass_schemes[tree_class]);
   };
 
@@ -236,10 +223,9 @@ class t8_scheme {
    * \return             The level of \a elem.
    */
   inline int
-  element_get_level (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
+  element_get_level (const t8_eclass_t tree_class, const t8_element_t *elem) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_level (elem, dir); },
-                       eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_level (elem); }, eclass_schemes[tree_class]);
   };
 
   /** Copy all entries of \a source to \a dest. \a dest must be an existing
@@ -310,19 +296,9 @@ class t8_scheme {
    *                    tetrahedron or a pyramid depending on \a elem's childid.
    */
   inline void
-  element_get_parent (const t8_eclass_t tree_class, const t8_element_t *elem, t8_element_t *parent, int dir = 0) const
+  element_get_parent (const t8_eclass_t tree_class, const t8_element_t *elem, t8_element_t *parent) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_parent (elem, parent, dir); },
-                       eclass_schemes[tree_class]);
-  };
-
-  /*
-  *TODO
-  */
-  inline void
-  element_get_parent_2_5D (const t8_eclass_t tree_class, const t8_element_t *elem, t8_element_t *p[]) const
-  {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_parent_2_5D (elem, p); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_parent (elem, parent); },
                        eclass_schemes[tree_class]);
   };
 
@@ -334,9 +310,9 @@ class t8_scheme {
    * Note that this number is >= 1, since we count the element itself as a sibling.
    */
   inline int
-  element_get_num_siblings (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
+  element_get_num_siblings (const t8_eclass_t tree_class, const t8_element_t *elem) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_num_siblings (elem, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_num_siblings (elem); },
                        eclass_schemes[tree_class]);
   };
 
@@ -402,9 +378,9 @@ class t8_scheme {
    * \return            The number of children of \a elem if it is to be refined.
    */
   inline int
-  element_get_num_children (const t8_eclass_t tree_class, const t8_element_t *elem, int dir = 0) const
+  element_get_num_children (const t8_eclass_t tree_class, const t8_element_t *elem) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_num_children (elem, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_num_children (elem); },
                        eclass_schemes[tree_class]);
   };
 
@@ -490,10 +466,10 @@ class t8_scheme {
    * \see t8_element_num_children
    */
   inline void
-  element_get_children (const t8_eclass_t tree_class, const t8_element_t *elem, const int length, t8_element_t *c[],
-                        int dir = 0) const
+  element_get_children (const t8_eclass_t tree_class, const t8_element_t *elem, const int length,
+                        t8_element_t *c[]) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_children (elem, length, c, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_children (elem, length, c); },
                        eclass_schemes[tree_class]);
   };
 
@@ -532,10 +508,9 @@ class t8_scheme {
    * \note level 0 elements do not form a family.
    */
   inline bool
-  elements_are_family (const t8_eclass_t tree_class, t8_element_t *const *fam, int dir = 0) const
+  elements_are_family (const t8_eclass_t tree_class, t8_element_t *const *fam) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.elements_are_family (fam, dir); },
-                       eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.elements_are_family (fam); }, eclass_schemes[tree_class]);
   };
 
   /** Compute the nearest common ancestor of two elements. That is,
@@ -971,9 +946,9 @@ class t8_scheme {
    * \ref t8_element_count_leaves.
    */
   inline t8_gloidx_t
-  count_leaves_from_root (const t8_eclass_t tree_class, const int level, int dir = 0) const
+  count_leaves_from_root (const t8_eclass_t tree_class, const int level) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.count_leaves_from_root (level, dir); },
+    return std::visit ([&] (auto &&scheme) { return scheme.count_leaves_from_root (level); },
                        eclass_schemes[tree_class]);
   };
 

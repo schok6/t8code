@@ -213,7 +213,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
 
   /* The uniform refinement level of the forest. */
   const int level1 = 1;
-  const int level2 = 2;
+  const int level2 = 3;
 
   t8_gloidx_t global_num_elements;
 
@@ -242,8 +242,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
    */
 
   /* Build a cube cmesh with tet, hex or prism trees. */
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
   //   cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");

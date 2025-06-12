@@ -72,8 +72,7 @@ t8_default_scheme_tet::element_is_equal (const t8_element_t *elem1, const t8_ele
 }
 
 void
-t8_default_scheme_tet::element_get_parent (const t8_element_t *elem, t8_element_t *parent,
-                                           [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_parent (const t8_element_t *elem, t8_element_t *parent) const
 {
   const t8_default_tet_t *t = (const t8_default_tet_t *) elem;
   t8_default_tet_t *p = (t8_default_tet_t *) parent;
@@ -108,8 +107,7 @@ t8_default_scheme_tet::element_get_max_num_faces ([[maybe_unused]] const t8_elem
 }
 
 int
-t8_default_scheme_tet::element_get_num_children ([[maybe_unused]] const t8_element_t *elem,
-                                                 [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_num_children ([[maybe_unused]] const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return T8_DTET_CHILDREN;
@@ -144,8 +142,8 @@ t8_default_scheme_tet::element_get_child (const t8_element_t *elem, int childid,
 }
 
 void
-t8_default_scheme_tet::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length, t8_element_t *c[],
-                                             [[maybe_unused]] int dir) const
+t8_default_scheme_tet::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length,
+                                             t8_element_t *c[]) const
 {
   T8_ASSERT (length == T8_DTET_CHILDREN);
   T8_ASSERT (element_is_valid (elem));
@@ -171,7 +169,7 @@ t8_default_scheme_tet::element_get_ancestor_id (const t8_element_t *elem, int le
 }
 
 int
-t8_default_scheme_tet::elements_are_family (t8_element_t *const *fam, [[maybe_unused]] int dir) const
+t8_default_scheme_tet::elements_are_family (t8_element_t *const *fam) const
 {
 #if T8_ENABLE_DEBUG
   for (int i = 0; i < T8_DTET_CHILDREN; i++) {

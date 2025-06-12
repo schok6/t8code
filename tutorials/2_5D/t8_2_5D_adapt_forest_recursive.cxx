@@ -358,8 +358,8 @@ t8_2_5D_adapt_main (int argc, char **argv)
    */
 
   /* Build a cube cmesh with hex or prism trees. */
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
-  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
+  // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_PRISM, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
   t8_global_productionf (" [2_5D] Created coarse mesh.\n");
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);

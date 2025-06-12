@@ -21,33 +21,50 @@
 */
 
 #include <new>
+#include <memory>
 #include <t8_refcount.h>
 #include <t8_eclass.h>
-#include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx>
+// #include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
+
 #include <t8_schemes/t8_default/t8_default.hxx>
 #include <t8_schemes/t8_default/t8_default_vertex/t8_default_vertex.hxx>
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
 #include <t8_schemes/t8_default/t8_default_quad/t8_default_quad.hxx>
 #include <t8_schemes/t8_default/t8_default_tri/t8_default_tri.hxx>
 #include <t8_schemes/t8_default/t8_default_tet/t8_default_tet.hxx>
-#include <t8_schemes/t8_scheme_builder.hxx>
+#include <t8_schemes/t8_default/t8_default_pyramid/t8_default_pyramid.hxx>
+// #include <t8_schemes/t8_scheme_builder.hxx>
 
-/*t8_scheme_new_2_5dimension gets ownership of scheme*/
+template <class TUnderlyingEclassScheme1, typename TUnderlyingElementType1, class TUnderlyingEclassScheme2,
+          typename TUnderlyingElementType2>
+class t8_2_5dimension_scheme;
 
+// const t8_mixed_scheme *
 const t8_scheme *
 t8_scheme_new_2_5dimension ()
 {
-  t8_scheme_builder builder;
 
-  builder.add_eclass_scheme<t8_default_scheme_vertex> ();
-  builder.add_eclass_scheme<t8_default_scheme_line> ();
-  builder.add_eclass_scheme<t8_2_5dimension_scheme <line_class1, t8_dline_t, line_class2, t8_dline_t> > ();
-  // builder.add_eclass_scheme<t8_default_scheme_quad> ();
-  builder.add_eclass_scheme<t8_default_scheme_tri> ();
-  builder.add_eclass_scheme<t8_2_5dimension_scheme <t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t> > ();
-  builder.add_eclass_scheme<t8_default_scheme_tet> (); //NULL
-  builder.add_eclass_scheme<t8_2_5dimension_scheme <t8_default_scheme_tri, t8_dtri_t, t8_default_scheme_line, t8_dline_t> > ();
-  builder.add_eclass_scheme<t8_default_scheme_pyramid> (); //NULL
-  
-  return builder.build_scheme ();
+  t8_mixed_scheme_builder builder;
+  // t8_scheme_builder builder;
+
+  builder.add_eclass_scheme_mixed<invalid_scheme> ();
+  builder.add_eclass_scheme_mixed<invalid_scheme> ();
+  /* 2.5D for QUAD */
+  builder.add_eclass_scheme_mixed<t8_2_5dimension_scheme<line_class1, t8_dline_t, line_class2, t8_dline_t>> ();
+  builder.add_eclass_scheme_mixed<invalid_scheme> ();
+  /* 2.5D for HEX */
+  builder.add_eclass_scheme_mixed<
+    t8_2_5dimension_scheme<t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t>> ();
+  builder.add_eclass_scheme_mixed<invalid_scheme> ();
+  /* 2.5D for PRISM */
+  builder.add_eclass_scheme_mixed<
+    t8_2_5dimension_scheme<t8_default_scheme_tri, t8_dtri_t, t8_default_scheme_line, t8_dline_t>> ();
+  builder.add_eclass_scheme_mixed<invalid_scheme> ();
+
+  return builder.build_mixed_scheme ();
+
+  // return (t8_scheme *) builder.build_mixed_scheme ();
+  // return builder.build_scheme ();
 }

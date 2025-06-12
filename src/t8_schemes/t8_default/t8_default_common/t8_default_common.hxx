@@ -264,20 +264,11 @@ class t8_default_scheme_common: public t8_crtp_operator<TUnderlyingEclassScheme,
    * \note that this number is >= 1, since we count the element itself as a sibling.
    */
   inline int
-  element_get_num_siblings ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int dir = 0) const
+  element_get_num_siblings ([[maybe_unused]] const t8_element_t *elem) const
   {
     const int dim = t8_eclass_to_dimension[eclass];
     T8_ASSERT (eclass != T8_ECLASS_PYRAMID);
     return sc_intpow (2, dim);
-  }
-
-  /*
-  *TODO
-  */
-  inline void
-  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
-  {
-    SC_ABORT ("Necessary for 2.5D scheme \n");
   }
 
   /** Count how many leaf descendants of a given uniform level the root element will produce.
@@ -287,7 +278,7 @@ class t8_default_scheme_common: public t8_crtp_operator<TUnderlyingEclassScheme,
    * \note This function is overwritten by the pyramid implementation.
    */
   inline t8_gloidx_t
-  count_leaves_from_root (const int level, [[maybe_unused]] int dir = 0) const
+  count_leaves_from_root (const int level) const
   {
     if (eclass == T8_ECLASS_PYRAMID) {
       return 2 * sc_intpow64u (8, level) - sc_intpow64u (6, level);

@@ -27,6 +27,7 @@
 #include <t8_geometry/t8_geometry_implementations/t8_geometry_linear.h>
 #include <t8_geometry/t8_geometry_implementations/t8_geometry_linear_axis_aligned.h>
 #include <t8_schemes/t8_scheme.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
 #include <t8_refcount.h>
 #include <t8_data/t8_shmem.h>
 #include <t8_types/t8_vec.h>
@@ -509,60 +510,6 @@ t8_cmesh_set_tree_class (t8_cmesh_t cmesh, const t8_gloidx_t gtree_id, const t8_
 
   t8_stash_add_class (cmesh->stash, gtree_id, tree_class);
 #if T8_ENABLE_DEBUG
-  cmesh->inserted_trees++;
-#endif
-}
-
-void
-t8_cmesh_set_tree_class_2_5D_1 (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2)
-{
-  T8_ASSERT (t8_cmesh_is_initialized (cmesh));
-  T8_ASSERT (gtree_id >= 0);
-
-  /* If we insert the first tree, set the dimension of the cmesh
-   * to this tree's dimension. Otherwise check whether the dimension
-   * of the tree to be inserted equals the dimension of the cmesh. */
-  if (cmesh->dimension == -1) {
-    cmesh->dimension = t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2];
-  }
-  else {
-    /* TODO: This makes it illegal to set a tree to i.e. quad and change it
-     *       to hex later. Even if we replace all trees with another dimension.
-     *       We could move this check to commit. */
-    /* TODO: If cmesh is partitioned and this part has no trees then the
-     *       dimension remains unset forever. */
-    T8_ASSERT (t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2] == cmesh->dimension);
-  }
-
-  t8_stash_add_class (cmesh->stash, gtree_id, tree_class1);
-#ifdef T8_ENABLE_DEBUG
-  cmesh->inserted_trees++;
-#endif
-}
-
-void
-t8_cmesh_set_tree_class_2_5D_2 (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2)
-{
-  T8_ASSERT (t8_cmesh_is_initialized (cmesh));
-  T8_ASSERT (gtree_id >= 0);
-
-  /* If we insert the first tree, set the dimension of the cmesh
-   * to this tree's dimension. Otherwise check whether the dimension
-   * of the tree to be inserted equals the dimension of the cmesh. */
-  if (cmesh->dimension == -1) {
-    cmesh->dimension = t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2];
-  }
-  else {
-    /* TODO: This makes it illegal to set a tree to i.e. quad and change it
-     *       to hex later. Even if we replace all trees with another dimension.
-     *       We could move this check to commit. */
-    /* TODO: If cmesh is partitioned and this part has no trees then the
-     *       dimension remains unset forever. */
-    T8_ASSERT (t8_eclass_to_dimension[tree_class1] + t8_eclass_to_dimension[tree_class2] == cmesh->dimension);
-  }
-
-  t8_stash_add_class (cmesh->stash, gtree_id, tree_class2);
-#ifdef T8_ENABLE_DEBUG
   cmesh->inserted_trees++;
 #endif
 }
@@ -1537,9 +1484,9 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme *sch
   }
   T8_ASSERT (children_per_tree != 0);
 
-  t8_productionf("cmesh->mpirank: %i", cmesh->mpirank);
+  t8_productionf ("cmesh->mpirank: %i", cmesh->mpirank);
   if (cmesh->mpirank == 0) {
-    t8_global_productionf("Zero processes. \n");
+    t8_global_productionf ("Zero processes. \n");
     first_global_child = 0;
     if (child_in_tree_begin != NULL) {
       *child_in_tree_begin = 0;
@@ -1551,11 +1498,11 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme *sch
      * (total_num_children * p) / P
      * We cast to long double and double first to prevent integer overflow.
      */
-    t8_productionf("process %i of %i many processes. \n", cmesh->mpirank,cmesh->mpisize);
+    t8_productionf ("process %i of %i many processes. \n", cmesh->mpirank, cmesh->mpisize);
     first_global_child = ((long double) global_num_children * cmesh->mpirank) / (double) cmesh->mpisize;
     t8_productionf (" first_global_child: %li \n", first_global_child);
   }
-  t8_productionf("cmesh->mpirank: %i & cmesh->mpisize - 1: %i", cmesh->mpirank, cmesh->mpisize - 1);
+  t8_productionf ("cmesh->mpirank: %i & cmesh->mpisize - 1: %i", cmesh->mpirank, cmesh->mpisize - 1);
   if (cmesh->mpirank != cmesh->mpisize - 1) {
     last_global_child = ((long double) global_num_children * (cmesh->mpirank + 1)) / (double) cmesh->mpisize;
   }
@@ -1612,15 +1559,15 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme *sch
 
     *last_local_tree = *first_local_tree - 1;
   }
-  t8_global_productionf("global_num_children: %li", global_num_children);
-  t8_productionf("last_local_tree: %li", *last_local_tree);
-  t8_productionf("child_in_tree_end: %li", *child_in_tree_end);
+  t8_global_productionf ("global_num_children: %li", global_num_children);
+  t8_productionf ("last_local_tree: %li", *last_local_tree);
+  t8_productionf ("child_in_tree_end: %li", *child_in_tree_end);
 }
 
 void
-t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_scheme *scheme,
-                                t8_gloidx_t *first_local_tree, t8_gloidx_t *child_in_tree_begin, t8_gloidx_t *last_local_tree,
-                                t8_gloidx_t *child_in_tree_end, int8_t *first_tree_shared)
+t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_mixed_scheme *scheme,
+                              t8_gloidx_t *first_local_tree, t8_gloidx_t *child_in_tree_begin,
+                              t8_gloidx_t *last_local_tree, t8_gloidx_t *child_in_tree_end, int8_t *first_tree_shared)
 {
   int is_empty;
 
@@ -1631,11 +1578,11 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   T8_ASSERT (scheme != NULL);
 
   *first_local_tree = 0;
-  if (child_in_tree_begin != NULL) { 
+  if (child_in_tree_begin != NULL) {
     *child_in_tree_begin = 0;
   }
   *last_local_tree = 0;
-  if (child_in_tree_end != NULL) { 
+  if (child_in_tree_end != NULL) {
     *child_in_tree_end = 0;
   }
 
@@ -1643,10 +1590,10 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   t8_gloidx_t first_global_child;
   t8_gloidx_t child_in_tree_begin_temp;
   t8_gloidx_t last_global_child;
-  t8_gloidx_t children_per_tree1 = 0; //[TODO]: rename to leafs_per_tree
+  t8_gloidx_t children_per_tree1 = 0;  //[TODO]: rename to leafs_per_tree
   t8_gloidx_t children_per_tree2 = 0;
   t8_gloidx_t correct;
-  
+
 #ifdef T8_ENABLE_DEBUG
   t8_gloidx_t prev_last_tree = -1;
 #endif
@@ -1659,7 +1606,7 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
      * tree class.
      */
     if (cmesh->num_trees_per_eclass[tree_class] > 0) {
-      children_per_tree1 = scheme->count_leaves_from_root (static_cast<t8_eclass_t> (tree_class), level1, 1); 
+      children_per_tree1 = scheme->count_leaves_from_root (static_cast<t8_eclass_t> (tree_class), level1, 1);
       T8_ASSERT (children_per_tree1 >= 0);
       children_per_tree2 = scheme->count_leaves_from_root (static_cast<t8_eclass_t> (tree_class), level2, 2);
       T8_ASSERT (children_per_tree2 >= 0);
@@ -1668,7 +1615,7 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   }
   T8_ASSERT (children_per_tree1 != 0);
   T8_ASSERT (children_per_tree2 != 0);
-  
+
   /* Zero processes */
   if (cmesh->mpirank == 0) {
     first_global_child = 0;
@@ -1682,51 +1629,54 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
      * (total_num_children * p) / P
      * We cast to long double and double first to prevent integer overflow.
      */
-    t8_debugf("process %i of %i many processes. \n", cmesh->mpirank, cmesh->mpisize);
+    t8_debugf ("process %i of %i many processes. \n", cmesh->mpirank, cmesh->mpisize);
     first_global_child = ((long double) global_num_children * cmesh->mpirank) / (double) cmesh->mpisize;
     t8_debugf (" first_global_child: %li \n", first_global_child);
     // /* Check if processes are large enough*/
     // /* Columns sc_intpow(children_per_tree2, level2) shall be on one process */
     // // int num_elems_col = sc_intpow(children_per_tree2, level2);
 
-    int check_first =  first_global_child % children_per_tree2;
-    if (check_first != 0){
+    int check_first = first_global_child % children_per_tree2;
+    if (check_first != 0) {
       first_global_child = first_global_child - check_first;
     }
   }
   if (cmesh->mpirank != cmesh->mpisize - 1) {
     last_global_child = ((long double) global_num_children * (cmesh->mpirank + 1)) / (double) cmesh->mpisize;
     int check_last = last_global_child % children_per_tree2;
-    if (check_last != 0){
+    if (check_last != 0) {
       last_global_child -= check_last;
     }
   }
   else {
     last_global_child = global_num_children;
   }
-  t8_productionf("last_global_child: %li \n", last_global_child);
+  t8_productionf ("last_global_child: %li \n", last_global_child);
 
   T8_ASSERT (0 <= first_global_child && first_global_child <= global_num_children);
   T8_ASSERT (0 <= last_global_child && last_global_child <= global_num_children);
 
   *first_local_tree = first_global_child / (children_per_tree1 * children_per_tree2);
-  t8_productionf("first_local_tree: %li \n", *first_local_tree);
-  child_in_tree_begin_temp = first_global_child - *first_local_tree * (children_per_tree1 * children_per_tree2); //rest von ganzzahldivision!!!!
+  t8_productionf ("first_local_tree: %li \n", *first_local_tree);
+  child_in_tree_begin_temp
+    = first_global_child
+      - *first_local_tree * (children_per_tree1 * children_per_tree2);  //rest von ganzzahldivision!!!!
   if (child_in_tree_begin != NULL) {
     *child_in_tree_begin = child_in_tree_begin_temp;
   }
 
-  t8_productionf("child_in_tree_begin: %li \n", *child_in_tree_begin);
+  t8_productionf ("child_in_tree_begin: %li \n", *child_in_tree_begin);
 
-  *last_local_tree = ((last_global_child - 1) / (children_per_tree1 * children_per_tree2)); 
-  t8_productionf("last_global_child: %li \n", last_global_child);
-  t8_productionf("last_local_tree: %li \n", *last_local_tree);
-  t8_productionf("children_per_tree1: %li \n", children_per_tree1);
-  t8_productionf("children_per_tree2: %li \n", children_per_tree2);
+  *last_local_tree = ((last_global_child - 1) / (children_per_tree1 * children_per_tree2));
+  t8_productionf ("last_global_child: %li \n", last_global_child);
+  t8_productionf ("last_local_tree: %li \n", *last_local_tree);
+  t8_productionf ("children_per_tree1: %li \n", children_per_tree1);
+  t8_productionf ("children_per_tree2: %li \n", children_per_tree2);
   if (child_in_tree_end != NULL) {
     if (*last_local_tree > 0) {
       //PASST DAS SO?? @Lukas
-      *child_in_tree_end = last_global_child - *last_local_tree * (children_per_tree1 * children_per_tree2); // *children_per_tree1
+      *child_in_tree_end
+        = last_global_child - *last_local_tree * (children_per_tree1 * children_per_tree2);  // *children_per_tree1
     }
     else {
       *child_in_tree_end = last_global_child;
@@ -1764,6 +1714,6 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
 
     *last_local_tree = *first_local_tree - 1;
   }
-  t8_productionf("last_local_tree: %li \n", *last_local_tree);
-  t8_productionf("child_in_tree_end: %li \n", *child_in_tree_end);
+  t8_productionf ("last_local_tree: %li \n", *last_local_tree);
+  t8_productionf ("child_in_tree_end: %li \n", *child_in_tree_end);
 }

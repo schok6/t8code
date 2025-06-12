@@ -243,28 +243,6 @@ t8_cmesh_set_dimension (t8_cmesh_t cmesh, int dim);
 void
 t8_cmesh_set_tree_class (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class);
 
-/** Set the class of a tree in the cmesh.
- * It is not allowed to call this function after \ref t8_cmesh_commit.
- * It is not allowed to call this function multiple times for the same tree.
- * \param [in,out] cmesh        The cmesh to be updated.
- * \param [in]     tree_id      The global number of the tree.
- * \param [in]     tree_class1   The element class of this tree.
- * \param [in]     tree_class2   The other element class of the 2_5D scheme.
- */
-void
-t8_cmesh_set_tree_class_2_5D_1 (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2);
-
-/** Set the class of a tree in the cmesh.
- * It is not allowed to call this function after \ref t8_cmesh_commit.
- * It is not allowed to call this function multiple times for the same tree.
- * \param [in,out] cmesh        The cmesh to be updated.
- * \param [in]     tree_id      The global number of the tree.
- * \param [in]     tree_class1   The other element class of the 2_5D scheme.
- * \param [in]     tree_class2   The element class of this tree.
- */
-void
-t8_cmesh_set_tree_class_2_5D_2 (t8_cmesh_t cmesh, t8_gloidx_t gtree_id, t8_eclass_t tree_class1, t8_eclass_t tree_class2);
-
 /** Store an attribute at a tree in a cmesh.
  *  Attributes can be arbitrary data that is copied to an internal storage
  *  associated to the tree.
@@ -784,9 +762,9 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_c *s
  * \a cmesh must be comitted before calling this function. *
  */
 void
-t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_scheme_c *scheme,
-                                t8_gloidx_t *first_local_tree, t8_gloidx_t *child_in_tree_begin, t8_gloidx_t *last_local_tree,
-                                t8_gloidx_t *child_in_tree_end, int8_t *first_tree_shared);
+t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_mixed_scheme_c *scheme,
+                              t8_gloidx_t *first_local_tree, t8_gloidx_t *child_in_tree_begin,
+                              t8_gloidx_t *last_local_tree, t8_gloidx_t *child_in_tree_end, int8_t *first_tree_shared);
 
 /** Increase the reference counter of a cmesh.
  * \param [in,out] cmesh        On input, this cmesh must exist with positive

@@ -79,8 +79,7 @@ t8_default_scheme_hex::element_is_equal (const t8_element_t *elem1, const t8_ele
 }
 
 void
-t8_default_scheme_hex::element_get_parent (const t8_element_t *elem, t8_element_t *parent,
-                                           [[maybe_unused]] int dir) const
+t8_default_scheme_hex::element_get_parent (const t8_element_t *elem, t8_element_t *parent) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (parent));
@@ -109,8 +108,7 @@ t8_default_scheme_hex::element_get_max_num_faces ([[maybe_unused]] const t8_elem
 }
 
 int
-t8_default_scheme_hex::element_get_num_children ([[maybe_unused]] const t8_element_t *elem,
-                                                 [[maybe_unused]] int dir) const
+t8_default_scheme_hex::element_get_num_children ([[maybe_unused]] const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return P8EST_CHILDREN;
@@ -169,8 +167,8 @@ t8_default_scheme_hex::element_get_child (const t8_element_t *elem, const int ch
 }
 
 void
-t8_default_scheme_hex::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length, t8_element_t *c[],
-                                             [[maybe_unused]] int dir) const
+t8_default_scheme_hex::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length,
+                                             t8_element_t *c[]) const
 {
   T8_ASSERT (element_is_valid (elem));
 #if T8_ENABLE_DEBUG
@@ -199,7 +197,7 @@ t8_default_scheme_hex::element_get_ancestor_id (const t8_element_t *elem, const 
 }
 
 int
-t8_default_scheme_hex::elements_are_family (t8_element_t *const *fam, [[maybe_unused]] int dir) const
+t8_default_scheme_hex::elements_are_family (t8_element_t *const *fam) const
 {
 #if T8_ENABLE_DEBUG
   {

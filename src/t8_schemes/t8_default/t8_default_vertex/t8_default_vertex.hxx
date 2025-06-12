@@ -142,16 +142,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   void
-  element_get_parent (const t8_element_t *elem, t8_element_t *parent, int dir) const;
-
-  /*
-  *TODO
-  */
-  inline void
-  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
-  {
-    SC_ABORT ("Necessary for 2.5D scheme \n");
-  }
+  element_get_parent (const t8_element_t *elem, t8_element_t *parent) const;
 
   /** Compute a specific sibling of a given vertex element \b elem and store it in \b sibling.
    *  \b sibling needs to be an existing element. No memory is allocated by this function.
@@ -187,7 +178,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \return            The number of children of \a elem if it is to be refined.
    */
   int
-  element_get_num_children (const t8_element_t *elem, int dir = 0) const;
+  element_get_num_children (const t8_element_t *elem) const;
 
   /** Return the number of children of an element's face when the element is refined.
    * \param [in] elem   The element whose face is considered.
@@ -248,7 +239,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \see element_get_num_children
      */
   void
-  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[], int dir) const;
+  element_get_children (const t8_element_t *elem, int length, t8_element_t *c[]) const;
 
   /** Compute the child id of an element.
    * \param [in] elem     This must be a valid element.
@@ -274,7 +265,7 @@ class t8_default_scheme_vertex: public t8_default_scheme_common<t8_default_schem
    * \note level 0 elements do not form a family.
    */
   int
-  elements_are_family (t8_element_t *const *fam, int dir) const;
+  elements_are_family (t8_element_t *const *fam) const;
 
   /** Compute the nearest common ancestor of two elements. That is,
    * the element with highest level that still has both given elements as

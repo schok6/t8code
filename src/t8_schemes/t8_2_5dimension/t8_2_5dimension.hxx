@@ -23,16 +23,12 @@
 #ifndef T8_2_5DIMENSION_HXX
 #define T8_2_5DIMENSION_HXX
 
-#include <t8_schemes/t8_scheme.hxx>
-#include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
-// #include <t8_schemes/t8_2_5dimension/t8_2_5dimension_element.hxx>
-
-class line_class1 : public t8_default_scheme_line {};
-class line_class2 : public t8_default_scheme_line {};
+// #include <t8_schemes/t8_scheme.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
 
 /** Return the 2.5 dimensional element implementation of t8code. */
 const t8_scheme *
+// const t8_mixed_scheme *
 t8_scheme_new_2_5dimension ();
-
 
 #endif /* !T8_2_5DIMENSION_HXX */

@@ -33,6 +33,7 @@
 // #include <t8_element.h>
 // #include <t8_element.hxx>
 #include <t8_schemes/t8_scheme.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
 #include <t8_cmesh/t8_cmesh_trees.h>
 #include <t8_cmesh/t8_cmesh_offset.h>
 #include <t8_forest/t8_forest_profiling.h>
@@ -58,10 +59,10 @@ T8_EXTERN_C_BEGIN ();
 int
 t8_forest_num_children_tree_cmesh (t8_forest_t forest, int itree, int dir)  //@TODO
 {
-  const t8_scheme *eclass_scheme_tree;
+  const t8_mixed_scheme *eclass_scheme_tree;
   int num_children;
 
-  eclass_scheme_tree = t8_forest_get_scheme (forest);
+  eclass_scheme_tree = (const t8_mixed_scheme *) t8_forest_get_scheme (forest);
   /* Get the class of the tree. */
   const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
   if (dir == 1) {
@@ -79,13 +80,13 @@ t8_forest_num_children_eclass1 (t8_forest_t forest, int itree)
 {
   t8_tree_t tree;
   t8_eclass_t tree_eclass;
-  const t8_scheme *eclass_scheme_tree;
+  const t8_mixed_scheme *eclass_scheme_tree;
   int num_children1;
   tree = t8_forest_get_tree (forest, itree);
   tree_eclass = tree->eclass;
   t8_global_productionf ("tree_eclass: %i \n", tree_eclass);
   // eclass_scheme_tree = forest->scheme->eclass_schemes[tree_eclass]; @TODO jetzt falsch
-  eclass_scheme_tree = t8_forest_get_scheme (forest);
+  eclass_scheme_tree = (const t8_mixed_scheme *) t8_forest_get_scheme (forest);
   t8_global_productionf ("forest->set_level1: %i \n", forest->set_level1);
   num_children1 = eclass_scheme_tree->count_leaves_from_root (tree_eclass, forest->set_level1, 1);
   t8_global_productionf ("num_children1: %i \n", num_children1);
@@ -231,8 +232,15 @@ t8_forest_compute_maxlevel (t8_forest_t forest)
   for (eclass_it = T8_ECLASS_VERTEX; eclass_it < T8_ECLASS_COUNT; eclass_it++) {
     if (forest->cmesh->num_trees_per_eclass[eclass_it] > 0) {
       /* If there are trees of this class, compute the maxlevel of the class */
-      const t8_scheme *scheme = t8_forest_get_scheme_before_commit (forest);
-      maxlevel = scheme->get_maxlevel ((t8_eclass_t) eclass_it);
+      if (forest->set_type == 1) {
+        const t8_scheme *scheme = t8_forest_get_scheme_before_commit (forest);
+        maxlevel = scheme->get_maxlevel ((t8_eclass_t) eclass_it);
+      }
+      else if (forest->set_type = 2) {
+        const t8_mixed_scheme *scheme = t8_forest_get_scheme_before_commit_2_5D (forest);
+        maxlevel = scheme->get_maxlevel ((t8_eclass_t) eclass_it);
+      }
+
       /* Compute the minimum of this level and the stored maxlevel */
       if (forest->maxlevel == -1) {
         forest->maxlevel = maxlevel;
@@ -1220,9 +1228,9 @@ t8_forest_populate (t8_forest_t forest)
                              &child_in_tree_begin, &forest->last_local_tree, &child_in_tree_end, NULL);
   }
   else if (forest->set_type == 2) {
-    t8_cmesh_uniform_bounds_2_5D (forest->cmesh, forest->set_level1, forest->set_level2, forest->scheme,
-                                  &forest->first_local_tree, &child_in_tree_begin, &forest->last_local_tree,
-                                  &child_in_tree_end, NULL);
+    t8_cmesh_uniform_bounds_2_5D (forest->cmesh, forest->set_level1, forest->set_level2,
+                                  (const t8_mixed_scheme *) forest->scheme, &forest->first_local_tree,
+                                  &child_in_tree_begin, &forest->last_local_tree, &child_in_tree_end, NULL);
   }
   /* True if the forest has no elements */
   is_empty = forest->first_local_tree > forest->last_local_tree
@@ -1255,18 +1263,34 @@ t8_forest_populate (t8_forest_t forest)
     for (jt = forest->first_local_tree, count_elements = 0; jt <= forest->last_local_tree; jt++) {
       tree = (t8_tree_t) t8_sc_array_index_locidx (forest->trees, jt - forest->first_local_tree);
       tree_class = tree->eclass = t8_cmesh_get_tree_class (forest->cmesh, jt - first_ctree);
+      t8_productionf ("tree_class: %i \n", tree_class);
       tree->elements_offset = count_elements;
       const t8_scheme *scheme = forest->scheme;
-      T8_ASSERT (scheme != NULL);
+      const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) forest->scheme;
+      T8_ASSERT (scheme != NULL || scheme_mixed != NULL);
       telements = &tree->elements;
       /* calculate first and last element on this tree */
       start = (jt == forest->first_local_tree) ? child_in_tree_begin : 0;
-      end = (jt == forest->last_local_tree) ? child_in_tree_end
-                                            : scheme->count_leaves_from_root (tree_class, forest->set_level);
+      if (forest->set_type == 1) {
+        end = (jt == forest->last_local_tree) ? child_in_tree_end
+                                              : scheme->count_leaves_from_root (tree_class, forest->set_level);
+      }
+      else if (forest->set_type == 2) {
+        end = (jt == forest->last_local_tree)
+                ? child_in_tree_end
+                : scheme_mixed->count_leaves_from_root (tree_class, forest->set_level1, 1)
+                    * scheme_mixed->count_leaves_from_root (tree_class, forest->set_level2, 2);
+      }
       num_tree_elements = end - start;
       T8_ASSERT (num_tree_elements > 0);
       /* Allocate elements for this processor. */
       t8_element_array_init_size (telements, scheme, tree_class, num_tree_elements);
+      // if (forest->set_type == 1) {
+      //   t8_element_array_init_size (telements, scheme, tree_class, num_tree_elements);
+      // }
+      // else if (forest->set_type == 2) {
+      //   t8_element_array_init_size (telements, (t8_scheme_c *) scheme_mixed, tree_class, num_tree_elements);
+      // }
       element = t8_element_array_index_locidx_mutable (telements, 0);
       if (forest->set_type == 1) {
         levels = { forest->set_level };
@@ -1282,8 +1306,8 @@ t8_forest_populate (t8_forest_t forest)
           T8_ASSERT (scheme->element_get_level (tree_class, element) == forest->set_level);
         }
         else if (forest->set_type == 2) {
-          T8_ASSERT (scheme->element_get_level (tree_class, element, 1) == forest->set_level1);
-          T8_ASSERT (scheme->element_get_level (tree_class, element, 2) == forest->set_level2);
+          T8_ASSERT (scheme_mixed->element_get_level (tree_class, element, 1) == forest->set_level1);
+          T8_ASSERT (scheme_mixed->element_get_level (tree_class, element, 2) == forest->set_level2);
         }
         scheme->element_construct_successor (tree_class, element, element_succ);
         element = element_succ;
@@ -2151,6 +2175,7 @@ t8_forest_element_is_leaf (const t8_forest_t forest, const t8_element_t *element
   /* In order to find the element, we need to compute its linear id.
    * To do so, we need the scheme and the level of the element. */
   const t8_scheme *scheme = t8_element_array_get_scheme (elements);
+  const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) t8_element_array_get_scheme (elements);
   const t8_eclass_t tree_class = t8_element_array_get_tree_class (elements);
   if (forest->set_type == 1) {
 
@@ -2176,11 +2201,11 @@ t8_forest_element_is_leaf (const t8_forest_t forest, const t8_element_t *element
     return (scheme->element_is_equal (tree_class, element, check_element));
   }
   else {  //} if (forest->set_type == 2) {
-    const int element_level1 = scheme->element_get_level (tree_class, element, 1);
-    const int element_level2 = scheme->element_get_level (tree_class, element, 2);
+    const int element_level1 = scheme_mixed->element_get_level (tree_class, element, 1);
+    const int element_level2 = scheme_mixed->element_get_level (tree_class, element, 2);
     /* Compute the linear id. */
     std::vector<int> levels = { element_level1, element_level2 };
-    const t8_linearidx_t element_id = scheme->element_get_linear_id (tree_class, element, levels);
+    const t8_linearidx_t element_id = scheme_mixed->element_get_linear_id (tree_class, element, levels);
     /* Search for the element.
     * The search returns the largest index i,
     * such that the element at position i has a smaller id than the given one.
@@ -3243,8 +3268,16 @@ t8_forest_refines_irregular (t8_forest_t forest)
   for (int_eclass = (int) T8_ECLASS_ZERO; int_eclass < (int) T8_ECLASS_COUNT; int_eclass++) {
     /* If the forest has trees of the current eclass, check if elements of this eclass refine irregular. */
     if (forest->cmesh->num_local_trees_per_eclass[int_eclass] > 0) {
-      const t8_scheme *scheme = t8_forest_get_scheme_before_commit (forest);
-      irregular = irregular || scheme->refines_irregular (static_cast<t8_eclass_t> (int_eclass));
+      // const t8_scheme *scheme = t8_forest_get_scheme_before_commit (forest);
+      // irregular = irregular || scheme->refines_irregular (static_cast<t8_eclass_t> (int_eclass));
+      if (forest->set_type == 1) {
+        const t8_scheme *scheme = t8_forest_get_scheme_before_commit (forest);
+        irregular = irregular || scheme->refines_irregular (static_cast<t8_eclass_t> (int_eclass));
+      }
+      else if (forest->set_type == 2) {
+        const t8_mixed_scheme *scheme = t8_forest_get_scheme_before_commit_2_5D (forest);
+        irregular = irregular || scheme->refines_irregular (static_cast<t8_eclass_t> (int_eclass));
+      }
     }
   }
   /* Combine the process-local results via a logic or and distribute the result over all procs (in the communicator).*/
@@ -3410,12 +3443,20 @@ t8_forest_commit (t8_forest_t forest)
 
     /* increase reference count of cmesh and scheme from the input forest */
     t8_cmesh_ref (forest->set_from->cmesh);
-    forest->set_from->scheme->ref ();
+
+    if (forest->set_type == 1) {
+      forest->set_from->scheme->ref ();
+    }
+    else if (forest->set_type == 2) {
+      t8_mixed_scheme *mixed_scheme = (t8_mixed_scheme *) forest->set_from->scheme;
+      mixed_scheme->ref_mixed ();
+    }
     /* set the dimension, cmesh and scheme from the old forest */
     forest->dimension = forest->set_from->dimension;
     forest->cmesh = forest->set_from->cmesh;
     forest->scheme = forest->set_from->scheme;
     forest->global_num_trees = forest->set_from->global_num_trees;
+    forest->set_type = forest->set_from->set_type;
 
     /* Compute the maximum allowed refinement level */
     t8_forest_compute_maxlevel (forest);
@@ -3455,6 +3496,10 @@ t8_forest_commit (t8_forest_t forest)
       }
       else {
         /* This forest should only be adapted */
+        if (forest->set_type == 2) {
+          t8_mixed_scheme *mixed_scheme = (t8_mixed_scheme *) forest->scheme;
+          mixed_scheme->ref_mixed ();
+        }
         t8_forest_copy_trees (forest, forest->set_from, 0);
         t8_forest_adapt (forest);
       }
@@ -3525,6 +3570,7 @@ t8_forest_commit (t8_forest_t forest)
     t8_forest_unref (&forest->set_from);
   } /* end set_from != NULL */
 
+  t8_productionf ("forest->set_type: %i \n", forest->set_type);
   /* Compute the element offset of the trees */
   t8_forest_compute_elements_offset (forest);
 
@@ -3935,6 +3981,15 @@ t8_forest_get_scheme (const t8_forest_t forest)
   return forest->scheme;
 }
 
+const t8_mixed_scheme *
+t8_forest_get_scheme_2_5D (const t8_forest_t forest)
+{
+  T8_ASSERT (t8_forest_is_committed (forest));
+  T8_ASSERT (forest->scheme != NULL);
+
+  return (t8_mixed_scheme *) forest->scheme;
+}
+
 const t8_scheme *
 t8_forest_get_scheme_before_commit (const t8_forest_t forest)
 {
@@ -3942,6 +3997,15 @@ t8_forest_get_scheme_before_commit (const t8_forest_t forest)
   T8_ASSERT (forest->scheme != NULL);
 
   return forest->scheme;
+}
+
+const t8_mixed_scheme *
+t8_forest_get_scheme_before_commit_2_5D (const t8_forest_t forest)
+{
+  T8_ASSERT (t8_forest_is_initialized (forest));
+  T8_ASSERT (forest->scheme != NULL);
+
+  return (t8_mixed_scheme *) forest->scheme;
 }
 
 t8_eclass_t
@@ -4258,13 +4322,14 @@ t8_forest_compute_elements_offset (t8_forest_t forest)
   T8_ASSERT (t8_forest_is_initialized (forest));
 
   /* Get the number of local trees */
-  num_trees = t8_forest_get_num_local_trees (forest);  //implemented for 2_5D
+  num_trees = t8_forest_get_num_local_trees (forest);
   current_offset = 0;
   /* Iterate through all trees, sum up the element counts and set it as
    * the element_offsets */
 
   for (itree = 0; itree < num_trees; itree++) {
     tree = t8_forest_get_tree (forest, itree);
+    t8_productionf ("itree: %i", itree);
     tree->elements_offset = current_offset;
     current_offset += t8_forest_get_tree_element_count (tree);
   }
@@ -4374,8 +4439,8 @@ t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const int
   //   t8_cmesh_t cmesh_uniform_partition;
   //   t8_cmesh_init (&cmesh_uniform_partition);
   //   t8_cmesh_set_derive (cmesh_uniform_partition, cmesh);
-  //   t8_scheme_ref (scheme);
-  //   t8_cmesh_set_partition_uniform (cmesh_uniform_partition, level, scheme);
+  //   scheme->ref ();
+  //   t8_cmesh_set_partition_uniform (cmesh_uniform_partition, level, scheme); //@TODO level1 + level2
   //   t8_cmesh_commit (cmesh_uniform_partition, comm);
   //   cmesh = cmesh_uniform_partition;
   // }
@@ -4484,9 +4549,18 @@ t8_forest_reset (t8_forest_t *pforest)
     t8_forest_ghost_unref (&forest->ghosts);
   }
   /* we have taken ownership on calling t8_forest_set_* */
-  if (forest->scheme != NULL) {
-    forest->scheme->unref ();
+  if (forest->set_type == 1) {
+    if (forest->scheme != NULL) {
+      forest->scheme->unref ();
+    }
   }
+  else if (forest->set_type == 2) {
+    if (forest->scheme != NULL) {
+      t8_mixed_scheme *mixed_scheme = (t8_mixed_scheme *) forest->scheme;
+      mixed_scheme->unref_mixed ();
+    }
+  }
+
   if (forest->cmesh != NULL) {
     t8_cmesh_unref (&forest->cmesh);
   }

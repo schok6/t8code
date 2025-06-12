@@ -25,6 +25,7 @@
 #include <t8_forest/t8_forest_private.h>
 #include <t8_forest/t8_forest_general.h>
 #include <t8_schemes/t8_scheme.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
 #include <t8_data/t8_containers.h>
 
 /* We want to export the whole implementation to be callable from "C" */
@@ -456,7 +457,14 @@ t8_forest_adapt (t8_forest_t forest)
     if (num_el_from > 0) {
       const t8_element_t *first_element_from = t8_element_array_index_locidx (telements_from, 0);
       /* Get the element scheme for this tree */
-      const t8_scheme *scheme = t8_forest_get_scheme (forest_from);
+      const t8_scheme *scheme;
+      const t8_mixed_scheme *scheme_mixed;  //both possible scheme types need to be declared in this scope
+      if (forest->set_type == 1) {
+        scheme = t8_forest_get_scheme (forest_from);
+      }
+      else if (forest->set_type == 2) {
+        scheme_mixed = (const t8_mixed_scheme *) t8_forest_get_scheme (forest_from);
+      }
       /* Index of the element we currently consider for refinement/coarsening. */
       el_considered = 0;
       /* Index into the newly inserted elements */
@@ -464,27 +472,28 @@ t8_forest_adapt (t8_forest_t forest)
       /* el_coarsen is the index of the first element in the new element
        * array which could be coarsened recursively. */
       el_coarsen = 0;
-      if (forest->set_adapt_direction == 1){
-        level2 = scheme->element_get_level(tree->eclass, first_element_from, 2);
+      if (forest->set_adapt_direction == 1) {
+        level2 = scheme_mixed->element_get_level (tree->eclass, first_element_from, 2);
 
-        num_siblings2 = scheme->element_get_num_children (tree->eclass, first_element_from, 2); //needed for break criterion to find the elements for refinement
-        num_children = scheme->element_get_num_children (tree->eclass, first_element_from, 1);
+        num_siblings2 = scheme_mixed->element_get_num_children (
+          tree->eclass, first_element_from, 2);  //needed for break criterion to find the elements for refinement
+        num_children = scheme_mixed->element_get_num_children (tree->eclass, first_element_from, 1);
         curr_size_elements = num_children;
-        curr_size_elements_from = scheme->element_get_num_siblings (tree->eclass, first_element_from, 1);
+        curr_size_elements_from = scheme_mixed->element_get_num_siblings (tree->eclass, first_element_from, 1);
       }
-      else if (forest->set_adapt_direction == 2){
-        num_children = scheme->element_get_num_children (tree->eclass, first_element_from, 2);
+      else if (forest->set_adapt_direction == 2) {
+        num_children = scheme_mixed->element_get_num_children (tree->eclass, first_element_from, 2);
         curr_size_elements = num_children;
-        curr_size_elements_from = scheme->element_get_num_siblings (tree->eclass, first_element_from, 2);
+        curr_size_elements_from = scheme_mixed->element_get_num_siblings (tree->eclass, first_element_from, 2);
       }
-      else{
+      else {
         num_children = scheme->element_get_num_children (tree->eclass, first_element_from);
         curr_size_elements = num_children;
         curr_size_elements_from = scheme->element_get_num_siblings (tree->eclass, first_element_from);
       }
       /* Buffer for a family of new elements */
       T8_ASSERT (num_children > 0);
-      elements = T8_ALLOC (t8_element_t *, num_children); //num_children = curr_size_elements
+      elements = T8_ALLOC (t8_element_t *, num_children);  //num_children = curr_size_elements
       /* Buffer for a family of old elements */
       elements_from = T8_ALLOC (t8_element_t *, curr_size_elements_from);
       /* We now iterate over all elements in this tree and check them for refinement/coarsening. */
@@ -494,16 +503,19 @@ t8_forest_adapt (t8_forest_t forest)
          * a family.
          * At the end is_family will be true, if these elements form a family.
          */
-        if (forest->set_adapt_direction == 1){
-          num_siblings = scheme->element_get_num_siblings (tree->eclass, t8_element_array_index_locidx (telements_from, el_considered), 1);
+        if (forest->set_adapt_direction == 1) {
+          num_siblings = scheme_mixed->element_get_num_siblings (
+            tree->eclass, t8_element_array_index_locidx (telements_from, el_considered), 1);
         }
-        else if (forest->set_adapt_direction == 2){
-          num_siblings = scheme->element_get_num_siblings (tree->eclass, t8_element_array_index_locidx (telements_from, el_considered), 2);
+        else if (forest->set_adapt_direction == 2) {
+          num_siblings = scheme_mixed->element_get_num_siblings (
+            tree->eclass, t8_element_array_index_locidx (telements_from, el_considered), 2);
         }
         else {
-          num_siblings = scheme->element_get_num_siblings (tree->eclass, t8_element_array_index_locidx (telements_from, el_considered));
+          num_siblings = scheme->element_get_num_siblings (
+            tree->eclass, t8_element_array_index_locidx (telements_from, el_considered));
         }
-        
+
         if (num_siblings > curr_size_elements_from) {
           /* Enlarge the elements_from buffer if required */
           elements_from = T8_REALLOC (elements_from, t8_element_t *, num_siblings);
@@ -517,11 +529,11 @@ t8_forest_adapt (t8_forest_t forest)
         for (zz = 0; zz < num_siblings && el_considered + (t8_locidx_t) zz < num_el_from; zz++) {
 
           /* TODO: In a future version elements_from[zz] should be const and we should call t8_element_array_index_locidx (the const version). */
-          if (forest->set_adapt_direction == 1){
+          if (forest->set_adapt_direction == 1) {
             /*Assumption: forest is uniform refined in z-direction given the level of the first element*/
-              elems_dir2 = scheme->count_leaves_from_root (tree->eclass, level2, 2);
+            elems_dir2 = scheme_mixed->count_leaves_from_root (tree->eclass, level2, 2);
           }
-            elements_from[zz] = t8_element_array_index_locidx_mutable (telements_from, el_considered + (t8_locidx_t) zz);
+          elements_from[zz] = t8_element_array_index_locidx_mutable (telements_from, el_considered + (t8_locidx_t) zz);
           /* This is a quick check whether we build up a family here and could
            * abort early if not.
            * If the child id of the current element is not zz, then it cannot
@@ -529,11 +541,11 @@ t8_forest_adapt (t8_forest_t forest)
            * are 0, 1, 2, ... zz, ... num_siblings-1).
            * This check is however not sufficient - therefore, we call is_family later. */
           int child_id;
-          if (forest->set_adapt_direction == 1){
-            child_id = scheme->element_get_child_id (tree->eclass, elements_from[zz], 1);
+          if (forest->set_adapt_direction == 1) {
+            child_id = scheme_mixed->element_get_child_id (tree->eclass, elements_from[zz], 1);
           }
-          else if (forest->set_adapt_direction == 2){
-            child_id = scheme->element_get_child_id (tree->eclass, elements_from[zz], 2);
+          else if (forest->set_adapt_direction == 2) {
+            child_id = scheme_mixed->element_get_child_id (tree->eclass, elements_from[zz], 2);
           }
           else {
             child_id = scheme->element_get_child_id (tree->eclass, elements_from[zz]);
@@ -543,10 +555,11 @@ t8_forest_adapt (t8_forest_t forest)
             break;
           }
 
-          int test1 = pow(num_siblings2, level2) - 1; //calculate pow(num_siblings2. level2) with root
+          int test1 = pow (num_siblings2, level2) - 1;  //calculate pow(num_siblings2. level2) with root
           int test2 = test1 + 1;
           // if (!forest_from->incomplete_trees && (zz == (pow(num_siblings2, level2) - 1) && (zz / (pow(num_siblings2, level2))) != child_id) && forest->set_adapt_direction == 1) {
-          if (!forest_from->incomplete_trees && (zz == test1 && (zz / test2) != child_id) && forest->set_adapt_direction == 1) {
+          if (!forest_from->incomplete_trees && (zz == test1 && (zz / test2) != child_id)
+              && forest->set_adapt_direction == 1) {
             break;
           }
         }
@@ -555,7 +568,7 @@ t8_forest_adapt (t8_forest_t forest)
          * So we will only pass the first element to the adapt callback. */
         is_family = 0;
         num_elements_to_adapt_callback = 1;
-        if (forest_from->incomplete_trees) { //not considered yet
+        if (forest_from->incomplete_trees) {  //not considered yet
           is_family = t8_forest_is_incomplete_family (forest_from, ltree_id, el_considered, elements_from, zz);
           if (is_family > 0) {
             /* We will pass a (in)complete family to the adapt callback */
@@ -563,7 +576,7 @@ t8_forest_adapt (t8_forest_t forest)
             is_family = 1;
           }
         }
-        else if (forest->set_adapt_direction == 0) {
+        else if (forest->set_adapt_direction == 0) {  //in else case zum Schluss @TODO
           if (zz == num_siblings && scheme->elements_are_family (tree->eclass, elements_from)) {
             /* We will pass a full family to the adapt callback */
             is_family = 1;
@@ -571,14 +584,14 @@ t8_forest_adapt (t8_forest_t forest)
           }
         }
         else if (forest->set_adapt_direction == 1) {
-          if (zz == num_siblings && scheme->elements_are_family (tree->eclass, elements_from, 1)) {
+          if (zz == num_siblings && scheme_mixed->elements_are_family (tree->eclass, elements_from, 1)) {
             /* We will pass a full family to the adapt callback */
             is_family = 1;
             num_elements_to_adapt_callback = num_siblings;
           }
         }
         else if (forest->set_adapt_direction == 2) {
-          if (zz == num_siblings && scheme->elements_are_family (tree->eclass, elements_from, 2)) {
+          if (zz == num_siblings && scheme_mixed->elements_are_family (tree->eclass, elements_from, 2)) {
             /* We will pass a full family to the adapt callback */
             is_family = 1;
             num_elements_to_adapt_callback = num_siblings;
@@ -594,14 +607,14 @@ t8_forest_adapt (t8_forest_t forest)
         }
         else {
           T8_ASSERT (forest_from->incomplete_trees == 0);
-          if (forest->set_adapt_direction == 1) {
-            T8_ASSERT (!is_family || scheme->elements_are_family (tree->eclass, elements_from, 1));
+          if (forest->set_adapt_direction == 0) {
+            T8_ASSERT (!is_family || scheme->elements_are_family (tree->eclass, elements_from));
+          }
+          else if (forest->set_adapt_direction == 1) {
+            T8_ASSERT (!is_family || scheme_mixed->elements_are_family (tree->eclass, elements_from, 1));
           }
           else if (forest->set_adapt_direction == 2) {
-            T8_ASSERT (!is_family || scheme->elements_are_family (tree->eclass, elements_from, 2));
-          }
-          else{
-            T8_ASSERT (!is_family || scheme->elements_are_family (tree->eclass, elements_from));
+            T8_ASSERT (!is_family || scheme_mixed->elements_are_family (tree->eclass, elements_from, 2));
           }
         }
 #endif
@@ -613,62 +626,60 @@ t8_forest_adapt (t8_forest_t forest)
          */
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, tree->eclass, el_considered, scheme,
                                        is_family, num_elements_to_adapt_callback, elements_from);
-     
 
-/* Testing */   
-  // #if T8_ENABLE_DEBUG
-  //       t8_debugf ("----------------------- \n");
-  //       t8_debugf ("refine: %i \n", refine);
-  //       t8_debugf ("tree->eclass: %i \n", tree->eclass);
-  //       for (int i=0; i < num_elements_to_adapt_callback; i++){
-  //         t8_debugf ("Information for element %i \n", i);
-  //         scheme->element_debug_print (tree->eclass, elements_from[i]);
-  //       }
-  // #endif
-/* Testing */                        
+        /* Testing */
+        // #if T8_ENABLE_DEBUG
+        //       t8_debugf ("----------------------- \n");
+        //       t8_debugf ("refine: %i \n", refine);
+        //       t8_debugf ("tree->eclass: %i \n", tree->eclass);
+        //       for (int i=0; i < num_elements_to_adapt_callback; i++){
+        //         t8_debugf ("Information for element %i \n", i);
+        //         scheme->element_debug_print (tree->eclass, elements_from[i]);
+        //       }
+        // #endif
+        /* Testing */
 
         T8_ASSERT (is_family || refine != -1);
         int level;
         if (forest->set_adapt_direction == 1) {
-          level = scheme->element_get_level (tree->eclass, elements_from[0], 1);
+          level = scheme_mixed->element_get_level (tree->eclass, elements_from[0], 1);
         }
         else if (forest->set_adapt_direction == 2) {
-          level = scheme->element_get_level (tree->eclass, elements_from[0], 2);
+          level = scheme_mixed->element_get_level (tree->eclass, elements_from[0], 2);
         }
-        else{
+        else {
           level = scheme->element_get_level (tree->eclass, elements_from[0]);
         }
-        if (refine > 0 && level >= forest->maxlevel
-            && scheme->element_is_refinable (tree->eclass, elements_from[0])) {
+        if (refine > 0 && level >= forest->maxlevel && scheme->element_is_refinable (tree->eclass, elements_from[0])) {
           /* Only refine an element if it does not exceed the maximum level and if it is refinable */
           refine = 0;
         }
-        if (refine == 1) { 
+        if (refine == 1) {
           /* The first element is to be refined */
           if (forest->set_adapt_direction == 1) {
             /* uniform refined in vertical direction -> number of elements in vertical direction
             * is known via level of element itself
             */
-            num_children = scheme->element_get_num_children (tree->eclass, elements_from[0], 1);            
+            num_children = scheme_mixed->element_get_num_children (tree->eclass, elements_from[0], 1);
           }
           else if (forest->set_adapt_direction == 2) {
-            num_children = scheme->element_get_num_children (tree->eclass,elements_from[0], 2);
+            num_children = scheme_mixed->element_get_num_children (tree->eclass, elements_from[0], 2);
           }
           else {
-            num_children = scheme->element_get_num_children (tree->eclass,elements_from[0]);
+            num_children = scheme->element_get_num_children (tree->eclass, elements_from[0]);
           }
           if (num_children > curr_size_elements) {
             elements = T8_REALLOC (elements, t8_element_t *, num_children);
             curr_size_elements = num_children;
           }
-          if (forest->set_adapt_recursive) { //TODO
+          if (forest->set_adapt_recursive) {  //TODO
             /* Create the children of this element */
             scheme->element_new (tree->eclass, num_children, elements);
             if (forest->set_adapt_direction == 1) {
-              scheme->element_get_children (tree->eclass, elements_from[0], num_children, elements, 1);
+              scheme_mixed->element_get_children (tree->eclass, elements_from[0], num_children, elements, 1);
             }
             else if (forest->set_adapt_direction == 2) {
-              scheme->element_get_children (tree->eclass, elements_from[0], num_children, elements, 2);
+              scheme_mixed->element_get_children (tree->eclass, elements_from[0], num_children, elements, 2);
             }
             else {
               scheme->element_get_children (tree->eclass, elements_from[0], num_children, elements);
@@ -693,10 +704,10 @@ t8_forest_adapt (t8_forest_t forest)
               elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
             }
             if (forest->set_adapt_direction == 1) {
-              scheme->element_get_children (tree->eclass, elements_from[0], num_children, elements, 1);
+              scheme_mixed->element_get_children (tree->eclass, elements_from[0], num_children, elements, 1);
             }
             else if (forest->set_adapt_direction == 2) {
-              scheme->element_get_children (tree->eclass, elements_from[0], num_children, elements, 2);
+              scheme_mixed->element_get_children (tree->eclass, elements_from[0], num_children, elements, 2);
             }
             else {
               scheme->element_get_children (tree->eclass, elements_from[0], num_children, elements);
@@ -712,7 +723,6 @@ t8_forest_adapt (t8_forest_t forest)
         }
         else if (refine == -1) {
           /* The elements form a family and are to be coarsened. */
-
           if (forest->set_adapt_direction == 1) {
             /* Make room for one new column of elements and insert the parent column. */
 
@@ -723,9 +733,8 @@ t8_forest_adapt (t8_forest_t forest)
               /* TODO: In a future version elements_from[zz] should be const and we should call t8_element_array_index_locidx (the const version). */
               elements[zz] = t8_element_array_index_locidx_mutable (telements, el_inserted + zz);
             }
-            
-            scheme->element_get_parent_2_5D (tree->eclass, elements_from[0], elements);
 
+            scheme_mixed->element_get_parent_2_5D (tree->eclass, elements_from[0], elements);
           }
           else {
             /* Make room for one more new element. */
@@ -733,8 +742,8 @@ t8_forest_adapt (t8_forest_t forest)
             /* Compute the parent of the current family.
             * This parent is now inserted in telements. */
             if (forest->set_adapt_direction == 2) {
-              T8_ASSERT (scheme->element_get_level (tree->eclass, elements_from[0], 2) > 0);
-              scheme->element_get_parent (tree->eclass, elements_from[0], elements[0], 2);
+              T8_ASSERT (scheme_mixed->element_get_level (tree->eclass, elements_from[0], 2) > 0);
+              scheme_mixed->element_get_parent (tree->eclass, elements_from[0], elements[0], 2);
             }
             else {
               T8_ASSERT (scheme->element_get_level (tree->eclass, elements_from[0]) > 0);
@@ -772,16 +781,26 @@ t8_forest_adapt (t8_forest_t forest)
            * one to be refined.
            * We copy the element to the new element array. */
           elements[0] = t8_element_array_push (telements);
-          scheme->element_copy (tree->eclass, elements_from[0], elements[0]);
+          if (forest->set_type == 1) {
+            scheme->element_copy (tree->eclass, elements_from[0], elements[0]);
+          }
+          else if (forest->set_type == 2) {
+            scheme_mixed->element_copy (tree->eclass, elements_from[0], elements[0]);
+          }
           if (forest->set_adapt_direction == 1) {
-            for (int elem_z = 1; elem_z < elems_dir2; elem_z++){
+            for (int elem_z = 1; elem_z < elems_dir2; elem_z++) {
               elements[elem_z] = t8_element_array_push (telements);
-              scheme->element_copy (tree->eclass, elements_from[elem_z], elements[elem_z]);
+              // if (forest->set_type == 1) {
+              //   scheme->element_copy (tree->eclass, elements_from[elem_z], elements[elem_z]);
+              // }
+              // else if (forest->set_type == 2) {
+              scheme_mixed->element_copy (tree->eclass, elements_from[elem_z], elements[elem_z]);
+              // }
               // //Print coordinates
               // t8_productionf("elements[elem_z] coordinates:");
               // scheme->t8_element_debug_print (elements[elem_z]);
             }
-            el_inserted+= (t8_locidx_t) elems_dir2;
+            el_inserted += (t8_locidx_t) elems_dir2;
           }
           else {
             el_inserted++;
@@ -819,6 +838,9 @@ t8_forest_adapt (t8_forest_t forest)
       el_offset += el_inserted;
       /* Add to the new number of local elements. */
       forest->local_num_elements += el_inserted;
+      t8_productionf ("tree->elements_offset: %i", tree->elements_offset);
+      t8_productionf ("forest->local_num_elements: %i", forest->local_num_elements);
+      t8_productionf ("el_inserted: %i", el_inserted);
       /* Possibly shrink the telements array to the correct size */
       t8_element_array_resize (telements, el_inserted);
 
@@ -833,7 +855,7 @@ t8_forest_adapt (t8_forest_t forest)
       T8_FREE (elements);
       T8_FREE (elements_from);
     } /* End if (num_el_from > 0) */
-  }   /* End tree loop */
+  } /* End tree loop */
   if (forest->set_adapt_recursive) {
     /* clean up */
     sc_list_destroy (refine_list);
@@ -861,6 +883,8 @@ t8_forest_adapt (t8_forest_t forest)
 
   /* adapted forest must have the same underlying scheme (default or 2_5D) as original forest*/
   forest->set_type = forest_from->set_type;
+
+  t8_productionf ("forest_from->set_type: %i \n", forest_from->set_type);
 
   t8_global_productionf ("Done t8_forest_adapt with %lld total elements\n", (long long) forest->global_num_elements);
 

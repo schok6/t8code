@@ -357,7 +357,7 @@ struct t8_standalone_scheme
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
   static constexpr void
-  element_get_parent (const t8_element_t *elem, t8_element_t *parent, [[maybe_unused]] int dir = 0) noexcept
+  element_get_parent (const t8_element_t *elem, t8_element_t *parent) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -379,15 +379,6 @@ struct t8_standalone_scheme
     T8_ASSERT (element_is_valid (parent));
   }
 
-  /*
-  *TODO
-  */
-  inline void
-  element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
-  {
-    SC_ABORT ("Necessary for 2.5D scheme \n");
-  }
-
   /** Compute the number of siblings of an element. That is the number of 
    * elements with the same parent (if available).
    * \param [in] elem The element.
@@ -396,7 +387,7 @@ struct t8_standalone_scheme
    * Note that the number of siblings is 1 for the root element.
    */
   static constexpr int
-  element_get_num_siblings (const t8_element_t *elem, [[maybe_unused]] int dir = 0) noexcept
+  element_get_num_siblings (const t8_element_t *elem) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -479,7 +470,7 @@ struct t8_standalone_scheme
    * \return            The number of children of \a elem if it is to be refined.
    */
   static constexpr int
-  element_get_num_children ([[maybe_unused]] const t8_element_t *elem, [[maybe_unused]] int dir = 0) noexcept
+  element_get_num_children ([[maybe_unused]] const t8_element_t *elem) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -512,8 +503,7 @@ struct t8_standalone_scheme
    * \see t8_element_child_eclass
    */
   static constexpr void
-  element_get_children (const t8_element_t *elem, const int length, t8_element_t *c[],
-                        [[maybe_unused]] int dir = 0) noexcept
+  element_get_children (const t8_element_t *elem, const int length, t8_element_t *c[]) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
@@ -581,7 +571,7 @@ struct t8_standalone_scheme
    * \note level 0 elements do not form a family.
    */
   static constexpr int
-  elements_are_family (t8_element_t *const *fam, [[maybe_unused]] int dir) noexcept
+  elements_are_family (t8_element_t *const *fam) noexcept
   {
 #if T8_ENABLE_DEBUG
     const int num_siblings = element_get_num_siblings (fam[0]);
@@ -1287,7 +1277,7 @@ struct t8_standalone_scheme
    * \ref t8_element_count_leaves.
    */
   static constexpr t8_gloidx_t
-  count_leaves_from_root (const t8_element_level level, [[maybe_unused]] int dir) noexcept
+  count_leaves_from_root (const t8_element_level level) noexcept
   {
     T8_ASSERT (level <= T8_ELEMENT_MAXLEVEL[TEclass]);
     T8_ASSERT (level >= 0);
@@ -1371,7 +1361,7 @@ struct t8_standalone_scheme
   {
     double *current_ref_coords = (double *) ref_coords;
     double *current_out_coords = out_coords;
-    t8_element_coord length = element_get_len (element_get_level (elem, 0));
+    t8_element_coord length = element_get_len (element_get_level (elem));
 
     for (size_t coord = 0; coord < num_coords; ++coord) {
       for (int dim = 0; dim < T8_ELEMENT_DIM[TEclass]; ++dim) {

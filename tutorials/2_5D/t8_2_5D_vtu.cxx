@@ -20,11 +20,12 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#include <t8.h>                                 /* General t8code header, always include this. */
-#include <t8_forest/t8_forest_general.h>        /* forest definition and basic interface. */
-#include <t8_forest/t8_forest_io.h>             /* save forest */
+#include <t8.h>                                           /* General t8code header, always include this. */
+#include <t8_forest/t8_forest_general.h>                  /* forest definition and basic interface. */
+#include <t8_forest/t8_forest_io.h>                       /* save forest */
 #include <t8_schemes/t8_2_5dimension/t8_2_5dimension.hxx> /* 2_5D refinement scheme. */
-#include "t8_forest/t8_forest_types.h"
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
+#include <t8_forest/t8_forest_types.h>
 #include <tutorials/2_5D/t8_2_5D_vtu.hxx>
 
 /* Write the forest as vtu and also write the highlighted element in the file.
@@ -72,20 +73,19 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
   t8_locidx_t num_global_trees;
   t8_locidx_t num_local_trees;
   t8_element_t *element;
-  const t8_scheme *scheme;
+  const t8_mixed_scheme *scheme;
   num_global_trees = t8_forest_get_num_global_trees (forest);
   element_index = 0;
   element_index_in_tree = 0;
   elems_considered = 0;
 
-
   for (itree = 0; itree < num_global_trees; itree++) {
     /* Get the tree that stores the elements */
     num_local_trees = t8_forest_get_num_local_trees (forest);
-    if (itree < num_local_trees){
+    if (itree < num_local_trees) {
       tree = t8_forest_get_tree (forest, itree);
       /* Get the eclass scheme of the tree */
-      scheme = t8_forest_get_scheme(forest);
+      scheme = t8_forest_get_scheme_2_5D (forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
       element_index_in_tree = elems_in_tree;
@@ -93,7 +93,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
         /* Get a pointer to the element */
         element = t8_forest_get_element (forest, tree->elements_offset + element_index, &itree);
 
-        std::vector<int> levels = {level1, level2};
+        std::vector<int> levels = { level1, level2 };
 
         sfc_index[element_index + elems_considered] = (scheme->element_get_linear_id (tree_class, element, levels));
       }

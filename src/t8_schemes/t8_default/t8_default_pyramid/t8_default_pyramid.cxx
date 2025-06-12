@@ -90,7 +90,7 @@ t8_default_scheme_pyramid::element_get_ancestor_id (const t8_element_t *elem, in
 }
 
 int
-t8_default_scheme_pyramid::element_get_num_children (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::element_get_num_children (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dpyramid_num_children ((const t8_dpyramid_t *) elem);
@@ -104,14 +104,14 @@ t8_default_scheme_pyramid::element_get_num_corners (const t8_element_t *elem) co
 }
 
 int
-t8_default_scheme_pyramid::element_get_num_siblings (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::element_get_num_siblings (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dpyramid_num_siblings ((const t8_dpyramid_t *) elem);
 }
 
 t8_gloidx_t
-t8_default_scheme_pyramid::count_leaves_from_root (int level, [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::count_leaves_from_root (int level) const
 {
   return 2 * sc_intpow64u (8, level) - sc_intpow64u (6, level);
 }
@@ -156,7 +156,7 @@ t8_default_scheme_pyramid::element_get_child (const t8_element_t *elem, int chil
 
 void
 t8_default_scheme_pyramid::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length,
-                                                 t8_element_t *c[], [[maybe_unused]] int dir) const
+                                                 t8_element_t *c[]) const
 {
   T8_ASSERT (element_is_valid (elem));
   t8_dpyramid_children ((const t8_dpyramid_t *) elem, (t8_dpyramid_t **) c);
@@ -257,7 +257,7 @@ t8_default_scheme_pyramid::element_set_linear_id (t8_element_t *elem, std::vecto
 }
 
 int
-t8_default_scheme_pyramid::elements_are_family (t8_element_t *const *fam, [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::elements_are_family (t8_element_t *const *fam) const
 {
 #if T8_ENABLE_DEBUG
   const int num_siblings = element_get_num_siblings (fam[0]);
@@ -358,8 +358,7 @@ t8_default_scheme_pyramid::element_get_last_descendant_face (const t8_element_t 
 }
 
 void
-t8_default_scheme_pyramid::element_get_parent (const t8_element_t *elem, t8_element_t *parent,
-                                               [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::element_get_parent (const t8_element_t *elem, t8_element_t *parent) const
 {
   T8_ASSERT (element_is_valid (elem));
   t8_dpyramid_parent ((const t8_dpyramid_t *) elem, (t8_dpyramid_t *) parent);

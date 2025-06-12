@@ -72,8 +72,7 @@ t8_default_scheme_line::element_is_equal (const t8_element_t *elem1, const t8_el
 }
 
 void
-t8_default_scheme_line::element_get_parent (const t8_element_t *elem, t8_element_t *parent,
-                                            [[maybe_unused]] int dir) const
+t8_default_scheme_line::element_get_parent (const t8_element_t *elem, t8_element_t *parent) const
 {
   const t8_default_line_t *l = (const t8_default_line_t *) elem;
   t8_default_line_t *p = (t8_default_line_t *) parent;
@@ -345,8 +344,7 @@ t8_default_scheme_line::element_get_max_num_faces ([[maybe_unused]] const t8_ele
 }
 
 int
-t8_default_scheme_line::element_get_num_children ([[maybe_unused]] const t8_element_t *elem,
-                                                  [[maybe_unused]] int dir) const
+t8_default_scheme_line::element_get_num_children ([[maybe_unused]] const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return T8_DLINE_CHILDREN;
@@ -370,8 +368,8 @@ t8_default_scheme_line::element_get_child_id (const t8_element_t *elem, [[maybe_
 }
 
 void
-t8_default_scheme_line::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length, t8_element_t *c[],
-                                              [[maybe_unused]] int dir) const
+t8_default_scheme_line::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length,
+                                              t8_element_t *c[]) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (length == T8_DLINE_CHILDREN);
@@ -387,7 +385,7 @@ t8_default_scheme_line::element_get_ancestor_id (const t8_element_t *elem, int l
 }
 
 int
-t8_default_scheme_line::elements_are_family (t8_element_t *const *fam, [[maybe_unused]] int dir) const
+t8_default_scheme_line::elements_are_family (t8_element_t *const *fam) const
 {
 #if T8_ENABLE_DEBUG
   int i;

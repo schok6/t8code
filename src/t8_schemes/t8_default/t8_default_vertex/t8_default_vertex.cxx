@@ -72,8 +72,7 @@ t8_default_scheme_vertex::element_is_equal (const t8_element_t *elem1, const t8_
 }
 
 void
-t8_default_scheme_vertex::element_get_parent (const t8_element_t *elem, t8_element_t *parent,
-                                              [[maybe_unused]] int dir) const
+t8_default_scheme_vertex::element_get_parent (const t8_element_t *elem, t8_element_t *parent) const
 {
   const t8_dvertex_t *v = (const t8_dvertex_t *) elem;
   t8_dvertex_t *p = (t8_dvertex_t *) parent;
@@ -111,8 +110,7 @@ t8_default_scheme_vertex::element_get_max_num_faces ([[maybe_unused]] const t8_e
 }
 
 int
-t8_default_scheme_vertex::element_get_num_children ([[maybe_unused]] const t8_element_t *elem,
-                                                    [[maybe_unused]] int dir) const
+t8_default_scheme_vertex::element_get_num_children ([[maybe_unused]] const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return T8_DVERTEX_CHILDREN;
@@ -144,7 +142,7 @@ t8_default_scheme_vertex::element_get_child (const t8_element_t *elem, [[maybe_u
 
 void
 t8_default_scheme_vertex::element_get_children (const t8_element_t *elem, [[maybe_unused]] int length,
-                                                t8_element_t *c[], [[maybe_unused]] int dir) const
+                                                t8_element_t *c[]) const
 {
   T8_ASSERT (length == T8_DVERTEX_CHILDREN);
   T8_ASSERT (element_is_valid (elem));
@@ -176,7 +174,7 @@ t8_default_scheme_vertex::element_get_ancestor_id ([[maybe_unused]] const t8_ele
 }
 
 int
-t8_default_scheme_vertex::elements_are_family (t8_element_t *const *fam, [[maybe_unused]] int dir) const
+t8_default_scheme_vertex::elements_are_family (t8_element_t *const *fam) const
 {
 #if T8_ENABLE_DEBUG
   for (int i = 0; i < T8_DVERTEX_CHILDREN; i++) {

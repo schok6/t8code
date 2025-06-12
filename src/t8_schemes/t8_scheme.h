@@ -31,6 +31,12 @@
 #include <t8.h>
 #include <t8_element.h>
 
+/** The mixed scheme holds the 2.5 dimensional/anisotropic implementations for one or more element classes.
+ *  Opaque pointer for C interface.
+ *  Detailed documentation at \ref t8_scheme.
+ */
+typedef struct t8_mixed_scheme t8_mixed_scheme_c;
+
 /** The scheme holds implementations for one or more element classes.
  *  Opaque pointer for C interface.
  *  Detailed documentation at \ref t8_scheme.
