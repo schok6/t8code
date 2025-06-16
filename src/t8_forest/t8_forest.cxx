@@ -1213,6 +1213,8 @@ t8_forest_populate (t8_forest_t forest)
   t8_eclass_t tree_class;
   t8_gloidx_t cmesh_first_tree, cmesh_last_tree;
   std::vector<int> levels;
+  const t8_scheme *scheme;
+  const t8_mixed_scheme *scheme_mixed;
   int is_empty;
 
   if (forest->set_type == 1) {
@@ -1263,10 +1265,14 @@ t8_forest_populate (t8_forest_t forest)
     for (jt = forest->first_local_tree, count_elements = 0; jt <= forest->last_local_tree; jt++) {
       tree = (t8_tree_t) t8_sc_array_index_locidx (forest->trees, jt - forest->first_local_tree);
       tree_class = tree->eclass = t8_cmesh_get_tree_class (forest->cmesh, jt - first_ctree);
-      t8_productionf ("tree_class: %i \n", tree_class);
       tree->elements_offset = count_elements;
-      const t8_scheme *scheme = forest->scheme;
-      const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) forest->scheme;
+      if (forest->set_type == 1) {
+        scheme = forest->scheme;
+      }
+      else if (forest->set_type == 2) {
+        scheme = forest->scheme;
+        scheme_mixed = (const t8_mixed_scheme *) forest->scheme;
+      }
       T8_ASSERT (scheme != NULL || scheme_mixed != NULL);
       telements = &tree->leaf_elements;
       /* calculate first and last element on this tree */
@@ -3391,7 +3397,6 @@ t8_forest_commit (t8_forest_t forest)
     SC_CHECK_MPI (mpiret);
     mpiret = sc_MPI_Comm_rank (forest->mpicomm, &forest->mpirank);
     SC_CHECK_MPI (mpiret);
-    t8_productionf ("before compute_maxlevel \n");
     /* Compute the maximum allowed refinement level */
     if (forest->set_type == 1) {
       t8_forest_compute_maxlevel (forest);
@@ -3402,7 +3407,6 @@ t8_forest_commit (t8_forest_t forest)
       T8_ASSERT (forest->set_level1 <= forest->maxlevel);
       T8_ASSERT (forest->set_level2 <= forest->maxlevel);
     }
-    t8_productionf (" before populate \n");
     /* populate a new forest with tree and quadrant objects */
     if (t8_forest_refines_irregular (forest) && forest->set_level > 0) {
       /* On root level we will also use the normal algorithm */
@@ -3424,6 +3428,13 @@ t8_forest_commit (t8_forest_t forest)
     T8_ASSERT (forest->from_method >= T8_FOREST_FROM_FIRST && forest->from_method < T8_FOREST_FROM_LAST);
     T8_ASSERT (forest->set_from->incomplete_trees > -1);
 
+    if (forest_from->set_type == 1) {
+      forest->set_type = 1;
+    }
+    else if (forest_from->set_type == 2) {
+      forest->set_type = 2;
+    }
+
     /* TODO: optimize all this when forest->set_from has reference count one */
     /* TODO: Get rid of duping the communicator */
     /* we must prevent the case that set_from frees the source communicator */
@@ -3444,7 +3455,6 @@ t8_forest_commit (t8_forest_t forest)
 
     /* increase reference count of cmesh and scheme from the input forest */
     t8_cmesh_ref (forest->set_from->cmesh);
-
     if (forest->set_type == 1) {
       forest->set_from->scheme->ref ();
     }
@@ -3503,6 +3513,10 @@ t8_forest_commit (t8_forest_t forest)
         }
         t8_forest_copy_trees (forest, forest->set_from, 0);
         t8_forest_adapt (forest);
+        if (forest->set_type == 2) {
+          t8_mixed_scheme *mixed_scheme = (t8_mixed_scheme *) forest->scheme;
+          mixed_scheme->unref_mixed ();
+        }
       }
     }
     if (forest->from_method & T8_FOREST_FROM_PARTITION) {
@@ -4330,7 +4344,6 @@ t8_forest_compute_elements_offset (t8_forest_t forest)
 
   for (itree = 0; itree < num_trees; itree++) {
     tree = t8_forest_get_tree (forest, itree);
-    t8_productionf ("itree: %i", itree);
     tree->elements_offset = current_offset;
     current_offset += t8_forest_get_tree_leaf_element_count (tree);
   }
@@ -4461,94 +4474,6 @@ t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const int
   t8_forest_commit (forest);
   t8_global_productionf ("Constructed uniform forest with %lli global elements.\n",
                          (long long) forest->global_num_leaf_elements);
-
-  return forest;
-}
-
-t8_forest_t
-t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const int level1, const int level2,
-                            const int do_face_ghost, sc_MPI_Comm comm)
-{
-  t8_forest_t forest;
-
-  T8_ASSERT (t8_cmesh_is_committed (cmesh));
-  T8_ASSERT (scheme != NULL);
-  T8_ASSERT (0 <= level1);
-  T8_ASSERT (0 <= level2);
-
-  /* Initialize the forest */
-  t8_global_productionf ("Initialize forest \n");
-  t8_forest_init (&forest);
-
-  // if (cmesh->set_partition) {
-  //   t8_cmesh_t cmesh_uniform_partition;
-  //   t8_cmesh_init (&cmesh_uniform_partition);
-  //   t8_cmesh_set_derive (cmesh_uniform_partition, cmesh);
-  //   scheme->ref ();
-  //   t8_cmesh_set_partition_uniform (cmesh_uniform_partition, level, scheme); //@TODO level1 + level2
-  //   t8_cmesh_commit (cmesh_uniform_partition, comm);
-  //   cmesh = cmesh_uniform_partition;
-  // }
-
-  forest->set_type = 2;
-  t8_global_productionf ("forest->set_type: %i \n", forest->set_type);
-  /* Set the cmesh, scheme and level */
-  t8_forest_set_cmesh (forest, cmesh, comm);
-  t8_forest_set_scheme (forest, scheme);
-  t8_forest_set_level_2_5D (forest, level1, level2);
-  // t8_forest_set_profiling (forest, 1);
-  if (do_face_ghost) {
-    t8_forest_set_ghost (forest, 1, T8_GHOST_FACES);
-  }
-  /* commit the forest */
-  t8_global_productionf ("Commit forest \n");
-  t8_forest_commit (forest);
-  t8_global_productionf ("Constructed uniform forest with %lli global elements.\n",
-                         (long long) forest->global_num_leaf_elements);
-
-  return forest;
-}
-
-t8_forest_t
-t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const int level1, const int level2,
-                            const int do_face_ghost, sc_MPI_Comm comm)
-{
-  t8_forest_t forest;
-
-  T8_ASSERT (t8_cmesh_is_committed (cmesh));
-  T8_ASSERT (scheme != NULL);
-  T8_ASSERT (0 <= level1);
-  T8_ASSERT (0 <= level2);
-
-  /* Initialize the forest */
-  t8_global_productionf ("Initialize forest \n");
-  t8_forest_init (&forest);
-
-  // if (cmesh->set_partition) {
-  //   t8_cmesh_t cmesh_uniform_partition;
-  //   t8_cmesh_init (&cmesh_uniform_partition);
-  //   t8_cmesh_set_derive (cmesh_uniform_partition, cmesh);
-  //   scheme->ref ();
-  //   t8_cmesh_set_partition_uniform (cmesh_uniform_partition, level, scheme); //@TODO level1 + level2
-  //   t8_cmesh_commit (cmesh_uniform_partition, comm);
-  //   cmesh = cmesh_uniform_partition;
-  // }
-
-  forest->set_type = 2;
-  t8_global_productionf ("forest->set_type: %i \n", forest->set_type);
-  /* Set the cmesh, scheme and level */
-  t8_forest_set_cmesh (forest, cmesh, comm);
-  t8_forest_set_scheme (forest, scheme);
-  t8_forest_set_level_2_5D (forest, level1, level2);
-  // t8_forest_set_profiling (forest, 1);
-  if (do_face_ghost) {
-    t8_forest_set_ghost (forest, 1, T8_GHOST_FACES);
-  }
-  /* commit the forest */
-  t8_global_productionf ("Commit forest \n");
-  t8_forest_commit (forest);
-  t8_global_productionf ("Constructed uniform forest with %lli global elements.\n",
-                         (long long) forest->global_num_elements);
 
   return forest;
 }

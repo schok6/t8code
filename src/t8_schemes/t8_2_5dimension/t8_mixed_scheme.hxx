@@ -110,7 +110,7 @@ class t8_mixed_scheme: public t8_scheme {
   element_get_level (const t8_eclass_t tree_class, const t8_element_t *elem, int dir) const
   {
     return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_get_level (elem, dir); },
-                       eclass_schemes[tree_class]);
+                       eclass_schemes_mixed[tree_class]);
   };
 
   /** Compute the parent of a given element \a elem and store it in \a parent.
@@ -228,7 +228,7 @@ class t8_mixed_scheme: public t8_scheme {
     // const std::vector<int> levels = {level};
 
     return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_set_linear_id (elem, levels, id); },
-                       eclass_schemes[tree_class]);
+                       eclass_schemes_mixed[tree_class]);
   };
 
   /** Compute the linear id of a given element in a hypothetical uniform
@@ -245,7 +245,7 @@ class t8_mixed_scheme: public t8_scheme {
     // const std::vector<int> levels = {level};
 
     return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_get_linear_id (elem, levels); },
-                       eclass_schemes[tree_class]);
+                       eclass_schemes_mixed[tree_class]);
   };
 
   /** Compute the first descendant of a given element.
@@ -261,7 +261,7 @@ class t8_mixed_scheme: public t8_scheme {
   {
     return std::visit (
       [&] (auto &&scheme_mixed) { return scheme_mixed.element_get_first_descendant (elem, desc, levels); },
-      eclass_schemes[tree_class]);
+      eclass_schemes_mixed[tree_class]);
   };
 
   /** Compute the last descendant of a given element.
@@ -277,7 +277,7 @@ class t8_mixed_scheme: public t8_scheme {
   {
     return std::visit (
       [&] (auto &&scheme_mixed) { return scheme_mixed.element_get_last_descendant (elem, desc, levels); },
-      eclass_schemes[tree_class]);
+      eclass_schemes_mixed[tree_class]);
   };
 
   /** Count how many leaf descendants of a given uniform level the root element will produce.

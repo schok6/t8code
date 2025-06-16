@@ -30,7 +30,6 @@
 
 #include <variant>
 #include <vector>
-// #include <cstdint>
 #include <t8_refcount.h>
 #include <t8_eclass.h>
 #include <t8_schemes/t8_default/t8_default.hxx>
@@ -80,6 +79,65 @@ class t8_scheme {
   {
     t8_refcount_init (&rc);
   };
+
+  // /** Move constructor */
+  // t8_scheme (t8_scheme &&other)  //noexcept  // = default;
+  // // : TUnderlyingEclassScheme1 (std::move (other)), TUnderlyingEclassScheme2 (std::move (other)),
+  // //   element_size_2_5D (other.element_size_2_5D), scheme_2_5D_pool (std::exchange (other.scheme_2_5D_pool, nullptr))
+  // {
+  //   t8_productionf ("This is the move constructor of t8_scheme for this: %p and other: %p\n", this, other);
+  // }
+
+  // /** Move assignment operator */
+  // t8_scheme &
+  // operator= (t8_scheme &&other)  //noexcept
+  // // = default;
+  // {
+  //   t8_productionf ("This is the move assignment operator of t8_scheme for this: %p and other:%p\n", this, other);
+  //   // if (this != &other) {
+  //   //   // Free existing resources of moved-to object
+  //   //   if (scheme_2_5D_pool) {
+  //   //     sc_mempool_destroy ((sc_mempool_t *) scheme_2_5D_pool);
+  //   //   }
+
+  //   //   // Transfer ownership of resources
+  //   //   element_size_2_5D = other.element_size_2_5D;
+  //   //   scheme_2_5D_pool = other.scheme_2_5D_pool;
+
+  //   //   // Leave the source object in a valid state
+  //   //   other.scheme_2_5D_pool = nullptr;
+  //   // }
+  //   // TUnderlyingEclassScheme1::operator= (std::move (other));
+  //   // TUnderlyingEclassScheme2::operator= (std::move (other));
+  //   return *this;
+  // }
+
+  // /** Copy constructor */
+  // t8_scheme (const t8_scheme &other): eclass_schemes (other.eclass_schemes)
+  // {
+  //   t8_productionf ("This is the copy constructor of t8_scheme for this: %p and other: %p\n", this, &other);
+  // }
+
+  // /** Copy assignment operator */
+  // t8_scheme &
+  // operator= (const t8_scheme &other)
+  // // = default;
+  // {
+  //   t8_productionf ("This is the copy assignment operator of t8_scheme for this: %p and other: %p\n", this, &other);
+  //   //   if (this != &other) {
+  //   //     // Free existing resources of assigned-to object
+  //   //     if (scheme_2_5D_pool) {
+  //   //       sc_mempool_destroy ((sc_mempool_t *) scheme_2_5D_pool);
+  //   //     }
+
+  //   //     // Copy the values from the source object
+  //   //     element_size_2_5D = other.element_size_2_5D;
+  //   //     scheme_2_5D_pool = sc_mempool_new (other.element_size_2_5D);
+  //   //   }
+  //   //   TUnderlyingEclassScheme1::operator= (other);
+  //   //   TUnderlyingEclassScheme2::operator= (other);
+  //   return *this;
+  // }
 
   ~t8_scheme ()
   {
@@ -143,6 +201,7 @@ class t8_scheme {
   unref () const
   {
     const int remaining = rc.refcount - 1;
+    // t8_productionf ("rc: %i", rc.refcount);
     if (t8_refcount_unref (&rc)) {
       t8_debugf ("Deleting the scheme.\n");
       delete this;
@@ -192,7 +251,6 @@ class t8_scheme {
   inline size_t
   get_element_size (const t8_eclass_t tree_class) const
   {
-    t8_productionf ("eclass_schemes[tree_class]: %p \n", eclass_schemes[tree_class]);
     return std::visit ([&] (auto &&scheme) { return scheme.get_element_size (); }, eclass_schemes[tree_class]);
   };
 

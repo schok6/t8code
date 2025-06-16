@@ -190,9 +190,9 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
   T8_ASSERT (t8_forest_is_committed (forest));
 
   /* Get the local number of elements. */
-  local_num_elements = t8_forest_get_local_num_elements (forest);
+  local_num_elements = t8_forest_get_local_num_leaf_elements (forest);
   /* Get the global number of elements. */
-  global_num_elements = t8_forest_get_global_num_elements (forest);
+  global_num_elements = t8_forest_get_global_num_leaf_elements (forest);
   t8_global_productionf (" [2_5D] Local number of elements:\t%i\n", local_num_elements);
   t8_global_productionf (" [2_5D] Global number of elements:\t%li\n", global_num_elements);
 }
@@ -213,7 +213,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
 
   /* The uniform refinement level of the forest. */
   const int level1 = 1;
-  const int level2 = 3;
+  const int level2 = 1;
 
   t8_gloidx_t global_num_elements;
 
@@ -250,7 +250,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
 
   /* Get the global number of elements. */
-  global_num_elements = t8_forest_get_global_num_elements (forest);
+  global_num_elements = t8_forest_get_global_num_leaf_elements (forest);
 
   /* Print information of the forest. */
   t8_global_productionf (" [2_5D] Created uniform forest.\n");

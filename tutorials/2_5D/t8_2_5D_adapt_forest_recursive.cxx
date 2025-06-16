@@ -304,9 +304,9 @@ t8_2_5D_adapt_print_forest_information (t8_forest_t forest)
   T8_ASSERT (t8_forest_is_committed (forest));
 
   /* Get the local number of elements. */
-  local_num_elements = t8_forest_get_local_num_elements (forest);
+  local_num_elements = t8_forest_get_local_num_leaf_elements (forest);
   /* Get the global number of elements. */
-  global_num_elements = t8_forest_get_global_num_elements (forest);
+  global_num_elements = t8_forest_get_global_num_leaf_elements (forest);
   t8_productionf (" [2_5D] Local number of elements:\t\t%i\n", local_num_elements);
   t8_global_productionf (" [2_5D] Global number of elements:\t\t%li\n", global_num_elements);
 }
@@ -365,7 +365,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   forest = t8_2_5D_build_uniform_forest (comm, cmesh, level1, level2);
 
   /* Get the global number of elements. */
-  global_num_elements = t8_forest_get_global_num_elements (forest);
+  global_num_elements = t8_forest_get_global_num_leaf_elements (forest);
 
   /* Print information of the forest. */
   t8_global_productionf (" [2_5D] Created uniform forest.\n");
@@ -413,7 +413,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_global_productionf (" [2_5D] Wrote adapted horizontal forest to vtu files: %s*\n", prefix_adapt_horizontal);
 
   /* Get the global number of elements of adapted forest. */
-  global_num_elements = t8_forest_get_global_num_elements (forest);
+  global_num_elements = t8_forest_get_global_num_leaf_elements (forest);
 
   double *highlight_adapt_horizontal = T8_ALLOC_ZERO (double, global_num_elements);
   for (int i = 0; i < 4; i++) {
@@ -453,7 +453,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   t8_global_productionf (" [2_5D] Wrote adapted forest to vtu files: %s*\n", prefix_adapt_vertical);
 
   /* Get the global number of elements of adapted forest. */
-  global_num_elements = t8_forest_get_global_num_elements (forest);
+  global_num_elements = t8_forest_get_global_num_leaf_elements (forest);
 
   double *highlight_adapt_vertical = T8_ALLOC_ZERO (double, global_num_elements);
   // for (int i=0; i<16; i++){

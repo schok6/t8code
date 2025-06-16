@@ -27,6 +27,7 @@
 #include <sc_containers.h>
 #include <t8_data/t8_containers.h>
 #include <t8_schemes/t8_scheme.hxx>
+#include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
 
 T8_EXTERN_C_BEGIN ();
 

@@ -40,7 +40,7 @@
 void
 t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *array, const char *prefix)
 {
-  t8_locidx_t num_elements = t8_forest_get_global_num_elements (forest);
+  t8_locidx_t num_elements = t8_forest_get_global_num_leaf_elements (forest);
   t8_locidx_t ielem;
   /* We need to allocate a new array to store the data on their own.
    * The arrays have one entry per local element. */
@@ -87,11 +87,11 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
       /* Get the eclass scheme of the tree */
       scheme = t8_forest_get_scheme_2_5D (forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
-      elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->elements);
+      elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->leaf_elements);
       element_index_in_tree = elems_in_tree;
       for (element_index = 0; element_index < element_index_in_tree; element_index++) {
         /* Get a pointer to the element */
-        element = t8_forest_get_element (forest, tree->elements_offset + element_index, &itree);
+        element = t8_forest_get_leaf_element (forest, tree->elements_offset + element_index, &itree);
 
         std::vector<int> levels = { level1, level2 };
 

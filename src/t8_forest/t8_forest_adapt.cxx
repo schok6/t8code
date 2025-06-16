@@ -396,6 +396,7 @@ t8_forest_adapt (t8_forest_t forest)
   sc_list_t *refine_list = NULL; /* This is only needed when we adapt recursively */
   int num_children;
   int num_siblings;
+  int curr_size_elements;
   int curr_size_elements_from;
   int num_elements_to_adapt_callback;
   int zz;
@@ -626,6 +627,7 @@ t8_forest_adapt (t8_forest_t forest)
          */
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, tree->eclass, el_considered, scheme,
                                        is_family, num_elements_to_adapt_callback, elements_from);
+        // refine = 1;
 
         /* Testing */
         // #if T8_ENABLE_DEBUG
@@ -641,16 +643,21 @@ t8_forest_adapt (t8_forest_t forest)
 
         T8_ASSERT (is_family || refine != -1);
         int level;
+        int is_refinable;
         if (forest->set_adapt_direction == 1) {
           level = scheme_mixed->element_get_level (tree->eclass, elements_from[0], 1);
+          is_refinable = scheme_mixed->element_is_refinable (tree->eclass, elements_from[0]);
         }
         else if (forest->set_adapt_direction == 2) {
           level = scheme_mixed->element_get_level (tree->eclass, elements_from[0], 2);
+          is_refinable = scheme_mixed->element_is_refinable (tree->eclass, elements_from[0]);
         }
         else {
           level = scheme->element_get_level (tree->eclass, elements_from[0]);
+          is_refinable = scheme->element_is_refinable (tree->eclass, elements_from[0]);
         }
-        if (refine > 0 && level >= forest->maxlevel || !scheme->element_is_refinable (tree->eclass, elements_from[0])) {
+        if (refine > 0 && level >= forest->maxlevel || !is_refinable) {
+          // if (refine > 0 && level >= forest->maxlevel || !scheme->element_is_refinable (tree->eclass, elements_from[0])) {
           /* Only refine an element if it does not exceed the maximum level and if it is refinable */
           refine = 0;
         }
@@ -838,9 +845,6 @@ t8_forest_adapt (t8_forest_t forest)
       el_offset += el_inserted;
       /* Add to the new number of local elements. */
       forest->local_num_leaf_elements += el_inserted;
-      t8_productionf ("tree->elements_offset: %i", tree->elements_offset);
-      t8_productionf ("forest->local_num_elements: %i", forest->local_num_elements);
-      t8_productionf ("el_inserted: %i", el_inserted);
       /* Possibly shrink the telements array to the correct size */
       t8_element_array_resize (telements, el_inserted);
 
@@ -883,8 +887,6 @@ t8_forest_adapt (t8_forest_t forest)
 
   /* adapted forest must have the same underlying scheme (default or 2_5D) as original forest*/
   forest->set_type = forest_from->set_type;
-
-  t8_productionf ("forest_from->set_type: %i \n", forest_from->set_type);
 
   t8_global_productionf ("Done t8_forest_adapt with %lld total elements\n",
                          (long long) forest->global_num_leaf_elements);

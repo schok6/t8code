@@ -39,7 +39,7 @@
 #define T8_DLINE_FACE_CHILDREN 1
 
 /** The maximum refinement level allowed for a line. */
-#define T8_DLINE_MAXLEVEL 5 //30
+#define T8_DLINE_MAXLEVEL 30
 
 /** The length of the root line in integer coordinates. */
 #define T8_DLINE_ROOT_LEN (1 << (T8_DLINE_MAXLEVEL))

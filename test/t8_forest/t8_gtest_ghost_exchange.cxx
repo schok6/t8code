@@ -107,7 +107,6 @@ t8_test_ghost_exchange_data_id (t8_forest_t forest)
     for (t8_locidx_t ielem = 0; ielem < t8_forest_get_tree_num_leaf_elements (forest, itree); ielem++) {
       /* Get a pointer to this element */
       const t8_element_t *elem = t8_forest_get_leaf_element_in_tree (forest, itree, ielem);
-      const int level = scheme->element_get_level (tree_class, elem);
       /* Compute the linear id of this element */
       std::vector<int> level { scheme->element_get_level (tree_class, elem) };
       const t8_linearidx_t elem_id = scheme->element_get_linear_id (tree_class, elem, level);

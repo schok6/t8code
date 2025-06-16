@@ -42,7 +42,7 @@
 #define T8_DHEX_FACE_CHILDREN 4
 
 /** The maximum refinement level allowed for a hex. */
-#define T8_DHEX_MAXLEVEL 5 //21
+#define T8_DHEX_MAXLEVEL 21
 
 /** The length of the root hex in integer coordinates. */
 #define T8_DHEX_ROOT_LEN (1 << (T8_DHEX_MAXLEVEL))

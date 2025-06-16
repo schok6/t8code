@@ -571,18 +571,8 @@ t8_cmesh_commit (t8_cmesh_t cmesh, sc_MPI_Comm comm)
     }
   } /* End set_from != NULL */
   else {
-    // for (int eclass_it = T8_ECLASS_VERTEX; eclass_it < T8_ECLASS_COUNT; eclass_it++) {
-    //   t8_global_productionf ("cmesh->num_trees_per_eclass[eclass_it] %li\n", cmesh->num_trees_per_eclass[eclass_it]);
-    // }
-
-    // t8_global_productionf("befor 'from stash'\n");
     t8_cmesh_commit_from_stash (cmesh, comm);
   }
-  // for (int eclass_it = T8_ECLASS_VERTEX; eclass_it < T8_ECLASS_COUNT; eclass_it++) {
-  //   t8_global_productionf ("cmesh->num_trees_per_eclass[eclass_it] %li\n", cmesh->num_trees_per_eclass[eclass_it]);
-  // }
-
-  // t8_global_productionf("after 'from stash'\n");
   cmesh->committed = 1;
 
   /* Compute trees_per_eclass */

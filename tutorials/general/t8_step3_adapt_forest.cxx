@@ -131,9 +131,10 @@ t8_step3_adapt_forest (t8_forest_t forest)
 
   struct t8_step3_adapt_data adapt_data = {
     // { 0.5, 0, 1 }, /* Midpoints of the sphere. */
-    {0.5, 1},
-    0.5,             /* Refine if inside this radius. */
-    0.7              /* Coarsen if outside this radius. */
+    { 0.375, 0.0, 1.0 }, /* Midpoints of the sphere. */
+    // 0.3,             /* Refine if inside this radius. */
+    0.2,
+    0.4 /* Coarsen if outside this radius. */
   };
 
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -184,7 +185,7 @@ t8_step3_main (int argc, char **argv)
   const char *prefix_uniform = "t8_step3_uniform_forest_quad";
   const char *prefix_adapt = "t8_step3_adapted_forest_quad";
   /* The uniform refinement level of the forest. */
-  const int level = 3;
+  const int level = 1;
 
   /* Initialize MPI. This has to happen before we initialize sc or t8code. */
   mpiret = sc_MPI_Init (&argc, &argv);
@@ -212,7 +213,7 @@ t8_step3_main (int argc, char **argv)
 
   /* Build a cube cmesh with tet, hex, and prism trees. */
   //cmesh = t8_cmesh_new_hypercube_hybrid (comm, 0, 0);
-  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_HEX, comm, 0, 0, 0);
+  cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
   // cmesh = t8_cmesh_new_hypercube (T8_ECLASS_QUAD, comm, 0, 0, 0);
   t8_global_productionf (" [step3] Created coarse mesh.\n");
   forest = t8_forest_new_uniform (cmesh, t8_scheme_new_default (), level, 0, comm);

@@ -39,7 +39,7 @@
 #define T8_DQUAD_FACE_CHILDREN 2
 
 /** The maximum refinement level allowed for a quad. */
-#define T8_DQUAD_MAXLEVEL 5 //29
+#define T8_DQUAD_MAXLEVEL 29
 
 /** The length of the root quad in integer coordinates. */
 #define T8_DQUAD_ROOT_LEN (1 << (T8_DQUAD_MAXLEVEL))

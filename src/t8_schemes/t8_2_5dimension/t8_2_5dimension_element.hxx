@@ -218,7 +218,7 @@ class t8_2_5dimension_scheme:
   inline int
   get_maxlevel (void) const
   {
-    return 5;  //21;
+    return 21;
   }
 
   /** Return the level of a particular element.
@@ -558,6 +558,16 @@ class t8_2_5dimension_scheme:
     else {
       SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
     }
+  }
+
+  /** Return the max number of children of an eclass.
+   * \return            The max number of children of \a element.
+   */
+  inline int
+  get_max_num_children () const
+  {
+    SC_ABORT ("[FACE] This function is not implemented yet.\n");
+    return 0;
   }
 
   /** Return the number of children of an element's face when the element is refined.
@@ -1281,19 +1291,19 @@ class t8_2_5dimension_scheme:
   {
     T8_ASSERT (element_is_valid (elem));
     const element_2_5D *el = (const element_2_5D *) elem;
-    std::vector<int> level1 = { levels[0] };
-    std::vector<int> level2 = { levels[1] };
+    std::vector<int> level_vec1 = { levels[0] };
+    std::vector<int> level_vec2 = { levels[1] };
     t8_linearidx_t lin_id;
 
     if (levels[1] == 0) {
-      lin_id = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, level1);
+      lin_id = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, level_vec1);
     }
     else {
       lin_id
-        = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, level1)
+        = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, level_vec1)
             * sc_intpow (TUnderlyingEclassScheme2::element_get_num_children ((t8_element_t *) &el->linear_element2),
                          levels[1])
-          + TUnderlyingEclassScheme2::element_get_linear_id ((t8_element_t *) &el->linear_element2, level2);
+          + TUnderlyingEclassScheme2::element_get_linear_id ((t8_element_t *) &el->linear_element2, level_vec2);
     }
     return lin_id;
   }
@@ -1486,7 +1496,6 @@ class t8_2_5dimension_scheme:
   inline t8_gloidx_t
   count_leaves_from_root (const int level, int dir) const  //@need it in 2 directions!!!
   {
-    t8_global_productionf ("This happens. /n");
     if (dir == 1) {
       return TUnderlyingEclassScheme1::count_leaves_from_root (level);
     }
