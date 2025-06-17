@@ -1680,9 +1680,7 @@ t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int leve
   t8_productionf ("children_per_tree2: %li \n", children_per_tree2);
   if (child_in_tree_end != NULL) {
     if (*last_local_tree > 0) {
-      //PASST DAS SO?? @Lukas
-      *child_in_tree_end
-        = last_global_child - *last_local_tree * (children_per_tree1 * children_per_tree2);  // *children_per_tree1
+      *child_in_tree_end = last_global_child - *last_local_tree * (children_per_tree1 * children_per_tree2);
     }
     else {
       *child_in_tree_end = last_global_child;

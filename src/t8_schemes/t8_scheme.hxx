@@ -756,11 +756,8 @@ class t8_scheme {
   element_extrude_face (const t8_eclass_t tree_class, const t8_element_t *face, t8_element_t *elem,
                         const int root_face) const
   {
-    return std::visit (
-      [&] (auto &&scheme) {
-        return scheme.element_extrude_face (face, elem, root_face, this);
-      },  //this); }, //@LUKAS wozu braucht man this hier?
-      eclass_schemes[tree_class]);
+    return std::visit ([&] (auto &&scheme) { return scheme.element_extrude_face (face, elem, root_face, this); },
+                       eclass_schemes[tree_class]);
   };
 
   /** Construct the boundary element at a specific face.
@@ -880,10 +877,8 @@ class t8_scheme {
    */
   inline void
   element_set_linear_id (const t8_eclass_t tree_class, t8_element_t *elem, std::vector<int> &levels,
-                         const t8_linearidx_t id) const  //const std::vector<int>& levelsgeht nicht @TODO
+                         const t8_linearidx_t id) const
   {
-    // const std::vector<int> levels = {level};
-
     return std::visit ([&] (auto &&scheme) { return scheme.element_set_linear_id (elem, levels, id); },
                        eclass_schemes[tree_class]);
   };
@@ -896,11 +891,8 @@ class t8_scheme {
    * \return              The linear id of the element.
    */
   inline t8_linearidx_t
-  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem,
-                         std::vector<int> &levels) const  //const std::vector<int>& levelsgeht nicht @TODO
+  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem, std::vector<int> &levels) const
   {
-    // const std::vector<int> levels = {level};
-
     return std::visit ([&] (auto &&scheme) { return scheme.element_get_linear_id (elem, levels); },
                        eclass_schemes[tree_class]);
   };

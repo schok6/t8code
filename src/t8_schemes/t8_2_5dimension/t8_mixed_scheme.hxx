@@ -223,10 +223,8 @@ class t8_mixed_scheme: public t8_scheme {
    */
   inline void
   element_set_linear_id (const t8_eclass_t tree_class, t8_element_t *elem, std::vector<int> &levels,
-                         const t8_linearidx_t id) const  //const std::vector<int>& levelsgeht nicht @TODO
+                         const t8_linearidx_t id) const
   {
-    // const std::vector<int> levels = {level};
-
     return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_set_linear_id (elem, levels, id); },
                        eclass_schemes_mixed[tree_class]);
   };
@@ -239,11 +237,8 @@ class t8_mixed_scheme: public t8_scheme {
    * \return              The linear id of the element.
    */
   inline t8_linearidx_t
-  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem,
-                         std::vector<int> &levels) const  //const std::vector<int>& levelsgeht nicht @TODO
+  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem, std::vector<int> &levels) const
   {
-    // const std::vector<int> levels = {level};
-
     return std::visit ([&] (auto &&scheme_mixed) { return scheme_mixed.element_get_linear_id (elem, levels); },
                        eclass_schemes_mixed[tree_class]);
   };

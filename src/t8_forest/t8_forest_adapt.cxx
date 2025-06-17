@@ -460,6 +460,7 @@ t8_forest_adapt (t8_forest_t forest)
       /* Get the element scheme for this tree */
       const t8_scheme *scheme;
       const t8_mixed_scheme *scheme_mixed;  //both possible scheme types need to be declared in this scope
+      T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
       if (forest->set_type == 1) {
         scheme = t8_forest_get_scheme (forest_from);
       }
@@ -577,13 +578,6 @@ t8_forest_adapt (t8_forest_t forest)
             is_family = 1;
           }
         }
-        else if (forest->set_adapt_direction == 0) {  //in else case zum Schluss @TODO
-          if (zz == num_siblings && scheme->elements_are_family (tree->eclass, elements_from)) {
-            /* We will pass a full family to the adapt callback */
-            is_family = 1;
-            num_elements_to_adapt_callback = num_siblings;
-          }
-        }
         else if (forest->set_adapt_direction == 1) {
           if (zz == num_siblings && scheme_mixed->elements_are_family (tree->eclass, elements_from, 1)) {
             /* We will pass a full family to the adapt callback */
@@ -593,6 +587,13 @@ t8_forest_adapt (t8_forest_t forest)
         }
         else if (forest->set_adapt_direction == 2) {
           if (zz == num_siblings && scheme_mixed->elements_are_family (tree->eclass, elements_from, 2)) {
+            /* We will pass a full family to the adapt callback */
+            is_family = 1;
+            num_elements_to_adapt_callback = num_siblings;
+          }
+        }
+        else {
+          if (zz == num_siblings && scheme->elements_are_family (tree->eclass, elements_from)) {
             /* We will pass a full family to the adapt callback */
             is_family = 1;
             num_elements_to_adapt_callback = num_siblings;
@@ -788,6 +789,7 @@ t8_forest_adapt (t8_forest_t forest)
            * one to be refined.
            * We copy the element to the new element array. */
           elements[0] = t8_element_array_push (telements);
+          T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
           if (forest->set_type == 1) {
             scheme->element_copy (tree->eclass, elements_from[0], elements[0]);
           }
@@ -797,15 +799,7 @@ t8_forest_adapt (t8_forest_t forest)
           if (forest->set_adapt_direction == 1) {
             for (int elem_z = 1; elem_z < elems_dir2; elem_z++) {
               elements[elem_z] = t8_element_array_push (telements);
-              // if (forest->set_type == 1) {
-              //   scheme->element_copy (tree->eclass, elements_from[elem_z], elements[elem_z]);
-              // }
-              // else if (forest->set_type == 2) {
               scheme_mixed->element_copy (tree->eclass, elements_from[elem_z], elements[elem_z]);
-              // }
-              // //Print coordinates
-              // t8_productionf("elements[elem_z] coordinates:");
-              // scheme->t8_element_debug_print (elements[elem_z]);
             }
             el_inserted += (t8_locidx_t) elems_dir2;
           }

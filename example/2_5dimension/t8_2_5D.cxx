@@ -711,10 +711,6 @@ main (int argc, char **argv)
   nc_inq_varid (ncid, "tm1", &tm1_id);
   nc_get_vara_float (ncid, tm1_id, start_tm1, count_tm1, tm_1);
 
-  for (int i = 0; i < 10; i++) {
-    t8_productionf ("tm_1[%i]: %f \n", i, tm_1[i]);
-  }
-
   int geopot_id;
   static size_t start_geopot[] = { 0, 0, 0, 0 };
   static size_t count_geopot[] = { 1, levlength, latlength, lonlength };
@@ -731,11 +727,8 @@ main (int argc, char **argv)
   float tm_1_col_k[levlength];
   float geopot_col_0[levlength];
   float geopot_col_1[levlength];
-  t8_productionf ("--------------------------------------- \n");
   get_values_for_column_k (0, levlength, latlength, lonlength, tm_1, tm_1_col_k);
-  t8_productionf ("--------------------------------------- \n");
   get_values_for_column_k (0, levlength, latlength, lonlength, geopot, geopot_col_0);
-  t8_productionf ("--------------------------------------- \n");
   get_values_for_column_k (1, levlength, latlength, lonlength, geopot, geopot_col_1);
 
   /*As we will use a hypercube as cmesh and only the z-direction is dependent, the ratio of lonlength and latlength decides about the number of initial cmeshes
@@ -856,7 +849,6 @@ main (int argc, char **argv)
   /*
    * Output the volume data to vtu.
    */
-  t8_productionf ("level1 2.5D example: %i \n", level1);
   t8_2_5D_output_data_to_vtu_example (forest, &data, prefix_forest_with_data, gradient, level1, level2);
   t8_global_productionf (" [step5] Wrote forest and volume data to %s*.\n", prefix_forest_with_data);
 

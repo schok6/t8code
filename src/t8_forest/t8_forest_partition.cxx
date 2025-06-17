@@ -25,8 +25,6 @@
 #include <t8_forest/t8_forest_private.h>
 #include <t8_forest/t8_forest_general.h>
 #include <t8_cmesh/t8_cmesh_offset.h>
-#include <sc_functions.h>  //@TODO
-#include <t8_schemes/t8_scheme.hxx>
 #include <t8_schemes/t8_scheme.hxx>
 #include <t8_schemes/t8_2_5dimension/t8_mixed_scheme.hxx>
 
@@ -144,7 +142,7 @@ t8_forest_partition_test_desc (t8_forest_t forest)
     /* Iterate over elems, for each one create the first descendant and check
      * its linear id versus the linear id of first_desc. */
     const t8_element_t *element = t8_element_array_index_locidx (&tree->leaf_elements, ielem);
-
+    T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
     if (forest->set_type == 1) {
       std::vector<int> maxlevels = { forest->maxlevel };
       scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
@@ -253,11 +251,10 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     = t8_forest_get_leaf_element_in_tree (forest, itree, t8_forest_get_tree_leaf_element_count (tree) - 1);
   T8_ASSERT (scheme->element_is_valid (tree_class, element_last));
   /* last and finest possiple element of current rank */
+  T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
   if (forest->set_type == 1) {
     std::vector<int> maxlevels = { forest->maxlevel };
     scheme->element_get_last_descendant (tree_class, element_last, element_last_desc, maxlevels);
-    // t8_productionf ("-------------------- LAST_DESCENDANT");
-    // ts->t8_element_debug_print (element_last_desc);
   }
   else if (forest->set_type == 2) {
     // possibility for different maxlevels
@@ -265,6 +262,7 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     scheme->element_get_last_descendant (tree_class, element_last, element_last_desc, maxlevels);
   }
   T8_ASSERT (scheme->element_is_valid (tree_class, element_last_desc));
+  T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
   if (forest->set_type == 1) {
     const int level = scheme->element_get_level (tree_class, element_last_desc);
     T8_ASSERT (level == scheme->element_get_level (tree_class, element_last_desc));
@@ -277,12 +275,6 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     /* The following inequality must apply, if our last element is on the same tree :
     * last_desc_id of last element of rank < first_desc_id of first element of rank+1 */
     /** TODO: This assertion might still be wrong, when our last element is the last element of the tree*/
-    t8_productionf ("itree: %i", itree);
-    t8_productionf ("num_local_trees: %i", num_local_trees);
-    t8_productionf ("itree < num_local_trees - 1: %i", itree < num_local_trees - 1);
-    t8_productionf ("last_desc_id: %i", last_desc_id);
-    t8_productionf ("first_desc_id: %i", first_desc_id);
-    t8_productionf ("last_desc_id < first_desc_id): %i", last_desc_id < first_desc_id);
     T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
   }
   else if (forest->set_type == 2) {
@@ -300,12 +292,6 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     /* The following inequality must apply, if our last element is on the same tree :
     * last_desc_id of last element of rank < first_desc_id of first element of rank+1 */
     /** TODO: This assertion might still be wrong, when our last element is the last element of the tree*/
-    t8_productionf ("itree: %i", itree);
-    t8_productionf ("num_local_trees: %i", num_local_trees);
-    t8_productionf ("itree < num_local_trees - 1: %i", itree < num_local_trees - 1);
-    t8_productionf ("last_desc_id: %i", last_desc_id);
-    t8_productionf ("first_desc_id: %i", first_desc_id);
-    t8_productionf ("last_desc_id < first_desc_id): %i", last_desc_id < first_desc_id);
     T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
     //[TODO] new assertion for 2.5D to guarantee, that columns aren't seperated
     //@MASTERARBEIT -> column seperation is needed or another assertion!
@@ -365,6 +351,7 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
       const t8_scheme *scheme = t8_forest_get_scheme (forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, 0);
       scheme->element_new (tree_class, 1, &first_desc);
+      T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
       if (forest->set_type == 1) {
         std::vector<int> maxlevels = { forest->maxlevel };
         scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);

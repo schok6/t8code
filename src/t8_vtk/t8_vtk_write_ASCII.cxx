@@ -137,10 +137,8 @@ t8_forest_vtk_cells_vertices_kernel (t8_forest_t forest, const t8_locidx_t ltree
    *       does this work too over tree->class or do we need something else?
    */
   const t8_scheme *scheme = t8_forest_get_scheme (forest);
-  // if (forest->set_type == 1) {
   element_shape = scheme->element_get_shape (tree_class, element);
   num_el_vertices = t8_eclass_num_vertices[element_shape];
-  // }
   for (ivertex = 0; ivertex < num_el_vertices; ivertex++) {
     const double *ref_coords = t8_forest_vtk_point_to_element_ref_coords[element_shape][ivertex];
     t8_forest_element_from_ref_coords (forest, ltree_id, element, ref_coords, 1, element_coordinates);
@@ -697,13 +695,12 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
   if (write_level) {
     /* Write the element refinement levels. */
+    T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
     if (forest->set_type == 1) {
       freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level", "Int32", "", 8,
                                                t8_forest_vtk_cells_level_kernel, write_ghosts, NULL);
     }
     else if (forest->set_type == 2) {
-      // freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level1, level2", "Int32", "", 8, t8_forest_vtk_cells_level_kernel,
-      //                                        write_ghosts, NULL);
       freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level1", "Int32", "", 8,
                                                t8_forest_vtk_cells_level_kernel_1, write_ghosts, NULL);
       freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level2", "Int32", "", 8,
