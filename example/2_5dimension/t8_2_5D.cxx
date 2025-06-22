@@ -250,7 +250,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
   t8_locidx_t num_trees = t8_forest_get_num_local_trees (forest_from);
   t8_locidx_t elems_per_tree = elems / num_trees;
   t8_locidx_t elems_tree1 = t8_forest_get_tree_num_leaf_elements (forest_from, 0);
-  const t8_mixed_scheme *scheme_mixed = t8_forest_get_scheme_2_5D (forest_from);
+  const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) t8_forest_get_scheme (forest_from);
 
   /* In MESSy_2_5D_adapt_forest we pass a MESSy_data pointer as user data to the
    * t8_forest_new_adapt function. This pointer is stored as the used data of the new forest
@@ -474,7 +474,7 @@ t8_2_5D_output_data_to_vtu_example (t8_forest_t forest, struct MESSy_data_per_el
     if (itree < num_local_trees) {
       tree = t8_forest_get_tree (forest, itree);
       /* Get the eclass scheme of the tree */
-      const t8_mixed_scheme *scheme_mixed = t8_forest_get_scheme_2_5D (forest);
+      const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) t8_forest_get_scheme (forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->leaf_elements);
       element_index_in_tree = elems_in_tree;

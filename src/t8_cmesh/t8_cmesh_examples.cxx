@@ -845,7 +845,7 @@ t8_cmesh_new_hypercube (t8_eclass_t eclass, sc_MPI_Comm comm, int do_bcast, int 
     t8_cmesh_examples_compute_and_set_partition_range (cmesh, num_trees_for_hypercube[eclass], 3, comm);
   }
 
-  /* Commit the constructed cmesh */#
+  /* Commit the constructed cmesh */
   t8_cmesh_commit (cmesh, comm);
   return cmesh;
 }

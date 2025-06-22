@@ -48,7 +48,7 @@ t8_default_scheme_quad::get_maxlevel (void) const
 }
 
 int
-t8_default_scheme_quad::element_get_level (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_quad::element_get_level (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return (int) ((const p4est_quadrant_t *) elem)->level;

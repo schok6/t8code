@@ -100,7 +100,7 @@ class t8_default_scheme_pyramid: public t8_default_scheme_common<t8_default_sche
    * \return             The level of \b elem.
    */
   int
-  element_get_level (const t8_element_t *elem, [[maybe_unused]] int dir = 0) const;
+  element_get_level (const t8_element_t *elem) const;
 
   /** Return the maximum allowed level for this element class.
    * \return                      The maximum allowed level for elements of this class.

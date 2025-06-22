@@ -480,22 +480,19 @@ t8_forest_adapt (t8_forest_t forest)
         num_siblings2 = scheme_mixed->element_get_num_children (
           tree->eclass, first_element_from, 2);  //needed for break criterion to find the elements for refinement
         num_children = scheme_mixed->element_get_num_children (tree->eclass, first_element_from, 1);
-        curr_size_elements = num_children;
         curr_size_elements_from = scheme_mixed->element_get_num_siblings (tree->eclass, first_element_from, 1);
       }
       else if (forest->set_adapt_direction == 2) {
         num_children = scheme_mixed->element_get_num_children (tree->eclass, first_element_from, 2);
-        curr_size_elements = num_children;
         curr_size_elements_from = scheme_mixed->element_get_num_siblings (tree->eclass, first_element_from, 2);
       }
       else {
         num_children = scheme->get_max_num_children (tree->eclass);
-        curr_size_elements = num_children;
         curr_size_elements_from = scheme->element_get_num_siblings (tree->eclass, first_element_from);
       }
       /* Buffer for a family of new elements */
       T8_ASSERT (num_children > 0);
-      elements = T8_ALLOC (t8_element_t *, num_children);  //num_children = curr_size_elements
+      elements = T8_ALLOC (t8_element_t *, num_children);
       /* Buffer for a family of old elements */
       elements_from = T8_ALLOC (t8_element_t *, curr_size_elements_from);
       /* We now iterate over all elements in this tree and check them for refinement/coarsening. */
@@ -676,11 +673,7 @@ t8_forest_adapt (t8_forest_t forest)
           else {
             num_children = scheme->element_get_num_children (tree->eclass, elements_from[0]);
           }
-          if (num_children > curr_size_elements) {
-            elements = T8_REALLOC (elements, t8_element_t *, num_children);
-            curr_size_elements = num_children;
-          }
-          if (forest->set_adapt_recursive) {  //TODO
+          if (forest->set_adapt_recursive) {
             /* Create the children of this element */
             scheme->element_new (tree->eclass, num_children, elements);
             if (forest->set_adapt_direction == 1) {
@@ -769,7 +762,6 @@ t8_forest_adapt (t8_forest_t forest)
           }
           if (num_children > curr_size_elements) {
             elements = T8_REALLOC (elements, t8_element_t *, num_children);
-            curr_size_elements = num_children;
           }
           if (forest->set_adapt_recursive) {
             /* Adaptation is recursive.

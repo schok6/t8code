@@ -70,9 +70,9 @@ typedef struct t8_forest
   t8_refcount_t rc; /**< Reference counter. */
 
   int set_level;          /**< Level to use in new construction. */
-  int set_level1;         /**< Level1 to use in new 2_5D construction. */
-  int set_level2;         /**< Level2 to use in new 2_5D construction. */
-  int set_type;           /**< 2 for 2_5D, 1 for default*/
+  int set_level1;         /**< Level1 to use in new 2.5D construction. */
+  int set_level2;         /**< Level2 to use in new 2.5D construction. */
+  int set_type;           /**< 1 for default, 2 for 2.5D */
   int set_for_coarsening; /**< Change partition to allow
                                                      for one round of coarsening */
 
@@ -80,14 +80,11 @@ typedef struct t8_forest
   t8_cmesh_t cmesh;    /**< Coarse mesh to use. */
   //t8_scheme_c        *scheme;        /**< Scheme for element types. */
   const t8_scheme_c *scheme; /**< Scheme for element types. */
-  // const t8_scheme_c *base_scheme; /**< Base scheme for 2.5D scheme. */
-  int maxlevel; /**< The maximum allowed refinement level for elements in this forest. */
-  // int maxlevel1;                /**< The maximum allowed refinement level1 for elements in this 2_5D forest. */
-  // int maxlevel2;                /**< The maximum allowed refinement level2 for elements in this 2_5D forest. */
-  int maxlevel_existing; /**< If >= 0, the maximum occurring refinemnent level of a forest element. */
-  int do_dup;            /**< Communicator shall be duped. */
-  int dimension;         /**< Dimension inferred from \b cmesh. */
-  int incomplete_trees;  /**< Flag to check whether the forest has (potential) incomplete trees.
+  int maxlevel;              /**< The maximum allowed refinement level for elements in this forest. */
+  int maxlevel_existing;     /**< If >= 0, the maximum occurring refinemnent level of a forest element. */
+  int do_dup;                /**< Communicator shall be duped. */
+  int dimension;             /**< Dimension inferred from \b cmesh. */
+  int incomplete_trees;      /**< Flag to check whether the forest has (potential) incomplete trees.
                                              A tree is incomplete if an element has been removed from it.
                                              Once an element got removed, the flag sets to 1 (true) and stays. 
                                              For a committed forest this flag is either true on all ranks or
@@ -115,25 +112,27 @@ typedef struct t8_forest
   int mpisize;                    /**< Number of MPI processes. */
   int mpirank;                    /**< Number of this MPI process. */
 
-  t8_gloidx_t first_local_tree;  /**< The global index of the first local tree on this process. 
+  t8_gloidx_t first_local_tree; /**< The global index of the first local tree on this process. 
                                              If first_local_tree is larger than last_local_tree then 
                                              this processor/forest is empty.
                                              See https://github.com/DLR-AMR/t8code/wiki/Tree-indexing */
-  t8_gloidx_t first_local_tree1; /**< The global index of the first local tree of eclass 1 on this process. 
+  t8_gloidx_t
+    first_local_tree1; /**< The global index of the first local tree in horizontal direction for 2.5D on this process. 
                                              If first_local_tree1 is larger than last_local_tree1 then 
                                              this processor/forest is empty.
                                              See https://github.com/DLR-AMR/t8code/wiki/Tree-indexing */
-  t8_gloidx_t first_local_tree2; /**< The global index of the first local tree of eclass2 on this process. 
+  t8_gloidx_t
+    first_local_tree2; /**< The global index of the first local tree in vertical direction for 2.5D on this process. 
                                              If first_local_tree2 is larger than last_local_tree2 then 
                                              this processor/forest is empty. 
                                              See https://github.com/DLR-AMR/t8code/wiki/Tree-indexing */
-  t8_gloidx_t last_local_tree;   /**< The global index of the last local tree on this process.
+  t8_gloidx_t last_local_tree;  /**< The global index of the last local tree on this process.
                                              -1 if this processor is empty. */
-  t8_gloidx_t last_local_tree1;  /**< The global index of the last local tree of eclass1 on this process.
+  t8_gloidx_t last_local_tree1; /**< The global index of the last local tree of eclass1 on this process.
                                              -1 if this processor is empty. */
-  t8_gloidx_t last_local_tree2;  /**< The global index of the last local tree of eclass1 on this process.
+  t8_gloidx_t last_local_tree2; /**< The global index of the last local tree of eclass1 on this process.
                                              -1 if this processor is empty. */
-  t8_gloidx_t global_num_trees;  /**< The total number of global trees */
+  t8_gloidx_t global_num_trees; /**< The total number of global trees */
   sc_array_t *trees;
   t8_forest_ghost_t ghosts;           /**< If not NULL, the ghost elements. \see t8_forest_ghost.h */
   t8_shmem_array_t element_offsets;   /**< If partitioned, for each process the global index

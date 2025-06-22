@@ -243,7 +243,7 @@ t8_default_scheme_pyramid::element_get_face_corner (const t8_element_t *element,
 }
 
 int
-t8_default_scheme_pyramid::element_get_level (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_pyramid::element_get_level (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return t8_dpyramid_get_level ((const t8_dpyramid_t *) elem);

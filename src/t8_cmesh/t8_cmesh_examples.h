@@ -73,7 +73,7 @@ t8_cmesh_new_empty (sc_MPI_Comm comm, const int do_partition, const int dimensio
 /** Constructs a cmesh that consists only of one tree of a given element class.
  * \param [in]      eclass     The element class.
  * \param [in]      comm       mpi communicator to be used with the new cmesh.
- * \param [in]      do_dup     Flag whether the communicator shall be duplicated or not. //?
+ * \param [in]      do_dup     Flag whether the communicator shall be duplicated or not.
  * \return          A committed t8_cmesh structure with one tree of class \a eclass.
  */
 t8_cmesh_t

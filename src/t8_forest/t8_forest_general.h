@@ -802,10 +802,6 @@ t8_forest_get_first_local_leaf_element_id (t8_forest_t forest);
 const t8_scheme_c *
 t8_forest_get_scheme (const t8_forest_t forest);
 
-/* TODO */
-const t8_mixed_scheme_c *
-t8_forest_get_scheme_2_5D (const t8_forest_t forest);
-
 /** Return the eclass of the tree in which a face neighbor of a given element
  * lies.
  * \param [in]      forest.     A committed forest.

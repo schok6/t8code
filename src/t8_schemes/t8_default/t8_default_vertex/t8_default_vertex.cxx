@@ -45,7 +45,7 @@ t8_default_scheme_vertex::get_maxlevel (void) const
 }
 
 int
-t8_default_scheme_vertex::element_get_level (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_vertex::element_get_level (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return ((const t8_dvertex_t *) elem)->level;

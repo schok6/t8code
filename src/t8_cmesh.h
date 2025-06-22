@@ -746,11 +746,10 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_c *s
                          t8_gloidx_t *child_in_tree_begin, t8_gloidx_t *last_local_tree, t8_gloidx_t *child_in_tree_end,
                          int8_t *first_tree_shared);
 
-//TODO
 /** Calculate the section of a uniform forest for the current ranks for 2_5D.
  * \param [in]    cmesh         The cmesh to be considered.
- * \param [in]    level1        The uniform refinement level1 to be created.
- * \param [in]    level2        The uniform refinement level2 to be created.
+ * \param [in]    level1        The uniform horizontal refinement to be created.
+ * \param [in]    level2        The vertical uniform refinementto be created.
  * \param [in]    ts            The 2_5D element scheme for which to compute the bounds.
  * \param [out]   first_local_tree  The first tree that contains elements belonging to the calling processor.
  * \param [out]   child_in_tree_begin The global index of the first element belonging to the calling processor. Not computed if NULL.

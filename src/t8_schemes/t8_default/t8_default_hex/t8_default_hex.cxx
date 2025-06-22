@@ -47,7 +47,7 @@ t8_default_scheme_hex::get_maxlevel (void) const
 }
 
 int
-t8_default_scheme_hex::element_get_level (const t8_element_t *elem, [[maybe_unused]] int dir) const
+t8_default_scheme_hex::element_get_level (const t8_element_t *elem) const
 {
   T8_ASSERT (element_is_valid (elem));
   return (int) ((const p8est_quadrant_t *) elem)->level;

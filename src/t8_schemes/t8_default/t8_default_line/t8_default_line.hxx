@@ -108,7 +108,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \return             The level of \b elem.
    */
   int
-  element_get_level (const t8_element_t *elem, int dir = 0) const;
+  element_get_level (const t8_element_t *elem) const;
 
   /** Return the maximum allowed level for this element class.
    * \return                      The maximum allowed level for elements of this class.
@@ -511,7 +511,6 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
   void
   element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
 
-  //???
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.
    * \param [in,out] elem2  The element whose entries will be set.

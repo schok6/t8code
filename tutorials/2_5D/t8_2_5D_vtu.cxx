@@ -85,7 +85,7 @@ t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *
     if (itree < num_local_trees) {
       tree = t8_forest_get_tree (forest, itree);
       /* Get the eclass scheme of the tree */
-      scheme = t8_forest_get_scheme_2_5D (forest);
+      scheme = (const t8_mixed_scheme *) t8_forest_get_scheme (forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, itree);
       elems_in_tree = (t8_locidx_t) t8_element_array_get_count (&tree->leaf_elements);
       element_index_in_tree = elems_in_tree;

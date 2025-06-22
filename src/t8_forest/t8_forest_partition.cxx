@@ -440,6 +440,7 @@ t8_forest_partition_create_tree_offsets (t8_forest_t forest)
 
   /* Communicate whether we have empty processes */
   sc_MPI_Allreduce (&is_empty, &has_empty, 1, sc_MPI_INT, sc_MPI_LOR, forest->mpicomm);
+
   if (has_empty) {
     int next_nonempty;
     /* there exist empty ranks, we have to recalculate the offset.

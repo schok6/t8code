@@ -319,7 +319,7 @@ struct t8_standalone_scheme
    * \return             The level of \b elem.
    */
   static constexpr int
-  element_get_level (const t8_element_t *elem, [[maybe_unused]] int dir = 0) noexcept
+  element_get_level (const t8_element_t *elem) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     return ((const t8_standalone_element<TEclass> *) elem)->level;
