@@ -38,14 +38,14 @@ t8_scheme_new_2_5dimension ()
 
   builder.add_eclass_scheme_mixed<invalid_scheme> ();
   builder.add_eclass_scheme_mixed<invalid_scheme> ();
-  /* 2.5D for QUAD */
+  /* 2.5 dimensional/anisotropic scheme for QUAD */
   builder.add_eclass_scheme_mixed<t8_2_5dimension_scheme<line_class1, t8_dline_t, line_class2, t8_dline_t>> ();
   builder.add_eclass_scheme_mixed<invalid_scheme> ();
-  /* 2.5D for HEX */
+  /* 2.5 dimensional/anisotropic scheme for HEX */
   builder.add_eclass_scheme_mixed<
     t8_2_5dimension_scheme<t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t>> ();
   builder.add_eclass_scheme_mixed<invalid_scheme> ();
-  /* 2.5D for PRISM */
+  /* 2.5 dimensional/anisotropic scheme for PRISM */
   builder.add_eclass_scheme_mixed<
     t8_2_5dimension_scheme<t8_default_scheme_tri, t8_dtri_t, t8_default_scheme_line, t8_dline_t>> ();
   builder.add_eclass_scheme_mixed<invalid_scheme> ();

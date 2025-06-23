@@ -56,13 +56,13 @@ t8_2_5D_build_hypercube_coarse_mesh (sc_MPI_Comm comm, t8_eclass_t eclass)
   return cmesh;
 }
 
-/* Build a uniform 2.5D forest on a cmesh 
- * using the 2.5D refinement scheme.
+/* Build a uniform 2.5 dimensional/anisotropic forest on a cmesh 
+ * using the 2.5 dimensional/anisotropic refinement scheme.
  * \param [in] comm   MPI Communicator to use.
  * \param [in] cmesh  The coarse mesh to use.
  * \param [in] level1  The initial uniform refinement level in horizontal direction.
  * \param [in] level2  The initial uniform refinement level in vertical direction.
- * \return            A uniform 2.5D forest with the given refinement levels in horizontal 
+ * \return            A uniform 2.5 dimensional/anisotropic forest with the given refinement levels in horizontal 
  *                    and vertical direction that is partitioned across the processes in \a comm.
  */
 static t8_forest_t
@@ -136,7 +136,7 @@ main (int argc, char **argv)
 
   /* Print a message on the root process. */
   t8_global_productionf (" [2_5D] \n");
-  t8_global_productionf (" [2_5D] Hello, this is the example for the 2_5D scheme of t8code (with the old cmesh).\n");
+  t8_global_productionf (" [2_5D] Hello, this is the example for the 2.5D scheme of t8code (with the old cmesh).\n");
   t8_global_productionf (" [2_5D] In this example a we build a uniform 2.5D forest and output it to vtu files.\n");
   t8_global_productionf (" [2_5D] \n");
 

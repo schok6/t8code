@@ -209,6 +209,7 @@ t8_forest_compute_maxlevel (t8_forest_t forest)
     }
   }
   T8_ASSERT (forest->maxlevel >= 0);
+  t8_debugf ("Computed maxlevel %i\n", forest->maxlevel);
 }
 
 /* Return the maximum level of a forest */
@@ -3266,6 +3267,7 @@ t8_forest_populate_irregular (t8_forest_t forest)
   t8_forest_set_level (forest_zero, 0);
   t8_forest_set_cmesh (forest_zero, forest->cmesh, forest->mpicomm);
   t8_forest_set_scheme (forest_zero, forest->scheme);
+  forest_zero->set_type = forest->set_type;  //needed to pass test
   t8_forest_commit (forest_zero);
 
   /* Up to the specified level we refine every element. */

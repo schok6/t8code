@@ -29,9 +29,6 @@
 #ifndef T8_DEFAULT_PRISM_HXX
 #define T8_DEFAULT_PRISM_HXX
 
-#include <iostream>
-#include <vector>
-
 #include <t8_element.h>
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>
 #include <t8_schemes/t8_default/t8_default_tri/t8_default_tri.hxx>

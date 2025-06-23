@@ -58,6 +58,7 @@ class forest_transform: public testing::TestWithParam<std::tuple<std::tuple<int,
     t8_forest_set_level (forest, level);
     t8_forest_set_cmesh (forest, cmesh, sc_MPI_COMM_WORLD);
     t8_forest_set_scheme (forest, scheme);
+    forest->set_type = 1;
     t8_forest_commit (forest);
   }
   void

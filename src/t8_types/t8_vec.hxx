@@ -115,27 +115,6 @@ t8_dist (const t8_point<dim> &point_x, const t8_point<dim> &point_y)
   return std::sqrt (dist);
 }
 
-// //@TODO
-// static inline double
-// t8_vec_dist_horizontal (const double vec_x[3], const double vec_y[3])
-// {
-//   double dist = 0;
-
-//   for (int i = 0; i < 2; i++) {
-//     dist += SC_SQR (vec_x[i] - vec_y[i]);
-//   }
-//   return sqrt (dist);
-// }
-
-// static inline double
-// t8_vec_dist_vertical (const double vec_x[3], const double vec_y[3])
-// {
-//   double dist = 0;
-
-//   dist += SC_SQR (vec_x[2] - vec_y[2]);
-//   return sqrt (dist);
-// }
-
 /** Compute X = alpha * X
  * \param [in,out] vec_x  An N-dimensional vector. On output set to \a alpha * \a vec_x.
  * \param [in]     alpha  A factor.

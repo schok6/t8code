@@ -30,10 +30,10 @@
 /* We want to export the whole implementation to be callable from "C" */
 T8_EXTERN_C_BEGIN ();
 
-// /* This function is used by other element functions and we thus need to
-//  * declare it up here */
-// t8_linearidx_t
-// element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels);
+/* This function is used by other element functions and we thus need to
+ * declare it up here */
+t8_linearidx_t
+element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels);
 
 size_t
 t8_default_scheme_quad::get_element_size (void) const

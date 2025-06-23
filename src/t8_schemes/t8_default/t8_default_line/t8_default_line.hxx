@@ -77,12 +77,6 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
   void
   element_new (const int length, t8_element_t **elem) const;
 
-  /**
-   * TODO
-  */
-  void
-  t8_element_set_type (t8_element_t *elem, int dir = 0) const;
-
   /** Initialize an array of allocated line elements.
    * \param [in] length   The number of line elements to be initialized.
    * \param [in,out] elems On input an array of \b length many allocated

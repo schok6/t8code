@@ -104,7 +104,7 @@ struct t8_standalone_scheme
    * \return The tree class of this scheme.
    */
   constexpr t8_eclass_t
-  get_eclass () const
+  get_eclass (void) const
   {
     return TEclass;
   }
@@ -649,7 +649,7 @@ struct t8_standalone_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   static constexpr void
-  // element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept @Lukas
+  // previous: element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept
   element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
@@ -674,7 +674,7 @@ struct t8_standalone_scheme
    * \param [in] level    The level, at which the descendant is computed.
    */
   static constexpr void
-  // element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept
+  // previous: element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept
   element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
@@ -1119,8 +1119,8 @@ struct t8_standalone_scheme
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   static constexpr void
-  // element_set_linear_id (t8_element_t *elem, std::vector<t8_element_level>& levels, t8_linearidx_t id) noexcept @Lukas
-  // element_set_linear_id (t8_element_t *elem, const t8_element_level level, t8_linearidx_t id) noexcept //warum ging das mit t8_element_level
+
+  // previous: element_set_linear_id (t8_element_t *elem, const t8_element_level level, t8_linearidx_t id) noexcept
   element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) noexcept
   {
 
@@ -1182,7 +1182,7 @@ struct t8_standalone_scheme
    * \return              The linear id of the element.
    */
   static constexpr t8_linearidx_t
-  // element_get_linear_id (const t8_element_t *elem, const t8_element_level level) noexcept
+  // previous: element_get_linear_id (const t8_element_t *elem, const t8_element_level level) noexcept
   element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) noexcept
   {
     T8_ASSERT (element_is_valid (elem));

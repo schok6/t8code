@@ -138,6 +138,7 @@ t8_gtest_obtain_forest_for_balance_tests (const std::vector<t8_gloidx_t> &trees_
   t8_forest_init (&forest);
   t8_forest_set_cmesh (forest, cmesh, sc_MPI_COMM_WORLD);
   t8_forest_set_scheme (forest, scheme);
+  forest->set_type = 1;
   t8_forest_commit (forest);
 
   gtest_balance_adapt_data adapt_data;

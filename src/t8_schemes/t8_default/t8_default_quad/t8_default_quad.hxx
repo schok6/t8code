@@ -31,9 +31,6 @@
 #ifndef T8_DEFAULT_QUAD_HXX
 #define T8_DEFAULT_QUAD_HXX
 
-#include <iostream>
-#include <vector>
-
 #include <p4est.h>
 #include <t8_element.h>
 #include <t8_schemes/t8_default/t8_default_line/t8_default_line.hxx>

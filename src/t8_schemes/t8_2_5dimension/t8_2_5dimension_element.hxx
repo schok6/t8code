@@ -147,7 +147,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \return The tree class of this scheme.
    */
   inline t8_eclass_t
-  get_eclass () const
+  get_eclass (void) const
   {
     SC_ABORT ("This function is not implemented yet.\n");
   }

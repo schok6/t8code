@@ -82,7 +82,6 @@ t8_2_5D_build_uniform_forest (sc_MPI_Comm comm, t8_cmesh_t cmesh, int level1, in
 
   /* Create the refinement scheme. */
 
-  // forest = t8_forest_new_uniform_2_5D (cmesh, scheme, scheme_base, level1, level2, 0, comm);
   forest = t8_forest_new_uniform_2_5D (cmesh, scheme, level1, level2, 0, comm);
 
   return forest;
@@ -137,7 +136,7 @@ t8_2_5D_adapt_callback_horizontal (t8_forest_t forest, t8_forest_t forest_from, 
   t8_forest_element_centroid (forest_from, which_tree, elements[0], centroid);
 
   /* Compute the distance to our sphere midpoint. */
-  // dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint); //@TODO
+  /* TODO: write distance function which considers only the horizontal coordinates */
   dist = t8_dist (centroid, adapt_data->midpoint);
   if (dist < adapt_data->refine_if_inside_radius) {
     /* Refine this element. */
@@ -158,21 +157,9 @@ t8_forest_t
 t8_2_5D_adapt_forest_horizontal (t8_forest_t forest)
 {
   t8_forest_t forest_adapt;
-  // struct t8_2_5D_adapt_data adapt_data = {
-  //   { 0.0, 0.5, 0.0 }, /* Midpoints of the sphere. */
-  //   // 0.1,             /* Refine if inside this radius. */
-  //   0.1,             /* Refine if inside this radius. */
-  //   0.3             /* Coarsen if outside this radius. */
-  // };
   struct t8_2_5D_adapt_data adapt_data = {
-    { 0, 0, 0 }, /* Midpoints of the sphere. */
-    // // { 1, 0.1, 0.0 }, /* Midpoints of the sphere. */
-    // // { 1, 0.9, 0.0 }, /* Midpoints of the sphere. */
-    // // 0.1,             /* Refine if inside this radius. */
     0.5,        /* Refine if inside this radius. */
     sqrt (0.5)  //0.4             /* Coarsen if outside this radius. */
-    // 0.0,             /* Refine if inside this radius. */
-    // 0.5//0.4             /* Coarsen if outside this radius. */
   };
 
   /* Check that forest is a committed, that is valid and usable, forest. */
@@ -240,10 +227,8 @@ t8_2_5D_adapt_callback_vertical (t8_forest_t forest, t8_forest_t forest_from, t8
   t8_forest_element_centroid (forest_from, which_tree, elements[0], centroid);
 
   /* Compute the distance to our sphere midpoint. */
-  // dist = t8_vec_dist_vertical (centroid, adapt_data->midpoint);
+  /* TODO: write distance function which considers only the vertical coordinate */
   dist = t8_dist (centroid, adapt_data->midpoint);
-  // dist = t8_vec_dist_yz (centroid, adapt_data->midpoint);
-  //dist = t8_vec_dist_horizontal (centroid, adapt_data->midpoint);
   if (dist < adapt_data->refine_if_inside_radius) {
     /* Refine this element. */
     return 1;
@@ -266,13 +251,8 @@ t8_2_5D_adapt_forest_vertical (t8_forest_t forest)
 
   struct t8_2_5D_adapt_data adapt_data = {
     { 0.375, 0.0, 1.0 }, /* Midpoints of the sphere. */
-    // 0.3,             /* Refine if inside this radius. */
-    0.2,
-    0.4 /* Coarsen if outside this radius. */
-    // { 0.0, 0.0, 1 }, /* Midpoints of the sphere. */
-    // // 0.1,             /* Refine if inside this radius. */
-    // 0.5, /* Refine if inside this radius. */
-    // 0.6  /* Coarsen if outside this radius. */
+    0.2,                 /* Refine if inside this radius. */
+    0.4                  /* Coarsen if outside this radius. */
   };
   /* Check that forest is a committed, that is valid and usable, forest. */
   T8_ASSERT (t8_forest_is_committed (forest));

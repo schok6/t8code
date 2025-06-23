@@ -29,9 +29,6 @@
 #ifndef T8_DEFAULT_PYRAMID_HXX
 #define T8_DEFAULT_PYRAMID_HXX
 
-#include <iostream>
-#include <vector>
-
 #include <t8_element.h>
 #include <t8_schemes/t8_default/t8_default_common/t8_default_common.hxx>
 #include <t8_schemes/t8_default/t8_default_pyramid/t8_dpyramid_bits.h>

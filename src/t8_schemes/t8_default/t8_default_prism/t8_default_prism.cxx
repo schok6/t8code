@@ -419,13 +419,6 @@ t8_default_scheme_prism::element_get_reference_coords (const t8_element_t *elem,
 {
   T8_ASSERT (element_is_valid (elem));
   t8_dprism_compute_reference_coords ((const t8_dprism_t *) elem, ref_coords, num_coords, out_coords);
-
-  // size_t size = 3 * num_coords;
-  // t8_global_productionf ("-------------------. \n");
-  // for (size_t i = 0; i < size; i++) {
-  //   t8_global_productionf ("out_coords[%i]: %f\n", i, out_coords[i]);
-  // }
-  // t8_global_productionf ("-------------------. \n");
 }
 
 t8_linearidx_t

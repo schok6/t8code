@@ -20,10 +20,6 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-/** \file t8_2_5D.hxx
- * Definitions of 2.5D-specific functions. 
- */
-
 #ifndef T8_2_5D_HXX
 #define T8_2_5D_HXX
 

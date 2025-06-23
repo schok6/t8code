@@ -893,9 +893,18 @@ t8_forest_t
 t8_forest_new_uniform (t8_cmesh_t cmesh, const t8_scheme_c *scheme, const int level, const int do_face_ghost,
                        sc_MPI_Comm comm);
 
-/**
- * TODO
-*/
+/** Build a uniformly 2.5 dimensional/anisotropic refined forest on a coarse mesh.
+ * \param [in]      cmesh      A coarse mesh.
+ * \param [in]      scheme     An 2.5D eclass scheme.
+ * \param [in]      level1     An initial horizontal uniform refinement level.
+ * \param [in]      level2     An initial vertical uniform refinement level.
+ * \param [in]      do_face_ghost If true, a layer of ghost elements is created for the forest.
+ * \param [in]      comm       MPI communicator to use.
+ * \return                     A uniform forest with coarse mesh \a cmesh, eclass_scheme
+ *                             \a scheme and refinement level \a level.
+ * \note This is equivalent to calling \ref t8_forest_init, \ref t8_forest_set_cmesh,
+ * \ref t8_forest_set_scheme, \ref t8_forest_set_level, and \ref t8_forest_commit.
+ */
 t8_forest_t
 t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme_c *scheme, const int level1, const int level2,
                             const int do_face_ghost, sc_MPI_Comm comm);

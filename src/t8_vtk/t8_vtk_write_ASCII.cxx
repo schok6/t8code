@@ -122,7 +122,6 @@ t8_forest_vtk_cells_vertices_kernel (t8_forest_t forest, const t8_locidx_t ltree
                                      const t8_eclass_t tree_class, [[maybe_unused]] const int is_ghost, FILE *vtufile,
                                      int *columns, [[maybe_unused]] void **data, T8_VTK_KERNEL_MODUS modus)
 {
-  //t8_global_productionf ("t8_forest_vtk_cells_vertices_kernel \n");
   double element_coordinates[3];
   int num_el_vertices, ivertex;
   int freturn;
@@ -278,7 +277,7 @@ t8_forest_vtk_cells_level_kernel (t8_forest_t forest, [[maybe_unused]] const t8_
   return 1;
 }
 
-// @TODO
+/* additional kernel needed for the horizontal direction of 2.5 dimensional/anisotropic refinement */
 static int
 t8_forest_vtk_cells_level_kernel_1 (t8_forest_t forest, [[maybe_unused]] const t8_locidx_t ltree_id,
                                     [[maybe_unused]] const t8_tree_t tree,
@@ -294,6 +293,7 @@ t8_forest_vtk_cells_level_kernel_1 (t8_forest_t forest, [[maybe_unused]] const t
   return 1;
 }
 
+/* additional kernel needed for the vertical direction of 2.5 dimensional/anisotropic refinement */
 static int
 t8_forest_vtk_cells_level_kernel_2 (t8_forest_t forest, [[maybe_unused]] const t8_locidx_t ltree_id,
                                     [[maybe_unused]] const t8_tree_t tree,
@@ -635,7 +635,6 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
    * Thus for each tree we write the indices of its corner vertices. */
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "connectivity", T8_VTK_LOCIDX, "", 8,
                                            t8_forest_vtk_cells_connectivity_kernel, write_ghosts, NULL);
-
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
@@ -649,7 +648,6 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
    * and indices 4,5,6 to the indices of the triangle. */
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "offsets", T8_VTK_LOCIDX, "", 8,
                                            t8_forest_vtk_cells_offset_kernel, write_ghosts, NULL);
-
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
@@ -657,6 +655,7 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
 
   /* Write the element types. The type specifies the element class, thus
    * square/triangle/tet etc. */
+
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "types", "Int32", "", 8, t8_forest_vtk_cells_type_kernel,
                                            write_ghosts, NULL);
 
@@ -675,8 +674,10 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   if (freturn <= 0) {
     goto t8_forest_vtk_cell_failure;
   }
+
   if (write_treeid) {
     /* Write the tree ids. */
+
     freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "treeid", T8_VTK_GLOIDX, "", 8,
                                              t8_forest_vtk_cells_treeid_kernel, write_ghosts, NULL);
     if (!freturn) {
@@ -686,6 +687,7 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
   if (write_mpirank) {
     /* Write the mpiranks. */
+
     freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "mpirank", "Int32", "", 8,
                                              t8_forest_vtk_cells_rank_kernel, write_ghosts, NULL);
     if (!freturn) {
@@ -695,6 +697,7 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
   }
   if (write_level) {
     /* Write the element refinement levels. */
+
     T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
     if (forest->set_type == 1) {
       freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "level", "Int32", "", 8,
@@ -720,10 +723,10 @@ t8_forest_vtk_write_cells (t8_forest_t forest, FILE *vtufile, const int write_tr
     datatype = forest->global_num_leaf_elements > T8_LOCIDX_MAX ? T8_VTK_GLOIDX : T8_VTK_LOCIDX;
     freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "element_id", datatype, "", 8,
                                              t8_forest_vtk_cells_elementid_kernel, write_ghosts, NULL);
-
     if (!freturn) {
       goto t8_forest_vtk_cell_failure;
     }
+
     /* Done with writing the element ids */
   }
   /* Write the user defined data fields per element */
@@ -775,13 +778,13 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
   T8_ASSERT (vtufile != NULL);
 
   /* Write the vertex coordinates */
+
   freturn = fprintf (vtufile, "      <Points>\n");
   if (freturn <= 0) {
     goto t8_forest_vtk_cell_failure;
   }
   freturn = t8_forest_vtk_write_cell_data (forest, vtufile, "Position", T8_VTK_FLOAT_NAME, "NumberOfComponents=\"3\"",
                                            8, t8_forest_vtk_cells_vertices_kernel, write_ghosts, NULL);
-
   if (!freturn) {
     goto t8_forest_vtk_cell_failure;
   }
@@ -798,6 +801,7 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
       if (data[idata].type == T8_VTK_SCALAR) {
         /* Write the description string. */
         sreturn = snprintf (description, BUFSIZ, "%s_%s", data[idata].description, "points");
+
         if (sreturn >= BUFSIZ) {
           /* The output was truncated */
           t8_debugf ("Warning: Truncated vtk point data description to '%s'\n", description);
@@ -818,9 +822,7 @@ t8_forest_vtk_write_points (t8_forest_t forest, FILE *vtufile, const int write_g
            * do not check the return value of snprintf. */
           t8_debugf ("Warning: Truncated vtk point data description to '%s'\n", description);
         }
-        t8_global_productionf ("-------------------. \n");
-        t8_global_productionf ("t8_forest_vtk_write_cell_data -- write points -- 3");
-        t8_global_productionf ("-------------------. \n");
+
         freturn = t8_forest_vtk_write_cell_data (forest, vtufile, description, T8_VTK_FLOAT_NAME, component_string,
                                                  8 * forest->dimension, t8_forest_vtk_vertices_vector_kernel,
                                                  write_ghosts, data[idata].data);

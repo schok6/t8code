@@ -60,8 +60,8 @@ class t8_mixed_scheme: public t8_scheme {
 
   /** Variant to hold an eclass scheme. */
   using scheme_mixed_var = std::variant<
-    /* 2.5D scheme */
     invalid_scheme, 
+    /* 2.5dimensional/anisotropic schemes */
     t8_2_5dimension_scheme<line_class1, t8_dline_t, line_class2, t8_dline_t>,
     t8_2_5dimension_scheme<t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t>,
     t8_2_5dimension_scheme<t8_default_scheme_tri, t8_dtri_t, t8_default_scheme_line, t8_dline_t>>;
@@ -73,11 +73,11 @@ class t8_mixed_scheme: public t8_scheme {
   scheme_mixed_container eclass_schemes_mixed; /**< The container holding the eclass schemes. */
 
   mutable t8_refcount_t
-    rc_mixed; /**< The reference count of the scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
+    rc_mixed; /**< The reference count of the mixed scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
 
  public:
   /**
-   * Increase the reference count of the scheme.
+   * Increase the reference count of the mixed scheme.
    */
   inline void
   ref_mixed () const
@@ -86,9 +86,9 @@ class t8_mixed_scheme: public t8_scheme {
   }
 
   /**
-   * Decrease the reference count of the scheme.
-   * If the reference count reaches zero, the scheme is deleted.
-   * \return The remaining reference count. If 0 the scheme was deleted.
+   * Decrease the reference count of the mixed scheme.
+   * If the reference count reaches zero, the mixed scheme is deleted.
+   * \return The remaining reference count. If 0 the mixed scheme was deleted.
    */
   inline int
   unref_mixed () const
@@ -295,7 +295,7 @@ class t8_mixed_scheme: public t8_scheme {
 /** The mixed scheme builder adds a combination of two eclass schemes to a scheme container and returns it.
  * TODO: Make return value a reference.
  */
-class t8_mixed_scheme_builder {  //}: public t8_scheme_builder {
+class t8_mixed_scheme_builder {
  public:
   t8_mixed_scheme_builder (): scheme_mixed (new t8_mixed_scheme) {};
   ~t8_mixed_scheme_builder () {};
@@ -326,11 +326,9 @@ class t8_mixed_scheme_builder {  //}: public t8_scheme_builder {
    * \return The built scheme.
    */
   const t8_scheme *
-  // const t8_mixed_scheme *
   build_mixed_scheme () const
   {
     return (t8_scheme *) scheme_mixed;
-    // return scheme;
   }
 
  private:

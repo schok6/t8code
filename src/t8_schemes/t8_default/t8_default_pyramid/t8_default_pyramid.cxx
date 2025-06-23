@@ -55,7 +55,7 @@ t8_default_scheme_pyramid::element_new (int length, t8_element_t **elem) const
 }
 
 void
-t8_default_scheme_pyramid::element_init (int length, t8_element_t *elem) const
+t8_default_scheme_pyramid::element_init ([[maybe_unused]] int length, [[maybe_unused]] t8_element_t *elem) const
 {
 #if T8_ENABLE_DEBUG
   t8_dpyramid_t *pyramid = (t8_dpyramid_t *) elem;

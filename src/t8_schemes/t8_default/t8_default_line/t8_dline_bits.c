@@ -381,7 +381,6 @@ t8_dline_is_valid (const t8_dline_t *l)
   /* A line is valid if its level and its x coordinates are in the
    * correct bounds of the root three and its left and right neighbor */
   return 0 <= l->level && l->level <= T8_DLINE_MAXLEVEL && -T8_DLINE_ROOT_LEN <= l->x && l->x <= max_coord;
-  //why -T8_DLINE_ROOT_LEN???
 }
 
 void

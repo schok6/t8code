@@ -22,7 +22,7 @@
 
 /** The maximum refinement level allowed for a pyramid */
 /*The tetrahedral elements are linked with pyra-elements*/
-#define T8_DPYRAMID_MAXLEVEL 3 //21
+#define T8_DPYRAMID_MAXLEVEL 21
 
 /** The length of the root pyramid in integer coordinates */
 #define T8_DPYRAMID_ROOT_LEN (1 << (T8_DPYRAMID_MAXLEVEL))
