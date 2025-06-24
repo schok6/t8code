@@ -148,9 +148,8 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       scheme->element_get_first_descendant (tree_class, element, elem_desc, maxlevels);
       level = scheme->element_get_level (tree_class, elem_desc);
       T8_ASSERT (level == forest->maxlevel);
-      std::vector<int> levels = { level };
 
-      T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
+      T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, level) >= first_desc_id);
     }
     else if (forest->set_type == 2) {
       std::vector<int> maxlevels = { forest->maxlevel, forest->maxlevel };
@@ -161,7 +160,7 @@ t8_forest_partition_test_desc (t8_forest_t forest)
       T8_ASSERT (level2 == forest->maxlevel);
 
       std::vector<int> levels = { level1, level2 };
-      T8_ASSERT (scheme->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
+      T8_ASSERT (scheme_mixed->element_get_linear_id (tree_class, elem_desc, levels) >= first_desc_id);
     }
   }
   scheme->element_destroy (tree_class, 1, &elem_desc);
@@ -267,8 +266,7 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     const int level = scheme->element_get_level (tree_class, element_last_desc);
     T8_ASSERT (level == scheme->element_get_level (tree_class, element_last_desc));
     T8_ASSERT (level == forest->maxlevel);
-    std::vector<int> levels = { level };
-    const t8_linearidx_t last_desc_id = scheme->element_get_linear_id (tree_class, element_last_desc, levels);
+    const t8_linearidx_t last_desc_id = scheme->element_get_linear_id (tree_class, element_last_desc, level);
     /* Get the first descendant id of rank+1 */
     const t8_linearidx_t first_desc_id
       = *(t8_linearidx_t *) t8_shmem_array_index (forest->global_first_desc, forest->mpirank + 1);
@@ -349,6 +347,7 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
     if (first_element != NULL) {
       /* Get the eclass_scheme of the element. */
       const t8_scheme *scheme = t8_forest_get_scheme (forest);
+      const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) t8_forest_get_scheme (forest);
       const t8_eclass_t tree_class = t8_forest_get_tree_class (forest, 0);
       scheme->element_new (tree_class, 1, &first_desc);
       T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
@@ -356,13 +355,13 @@ t8_forest_partition_create_first_desc (t8_forest_t forest)
         std::vector<int> maxlevels = { forest->maxlevel };
         scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);
         /* Compute the linear id of the descendant. */
-        local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, maxlevels);
+        local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, forest->maxlevel);
       }
       else if (forest->set_type == 2) {
         std::vector<int> maxlevels = { forest->maxlevel, forest->maxlevel };
         scheme->element_get_first_descendant (tree_class, first_element, first_desc, maxlevels);
         /* Compute the linear id of the descendant. */
-        local_first_desc = scheme->element_get_linear_id (tree_class, first_desc, maxlevels);
+        local_first_desc = scheme_mixed->element_get_linear_id (tree_class, first_desc, maxlevels);
       }
       scheme->element_destroy (tree_class, 1, &first_desc);
     }

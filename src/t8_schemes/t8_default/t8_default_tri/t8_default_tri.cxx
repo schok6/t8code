@@ -424,12 +424,12 @@ t8_default_scheme_tri::element_set_linear_id (t8_element_t *elem, std::vector<in
 }
 
 t8_linearidx_t
-t8_default_scheme_tri::element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
+t8_default_scheme_tri::element_get_linear_id (const t8_element_t *elem, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
+  T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
 
-  return t8_dtri_linear_id ((t8_dtri_t *) elem, levels[0]);
+  return t8_dtri_linear_id ((t8_dtri_t *) elem, level);
 }
 
 void

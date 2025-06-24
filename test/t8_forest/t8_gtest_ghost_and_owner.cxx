@@ -70,8 +70,7 @@ t8_test_gao_adapt (t8_forest_t forest, [[maybe_unused]] t8_forest_t forest_from,
 {
   /* refine every second element up to the maximum level */
   const int level = scheme->element_get_level (tree_class, elements[0]);
-  std::vector<int> level_vec {level};
-  const t8_linearidx_t eid = scheme->element_get_linear_id (tree_class, elements[0], level_vec);
+  const t8_linearidx_t eid = scheme->element_get_linear_id (tree_class, elements[0], level);
   const int maxlevel = *(int *) t8_forest_get_user_data (forest);
 
   if (eid % 2 && level < maxlevel) {

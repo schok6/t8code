@@ -505,12 +505,12 @@ t8_default_scheme_hex::element_set_linear_id (t8_element_t *elem, std::vector<in
 }
 
 t8_linearidx_t
-t8_default_scheme_hex::element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
+t8_default_scheme_hex::element_get_linear_id (const t8_element_t *elem, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= HEX_LINEAR_MAXLEVEL);
+  T8_ASSERT (0 <= level && level <= HEX_LINEAR_MAXLEVEL);
 
-  return p8est_quadrant_linear_id ((p8est_quadrant_t *) elem, levels[0]);
+  return p8est_quadrant_linear_id ((p8est_quadrant_t *) elem, level);
 }
 
 void

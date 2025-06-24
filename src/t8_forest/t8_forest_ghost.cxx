@@ -470,11 +470,9 @@ t8_ghost_add_remote (t8_forest_t forest, t8_forest_ghost_t ghost, int remote_ran
   /* Check if the element was not contained in the array.
    * If so, we add a copy of elem to the array.
    * Otherwise, we do nothing. */
-  std::vector<int> copy_levels = { copy_level };
-  std::vector<int> levels = { level };
   if (elem_copy == NULL || level != copy_level
-      || scheme->element_get_linear_id (tree_class, elem_copy, copy_levels)
-           != scheme->element_get_linear_id (tree_class, elem, levels)) {
+      || scheme->element_get_linear_id (tree_class, elem_copy, copy_level)
+           != scheme->element_get_linear_id (tree_class, elem, level)) {
     /* Add the element */
     elem_copy = t8_element_array_push (&remote_tree->elements);
     scheme->element_copy (tree_class, elem, elem_copy);

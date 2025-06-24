@@ -1505,8 +1505,7 @@ t8_forest_bin_search_lower (const t8_element_array_t *elements, const t8_lineari
   /* At first, we check whether any element has smaller id than the
    * given one. */
   const t8_element_t *query = t8_element_array_index_int (elements, 0);
-  std::vector<int> maxlevels = { maxlevel };
-  const t8_linearidx_t query_id = scheme->element_get_linear_id (tree_class, query, maxlevels);
+  const t8_linearidx_t query_id = scheme->element_get_linear_id (tree_class, query, maxlevel);
   if (query_id > element_id) {
     /* No element has id smaller than the given one. */
     return -1;
@@ -1517,8 +1516,7 @@ t8_forest_bin_search_lower (const t8_element_array_t *elements, const t8_lineari
     = std::upper_bound (t8_element_array_begin (elements), t8_element_array_end (elements), element_id,
                         [&maxlevel, &scheme, &tree_class] (const t8_linearidx_t element_id_,
                                                            const t8_element_array_iterator::value_type &elem_ptr) {
-                          std::vector<int> maxlevel_vec { maxlevel };
-                          return (element_id_ < scheme->element_get_linear_id (tree_class, elem_ptr, maxlevel_vec));
+                          return (element_id_ < scheme->element_get_linear_id (tree_class, elem_ptr, maxlevel));
                         });
 
   /* After we found the element with an id greater than the given one, we are able to jump one index back.
@@ -1542,7 +1540,7 @@ t8_forest_bin_search_lower_2_5D (const t8_element_array_t *elements, const t8_li
   t8_linearidx_t query_id;
   t8_locidx_t low, high, guess;
 
-  const t8_scheme *scheme = t8_element_array_get_scheme (elements);
+  const t8_mixed_scheme *scheme = (const t8_mixed_scheme *) t8_element_array_get_scheme (elements);
   const t8_eclass_t tree_class = t8_element_array_get_tree_class (elements);
   /* At first, we check whether any element has smaller id than the
    * given one. */
@@ -1915,8 +1913,7 @@ t8_forest_leaf_face_neighbors_ext (t8_forest_t forest, t8_locidx_t ltreeid, cons
     if (!different_owners) {
       /* The face neighbors belong to the same process, we thus need to determine
        * if they are leaves or their parent or grandparent. */
-      std::vector<int> maxlevels = { forest->maxlevel };
-      neigh_id = scheme->element_get_linear_id (*pneigh_eclass, neighbor_leaves[0], maxlevels);
+      neigh_id = scheme->element_get_linear_id (*pneigh_eclass, neighbor_leaves[0], forest->maxlevel);
       if (owners[0] != forest->mpirank) {
         /* The elements are ghost elements of the same owner */
         const t8_element_array_t *element_array = t8_forest_ghost_get_tree_leaf_elements (forest, lghost_treeid);
@@ -1994,8 +1991,7 @@ t8_forest_leaf_face_neighbors_ext (t8_forest_t forest, t8_locidx_t ltreeid, cons
     element_indices = *pelement_indices;
     for (ineigh = 0; ineigh < num_children_at_face; ineigh++) {
       /* Compute the linear id at maxlevel of the neighbor leaf */
-      std::vector<int> maxlevels = { forest->maxlevel };
-      neigh_id = scheme->element_get_linear_id (*pneigh_eclass, neighbor_leaves[ineigh], maxlevels);
+      neigh_id = scheme->element_get_linear_id (*pneigh_eclass, neighbor_leaves[ineigh], forest->maxlevel);
       /* Get a pointer to the element array in which the neighbor lies and search for the element's index in this array.
        * This is either the local leaf array of the local tree or the corresponding leaf array in the ghost structure */
       if (owners[ineigh] == forest->mpirank) {
@@ -2144,8 +2140,7 @@ t8_forest_element_is_leaf (const t8_forest_t forest, const t8_element_t *element
   if (forest->set_type == 1) {
     const int element_level = scheme->element_get_level (tree_class, element);
     /* Compute the linear id. */
-    std::vector<int> levels = { element_level };
-    const t8_linearidx_t element_id = scheme->element_get_linear_id (tree_class, element, levels);
+    const t8_linearidx_t element_id = scheme->element_get_linear_id (tree_class, element, element_level);
     /* Search for the element.
     * The search returns the largest index i,
     * such that the element at position i has a smaller id than the given one.
@@ -2224,12 +2219,12 @@ t8_forest_element_check_owner (t8_forest_t forest, t8_element_t *element, t8_glo
       if (!element_is_desc) {
         scheme->element_new (eclass, 1, &first_desc);
         scheme->element_get_first_descendant (eclass, element, first_desc, maxlevels);
-        first_desc_id = scheme->element_get_linear_id (eclass, first_desc, maxlevels);
+        first_desc_id = scheme->element_get_linear_id (eclass, first_desc, forest->maxlevel);
         scheme->element_destroy (eclass, 1, &first_desc);
       }
       else {
         /* The element is its own first descendant */
-        first_desc_id = scheme->element_get_linear_id (eclass, element, maxlevels);
+        first_desc_id = scheme->element_get_linear_id (eclass, element, forest->maxlevel);
       }
       /* Get the id of the trees first descendant and the first descendant
        * of the next nonempty rank */
@@ -2349,8 +2344,7 @@ t8_forest_element_find_owner_ext (t8_forest_t forest, t8_gloidx_t gtreeid, t8_el
   first_descs = (t8_linearidx_t *) t8_shmem_array_get_array (forest->global_first_desc);
   /* Compute the linear id of the element's first descendant */
 
-  std::vector levels = { scheme->element_get_level (eclass, first_desc) };
-  element_desc_id = scheme->element_get_linear_id (eclass, first_desc, levels);
+  element_desc_id = scheme->element_get_linear_id (eclass, first_desc, scheme->element_get_level (eclass, first_desc));
   /* Get a pointer to the element offset array */
   const t8_gloidx_t *element_offsets = t8_shmem_array_get_gloidx_array (forest->element_offsets);
 
@@ -2511,7 +2505,7 @@ t8_forest_element_find_owner_old (t8_forest_t forest, t8_gloidx_t gtreeid, t8_el
   std::vector<int> maxlevels = { forest->maxlevel };
   scheme->element_get_first_descendant (eclass, element, element_first_desc, maxlevels);
   /* Compute the linear of the first descendant */
-  element_desc_lin_id = scheme->element_get_linear_id (eclass, element_first_desc, maxlevels);
+  element_desc_lin_id = scheme->element_get_linear_id (eclass, element_first_desc, forest->maxlevel);
 
   /* The first owner of the tree may not have the tree as its first tree and
    * thus its first_descendant entry may not relate to this tree.
@@ -2830,7 +2824,7 @@ t8_forest_element_has_leaf_desc (t8_forest_t forest, t8_gloidx_t gtreeid, const 
   /* TODO: set level in last_descendant */
   std::vector<int> maxlevels = { forest->maxlevel };
   scheme->element_get_last_descendant (tree_class, element, last_desc, maxlevels);
-  last_desc_id = scheme->element_get_linear_id (tree_class, last_desc, maxlevels);
+  last_desc_id = scheme->element_get_linear_id (tree_class, last_desc, forest->maxlevel);
   /* Get the level of the element */
   level = scheme->element_get_level (tree_class, element);
   /* Get the local id of the tree. If the tree is not a local tree,
@@ -2846,9 +2840,9 @@ t8_forest_element_has_leaf_desc (t8_forest_t forest, t8_gloidx_t gtreeid, const 
       /* There exists an element in the array with id <= last_desc_id,
        * If also elem_id < id, then we found a true decsendant of element */
       const t8_element_t *elem_found = t8_element_array_index_locidx (elements, index);
-      elem_id = scheme->element_get_linear_id (tree_class, elem_found, maxlevels);
+      elem_id = scheme->element_get_linear_id (tree_class, elem_found, forest->maxlevel);
       level_found = scheme->element_get_level (tree_class, elem_found);
-      if (scheme->element_get_linear_id (tree_class, element, maxlevels) <= elem_id && level < level_found) {
+      if (scheme->element_get_linear_id (tree_class, element, forest->maxlevel) <= elem_id && level < level_found) {
         /* The element is a true descendant */
         T8_ASSERT (scheme->element_get_level (tree_class, elem_found)
                    > scheme->element_get_level (tree_class, element));
@@ -2870,9 +2864,9 @@ t8_forest_element_has_leaf_desc (t8_forest_t forest, t8_gloidx_t gtreeid, const 
         /* There exists an element in the array with id <= last_desc_id,
          * If also elem_id < id, then we found a true decsendant of element */
         const t8_element_t *elem_found = t8_element_array_index_int (elements, index);
-        elem_id = scheme->element_get_linear_id (tree_class, elem_found, maxlevels);
+        elem_id = scheme->element_get_linear_id (tree_class, elem_found, forest->maxlevel);
         level_found = scheme->element_get_level (tree_class, elem_found);
-        if (scheme->element_get_linear_id (tree_class, element, maxlevels) <= elem_id && level < level_found) {
+        if (scheme->element_get_linear_id (tree_class, element, forest->maxlevel) <= elem_id && level < level_found) {
           /* The element is a true descendant */
           T8_ASSERT (scheme->element_get_level (tree_class, elem_found)
                      > scheme->element_get_level (tree_class, element));

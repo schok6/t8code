@@ -216,8 +216,7 @@ class t8_element_array_iterator {
   get_linear_id_at_level (const int level)
   {
     T8_ASSERT (current_index >= 0 && static_cast<size_t> (current_index) < elements->elem_count);
-    std::vector<int> level_vec {level};
-    return scheme->element_get_linear_id (tree_class, *(*this), level_vec);
+    return scheme->element_get_linear_id (tree_class, *(*this), level);
   };
 };
 

@@ -102,8 +102,7 @@ TEST_P (get_linear_id, uniform_forest)
         /*Get the current element*/
         const t8_element_t *element = t8_forest_get_leaf_element_in_tree (forest, tree_id, id_iter);
         /*Get the ID of the element at current level */
-        std::vector<int> level_vec = {level};
-        const t8_locidx_t id = tc_scheme->element_get_linear_id (eclass, element, level_vec);
+        const t8_locidx_t id = tc_scheme->element_get_linear_id (eclass, element, level);
         /* Check the computed id*/
         EXPECT_EQ (id, id_iter + shift);
       }
@@ -135,12 +134,11 @@ TEST_P (get_linear_id, id_at_other_level)
     const t8_linearidx_t num_desc = scheme->count_leaves_from_root (eclass, level);
     for (t8_linearidx_t id = 0; id < num_desc; id++) {
       /* Set the child at the current level */
-      std::vector<int> level_vec = {level};
+      std::vector<int> level_vec = { level };
       scheme->element_set_linear_id (eclass, child, level_vec, id);
-      /* Level vector */
-      std::vector<int> level_vec_plus = {level + add_lvl};
+      std::vector<int> level_vec_plus = { level + add_lvl };
       /* Compute the id of child at a higher level. */
-      const t8_linearidx_t id_at_lvl = scheme->element_get_linear_id (eclass, child, level_vec_plus);
+      const t8_linearidx_t id_at_lvl = scheme->element_get_linear_id (eclass, child, level + add_lvl);
       /* Compute how many leaves/descendants child has at level level+add_lvl */
       const t8_linearidx_t child_desc = scheme->element_count_leaves (eclass, child, level + add_lvl);
       /* Iterate over all descendants */
@@ -149,7 +147,7 @@ TEST_P (get_linear_id, id_at_other_level)
          * leaf_id into the region of the descendants of child*/
         scheme->element_set_linear_id (eclass, test, level_vec_plus, id_at_lvl + leaf_id);
         /* Compute the id of the descendant (test) at the current level */
-        const t8_linearidx_t test_id = scheme->element_get_linear_id (eclass, test, level_vec);
+        const t8_linearidx_t test_id = scheme->element_get_linear_id (eclass, test, level);
         /* test_id and id should be equal. */
         EXPECT_EQ (id, test_id);
       }

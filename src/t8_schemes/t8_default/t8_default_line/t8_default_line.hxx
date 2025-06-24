@@ -485,7 +485,7 @@ class t8_default_scheme_line: public t8_default_scheme_common<t8_default_scheme_
    * \return              The linear id of the element.
    */
   t8_linearidx_t
-  element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const;
+  element_get_linear_id (const t8_element_t *elem, const int level) const;
 
   /** Compute the first descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.

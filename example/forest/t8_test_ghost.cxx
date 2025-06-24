@@ -66,8 +66,7 @@ t8_adapt_every_third_element ([[maybe_unused]] t8_forest_t forest, [[maybe_unuse
 {
   T8_ASSERT (!is_family || num_elements == scheme->element_get_num_children (tree_class, elements[0]));
   const int level = scheme->element_get_level (tree_class, elements[0]);
-  std::vector<int> levels = {level};
-  if (scheme->element_get_linear_id (tree_class, elements[0], levels) % 3 == 0) {
+  if (scheme->element_get_linear_id (tree_class, elements[0], level) % 3 == 0) {
     return 1;
   }
   return 0;

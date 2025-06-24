@@ -1182,17 +1182,16 @@ struct t8_standalone_scheme
    * \return              The linear id of the element.
    */
   static constexpr t8_linearidx_t
-  // previous: element_get_linear_id (const t8_element_t *elem, const t8_element_level level) noexcept
-  element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) noexcept
+  element_get_linear_id (const t8_element_t *elem, const t8_element_level level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
     const t8_standalone_element<TEclass> *el = (const t8_standalone_element<TEclass> *) elem;
     t8_standalone_element<TEclass> ancestor;
 
     /* Determine the starting element for the iterative linear id computation. */
-    if (levels[0] < el->level) {
+    if (level < el->level) {
       /* Throw away child ids up to the coarser level */
-      element_get_ancestor (el, levels[0], &ancestor);
+      element_get_ancestor (el, level, &ancestor);
     }
     else {
       /* Start with the input element. 
@@ -1212,12 +1211,12 @@ struct t8_standalone_scheme
         /* el is now parent, so compute child to get sibling of previous el */
 
         element_get_child ((const t8_element_t *) &ancestor, ichild, (t8_element_t *) &child);
-        const t8_linearidx_t num_child_descendants = element_count_leaves ((t8_element_t *) &child, levels[0]);
+        const t8_linearidx_t num_child_descendants = element_count_leaves ((t8_element_t *) &child, level);
         parent_id += num_child_descendants;
       }
       id += parent_id;
     }
-    T8_ASSERT (id < (size_t) element_count_leaves ((t8_element_t *) &ancestor, levels[0]));
+    T8_ASSERT (id < (size_t) element_count_leaves ((t8_element_t *) &ancestor, level));
     return id;
   }
 
@@ -1311,8 +1310,7 @@ struct t8_standalone_scheme
     const t8_standalone_element<TEclass> *e1 = (const t8_standalone_element<TEclass> *) elem1;
     const t8_standalone_element<TEclass> *e2 = (const t8_standalone_element<TEclass> *) elem2;
 
-    // const int maxlvl = SC_MAX (e1->level, e2->level);
-    std::vector<int> maxlvl = { SC_MAX (e1->level, e2->level) };
+    const int maxlvl = SC_MAX (e1->level, e2->level);
 
     const t8_linearidx_t id1 = element_get_linear_id ((const t8_element_t *) e1, maxlvl);
     const t8_linearidx_t id2 = element_get_linear_id ((const t8_element_t *) e2, maxlvl);

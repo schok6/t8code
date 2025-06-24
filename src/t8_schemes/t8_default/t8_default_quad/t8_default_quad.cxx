@@ -33,7 +33,7 @@ T8_EXTERN_C_BEGIN ();
 /* This function is used by other element functions and we thus need to
  * declare it up here */
 t8_linearidx_t
-element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels);
+element_get_linear_id (const t8_element_t *elem, const int level);
 
 size_t
 t8_default_scheme_quad::get_element_size (void) const
@@ -257,12 +257,12 @@ t8_default_scheme_quad::element_set_linear_id (t8_element_t *elem, std::vector<i
 }
 
 t8_linearidx_t
-t8_default_scheme_quad::element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
+t8_default_scheme_quad::element_get_linear_id (const t8_element_t *elem, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
+  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
 
-  return p4est_quadrant_linear_id ((p4est_quadrant_t *) elem, levels[0]);
+  return p4est_quadrant_linear_id ((p4est_quadrant_t *) elem, level);
 }
 
 void

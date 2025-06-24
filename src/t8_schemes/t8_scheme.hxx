@@ -831,9 +831,9 @@ class t8_scheme {
    * \return              The linear id of the element.
    */
   inline t8_linearidx_t
-  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem, std::vector<int> &levels) const
+  element_get_linear_id (const t8_eclass_t tree_class, const t8_element_t *elem, const int level) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_linear_id (elem, levels); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_linear_id (elem, level); },
                        eclass_schemes[tree_class]);
   };
 

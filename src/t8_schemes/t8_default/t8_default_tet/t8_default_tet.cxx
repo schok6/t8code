@@ -408,12 +408,12 @@ t8_default_scheme_tet::element_set_linear_id (t8_element_t *elem, std::vector<in
 }
 
 t8_linearidx_t
-t8_default_scheme_tet::element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
+t8_default_scheme_tet::element_get_linear_id (const t8_element_t *elem, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
+  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
 
-  return t8_dtet_linear_id ((t8_default_tet_t *) elem, levels[0]);
+  return t8_dtet_linear_id ((t8_default_tet_t *) elem, level);
 }
 
 void

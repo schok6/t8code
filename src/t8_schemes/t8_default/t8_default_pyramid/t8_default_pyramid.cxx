@@ -333,10 +333,10 @@ t8_default_scheme_pyramid::element_get_num_face_children ([[maybe_unused]] const
 }
 
 t8_linearidx_t
-t8_default_scheme_pyramid::element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
+t8_default_scheme_pyramid::element_get_linear_id (const t8_element_t *elem, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
-  return t8_dpyramid_linear_id ((const t8_dpyramid_t *) elem, levels[0]);
+  return t8_dpyramid_linear_id ((const t8_dpyramid_t *) elem, level);
 }
 
 void

@@ -1170,23 +1170,26 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \return              The linear id of the element.
    */
   inline t8_linearidx_t
+  element_get_linear_id (const t8_element_t *elem, const int levels) const
+  {
+    SC_ABORT ("Not implemented for 2.5 dimensional scheme.\n");
+  }
+  inline t8_linearidx_t
   element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
   {
     T8_ASSERT (element_is_valid (elem));
     const element_2_5D *el = (const element_2_5D *) elem;
-    std::vector<int> level_vec1 = { levels[0] };
-    std::vector<int> level_vec2 = { levels[1] };
     t8_linearidx_t lin_id;
 
     if (levels[1] == 0) {
-      lin_id = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, level_vec1);
+      lin_id = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, levels[0]);
     }
     else {
       lin_id
-        = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, level_vec1)
+        = TUnderlyingEclassScheme1::element_get_linear_id ((t8_element_t *) &el->linear_element1, levels[0])
             * sc_intpow (TUnderlyingEclassScheme2::element_get_num_children ((t8_element_t *) &el->linear_element2),
                          levels[1])
-          + TUnderlyingEclassScheme2::element_get_linear_id ((t8_element_t *) &el->linear_element2, level_vec2);
+          + TUnderlyingEclassScheme2::element_get_linear_id ((t8_element_t *) &el->linear_element2, levels[1]);
     }
     return lin_id;
   }
