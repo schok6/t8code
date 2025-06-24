@@ -267,23 +267,23 @@ t8_default_scheme_quad::element_get_linear_id (const t8_element_t *elem, const i
 
 void
 t8_default_scheme_quad::element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                      std::vector<int> &levels) const
+                                                      const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
-  p4est_quadrant_first_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
+  p4est_quadrant_first_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, level);
   T8_QUAD_SET_TDIM ((p4est_quadrant_t *) desc, 2);
 }
 
 void
 t8_default_scheme_quad::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                     std::vector<int> &levels) const
+                                                     const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= P4EST_QMAXLEVEL);
-  p4est_quadrant_last_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= P4EST_QMAXLEVEL);
+  p4est_quadrant_last_descendant ((p4est_quadrant_t *) elem, (p4est_quadrant_t *) desc, level);
   T8_QUAD_SET_TDIM ((p4est_quadrant_t *) desc, 2);
 }
 

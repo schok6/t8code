@@ -1232,19 +1232,22 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \param [in] level    The level, at which the descendant is computed.
    */
   inline void
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const
+  {
+    SC_ABORT ("Not implemented for 2.5 dimensional scheme.\n");
+  }
+  inline void
   element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const
   {
     T8_ASSERT (element_is_valid (elem));
 
     const element_2_5D *el = (const element_2_5D *) elem;
     element_2_5D *d = (element_2_5D *) desc;
-    std::vector<int> level1 = { levels[0] };
-    std::vector<int> level2 = { levels[1] };
 
     TUnderlyingEclassScheme1::element_get_first_descendant ((t8_element_t *) &el->linear_element1,
-                                                            (t8_element_t *) &d->linear_element1, level1);
+                                                            (t8_element_t *) &d->linear_element1, levels[0]);
     TUnderlyingEclassScheme2::element_get_first_descendant ((t8_element_t *) &el->linear_element2,
-                                                            (t8_element_t *) &d->linear_element2, level2);
+                                                            (t8_element_t *) &d->linear_element2, levels[1]);
     T8_ASSERT (element_is_valid ((t8_element_t *) d));
   }
 
@@ -1255,13 +1258,17 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \param [in] level    The level, at which the descendant is computed.
    */
   inline void
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const
+  {
+    SC_ABORT ("Not implemented for 2.5 dimensional scheme.\n");
+  }
+  inline void
   element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const
   {
     T8_ASSERT (element_is_valid (elem));
 
     const element_2_5D *el = (const element_2_5D *) elem;
     element_2_5D *d = (element_2_5D *) desc;
-    std::vector<int> level2 = { levels[1] };
 
     int level1_max = get_maxlevel ();
     int level1 = TUnderlyingEclassScheme1::element_get_level ((t8_element_t *) &el->linear_element1);
@@ -1280,7 +1287,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     }
 
     TUnderlyingEclassScheme2::element_get_last_descendant ((t8_element_t *) &el->linear_element2,
-                                                           (t8_element_t *) &d->linear_element2, level2);
+                                                           (t8_element_t *) &d->linear_element2, levels[1]);
     T8_ASSERT (element_is_valid (desc));
   }
 

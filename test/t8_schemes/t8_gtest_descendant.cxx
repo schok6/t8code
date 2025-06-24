@@ -76,14 +76,12 @@ t8_recursive_descendant (t8_element_t *elem, t8_element_t *desc, t8_element_t *t
     scheme->element_get_child (eclass, elem, ichild, desc);
     /* first child == first descendant. */
     if (ichild == 0) {
-      std::vector<int> level_vec {level + 1};
-      scheme->element_get_first_descendant (eclass, elem, test, level_vec);
+      scheme->element_get_first_descendant (eclass, elem, test, level + 1);
       EXPECT_ELEM_EQ (scheme, eclass, desc, test);
     }
     /* last child == last descendant. */
     else if (ichild == num_children - 1) {
-      std::vector<int> level_vec {level + 1};
-      scheme->element_get_last_descendant (eclass, elem, test, level_vec);
+      scheme->element_get_last_descendant (eclass, elem, test, level + 1);
       EXPECT_ELEM_EQ (scheme, eclass, desc, test);
     }
     else if (level > maxlvl) {
@@ -107,8 +105,7 @@ t8_deep_first_descendant (t8_element_t *elem, t8_element_t *desc, t8_element_t *
     scheme->element_get_child (eclass, test, 0, desc);
     scheme->element_copy (eclass, desc, test);
   }
-  std::vector<int> level_vec {level};
-  scheme->element_get_first_descendant (eclass, elem, test, level_vec);
+  scheme->element_get_first_descendant (eclass, elem, test, level);
   EXPECT_ELEM_EQ (scheme, eclass, desc, test);
 }
 
@@ -128,8 +125,7 @@ t8_deep_last_descendant (t8_element_t *elem, t8_element_t *desc, t8_element_t *t
     scheme->element_copy (eclass, desc, test);
   }
   /* Check for equality. */
-  std::vector<int> level_vec {level};
-  scheme->element_get_last_descendant (eclass, elem, test, level_vec);
+  scheme->element_get_last_descendant (eclass, elem, test, level);
   EXPECT_ELEM_EQ (scheme, eclass, desc, test);
 }
 

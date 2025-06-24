@@ -514,22 +514,21 @@ t8_default_scheme_hex::element_get_linear_id (const t8_element_t *elem, const in
 
 void
 t8_default_scheme_hex::element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                     std::vector<int> &levels) const
+                                                     const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= HEX_REFINE_MAXLEVEL);
-  p8est_quadrant_first_descendant ((p8est_quadrant_t *) elem, (p8est_quadrant_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= HEX_REFINE_MAXLEVEL);
+  p8est_quadrant_first_descendant ((p8est_quadrant_t *) elem, (p8est_quadrant_t *) desc, level);
 }
 
 void
-t8_default_scheme_hex::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                    std::vector<int> &levels) const
+t8_default_scheme_hex::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= HEX_REFINE_MAXLEVEL);
-  p8est_quadrant_last_descendant ((p8est_quadrant_t *) elem, (p8est_quadrant_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= HEX_REFINE_MAXLEVEL);
+  p8est_quadrant_last_descendant ((p8est_quadrant_t *) elem, (p8est_quadrant_t *) desc, level);
 }
 
 void

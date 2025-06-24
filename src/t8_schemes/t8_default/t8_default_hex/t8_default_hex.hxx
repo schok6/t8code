@@ -486,7 +486,7 @@ class t8_default_scheme_hex: public t8_default_scheme_common<t8_default_scheme_h
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const;
 
   /** Compute the last descendant of a given element.
    * \param [in] elem     The element whose descendant is computed.
@@ -495,7 +495,7 @@ class t8_default_scheme_hex: public t8_default_scheme_common<t8_default_scheme_h
    * \param [in] level    The level, at which the descendant is computed.
    */
   void
-  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) const;
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const;
 
   /** Construct the successor in a uniform refinement of a given element.
    * \param [in] elem1    The element whose successor should be constructed.

@@ -311,16 +311,16 @@ t8_element_get_linear_id (const t8_scheme_c *scheme, const t8_eclass_t tree_clas
 
 void
 t8_element_get_first_descendant (const t8_scheme_c *scheme, const t8_eclass_t tree_class, const t8_element_t *elem,
-                                 t8_element_t *desc, const std::vector<int> levels)
+                                 t8_element_t *desc, const int level)
 {
-  return scheme->element_get_first_descendant (tree_class, elem, desc, levels);
+  return scheme->element_get_first_descendant (tree_class, elem, desc, level);
 }
 
 void
 t8_element_get_last_descendant (const t8_scheme_c *scheme, const t8_eclass_t tree_class, const t8_element_t *elem,
-                                t8_element_t *desc, const std::vector<int> levels)
+                                t8_element_t *desc, const int level)
 {
-  return scheme->element_get_last_descendant (tree_class, elem, desc, levels);
+  return scheme->element_get_last_descendant (tree_class, elem, desc, level);
 }
 
 void

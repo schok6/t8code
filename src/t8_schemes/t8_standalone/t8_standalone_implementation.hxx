@@ -650,19 +650,19 @@ struct t8_standalone_scheme
    */
   static constexpr void
   // previous: element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept
-  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) noexcept
+  element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
     const t8_standalone_element<TEclass> *el = (const t8_standalone_element<TEclass> *) elem;
     t8_standalone_element<TEclass> *d = (t8_standalone_element<TEclass> *) desc;
 
-    T8_ASSERT (levels[0] >= el->level);
-    T8_ASSERT (0 <= levels[0] && levels[0] <= T8_ELEMENT_MAXLEVEL[TEclass]);
+    T8_ASSERT (level >= el->level);
+    T8_ASSERT (0 <= level && level <= T8_ELEMENT_MAXLEVEL[TEclass]);
 
     /* The first descendant of an element has the same anchor coords and type, but another level */
     element_copy ((const t8_element_t *) el, (t8_element_t *) d);
-    d->level = levels[0];
+    d->level = level;
 
     T8_ASSERT (element_is_valid ((t8_element_t *) d));
   }
@@ -675,22 +675,22 @@ struct t8_standalone_scheme
    */
   static constexpr void
   // previous: element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const t8_element_level level) noexcept
-  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, std::vector<int> &levels) noexcept
+  element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) noexcept
   {
     T8_ASSERT (element_is_valid (elem));
 
     const t8_standalone_element<TEclass> *el = (const t8_standalone_element<TEclass> *) elem;
     t8_standalone_element<TEclass> *d = (t8_standalone_element<TEclass> *) desc;
 
-    T8_ASSERT (levels[0] >= el->level);
-    T8_ASSERT (0 <= levels[0] && levels[0] <= T8_ELEMENT_MAXLEVEL[TEclass]);
+    T8_ASSERT (level >= el->level);
+    T8_ASSERT (0 <= level && level <= T8_ELEMENT_MAXLEVEL[TEclass]);
 
     element_copy ((const t8_element_t *) el, (t8_element_t *) d);
-    d->level = levels[0];
+    d->level = level;
 
     /* Shift the coords to the eighth cube. The type of the last descendant
     * is the type of the input element */
-    t8_element_coord coord_offset = element_get_len (el->level) - element_get_len (levels[0]);
+    t8_element_coord coord_offset = element_get_len (el->level) - element_get_len (level);
     for (int idim = 0; idim < T8_ELEMENT_DIM[TEclass]; idim++) {
       d->coords[idim] |= coord_offset;
     }
@@ -1141,8 +1141,7 @@ struct t8_standalone_scheme
     while (el->level < level) {
       /* Shortcut if we need the first descendant of the subtree*/
       if (id == 0) {
-        std::vector<int> level_vec = { level };
-        element_get_first_descendant ((const t8_element_t *) el, (t8_element_t *) el, level_vec);
+        element_get_first_descendant ((const t8_element_t *) el, (t8_element_t *) el, level);
         return;
       }
 

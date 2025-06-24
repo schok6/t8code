@@ -1107,6 +1107,7 @@ t8_forest_compute_desc (t8_forest_t forest)
   t8_locidx_t itree_id, num_trees, num_elements;
   t8_tree_t itree;
   const t8_scheme *scheme = t8_forest_get_scheme_before_commit (forest);
+  const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) t8_forest_get_scheme_before_commit (forest);
 
   T8_ASSERT (forest != NULL);
   /* Iterate over all trees */
@@ -1131,12 +1132,12 @@ t8_forest_compute_desc (t8_forest_t forest)
     /* calculate the first descendant of the first element */
     T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
     if (forest->set_type == 1) {
-      maxlevels = { forest->maxlevel };
+      scheme->element_get_first_descendant (tree_class, first_element, itree->first_desc, forest->maxlevel);
     }
     else if (forest->set_type == 2) {
       maxlevels = { forest->maxlevel, forest->maxlevel };
+      scheme_mixed->element_get_first_descendant (tree_class, first_element, itree->first_desc, maxlevels);
     }
-    scheme->element_get_first_descendant (tree_class, first_element, itree->first_desc, maxlevels);
     /* get a pointer to the last element of itree */
     num_elements = t8_element_array_get_count (&itree->leaf_elements);
     const t8_element_t *last_element = t8_element_array_index_locidx (&itree->leaf_elements, num_elements - 1);
@@ -1144,12 +1145,12 @@ t8_forest_compute_desc (t8_forest_t forest)
     scheme->element_new (tree_class, 1, &itree->last_desc);
     /* calculate the last descendant of the last element */
     if (forest->set_type == 1) {
-      maxlevels = { forest->maxlevel };
+      scheme->element_get_last_descendant (tree_class, last_element, itree->last_desc, forest->maxlevel);
     }
     else if (forest->set_type == 2) {
       maxlevels = { forest->maxlevel, forest->maxlevel };
+      scheme_mixed->element_get_last_descendant (tree_class, last_element, itree->last_desc, maxlevels);
     }
-    scheme->element_get_last_descendant (tree_class, last_element, itree->last_desc, maxlevels);
   }
 }
 
@@ -1386,6 +1387,7 @@ t8_forest_tree_shared ([[maybe_unused]] t8_forest_t forest, [[maybe_unused]] int
     eclass = tree->eclass;
     /* Get the scheme of the first tree */
     const t8_scheme *scheme = t8_forest_get_scheme (forest);
+    const t8_mixed_scheme *scheme_mixed = (const t8_mixed_scheme *) t8_forest_get_scheme (forest);
     /* Calculate the first/last possible descendant of the first/last tree */
     /* we do this by first creating a level 0 child of the tree, then
      * calculating its first/last descendant */
@@ -1395,22 +1397,20 @@ t8_forest_tree_shared ([[maybe_unused]] t8_forest_t forest, [[maybe_unused]] int
     T8_ASSERT (forest->set_type == 1 || forest->set_type == 2);
     if (first_or_last == 0) {
       if (forest->set_type == 1) {
-        std::vector<int> maxlevels = { forest->maxlevel };
-        scheme->element_get_first_descendant (eclass, element, desc, maxlevels);
+        scheme->element_get_first_descendant (eclass, element, desc, forest->maxlevel);
       }
       else if (forest->set_type == 2) {
         std::vector<int> maxlevels = { forest->maxlevel, forest->maxlevel };
-        scheme->element_get_first_descendant (eclass, element, desc, maxlevels);
+        scheme_mixed->element_get_first_descendant (eclass, element, desc, maxlevels);
       }
     }
     else {
       if (forest->set_type == 1) {
-        std::vector<int> maxlevels = { forest->maxlevel };
-        scheme->element_get_last_descendant (eclass, element, desc, maxlevels);
+        scheme->element_get_last_descendant (eclass, element, desc, forest->maxlevel);
       }
       else if (forest->set_type == 2) {
         std::vector<int> maxlevels = { forest->maxlevel, forest->maxlevel };
-        scheme->element_get_last_descendant (eclass, element, desc, maxlevels);
+        scheme_mixed->element_get_last_descendant (eclass, element, desc, maxlevels);
       }
     }
     /* We can now check whether the first/last possible descendant matches the
@@ -2215,10 +2215,9 @@ t8_forest_element_check_owner (t8_forest_t forest, t8_element_t *element, t8_glo
       /* Get the eclass scheme of the tree */
       const t8_scheme *scheme = t8_forest_get_scheme (forest);
       /* Compute the linear id of the first descendant of element */
-      std::vector<int> maxlevels = { forest->maxlevel };
       if (!element_is_desc) {
         scheme->element_new (eclass, 1, &first_desc);
-        scheme->element_get_first_descendant (eclass, element, first_desc, maxlevels);
+        scheme->element_get_first_descendant (eclass, element, first_desc, forest->maxlevel);
         first_desc_id = scheme->element_get_linear_id (eclass, first_desc, forest->maxlevel);
         scheme->element_destroy (eclass, 1, &first_desc);
       }
@@ -2332,8 +2331,7 @@ t8_forest_element_find_owner_ext (t8_forest_t forest, t8_gloidx_t gtreeid, t8_el
   else {
     /* Build the first descendant of element */
     scheme->element_new (eclass, 1, &first_desc);
-    std::vector<int> maxlevels = { forest->maxlevel };
-    scheme->element_get_first_descendant (eclass, element, first_desc, maxlevels);
+    scheme->element_get_first_descendant (eclass, element, first_desc, forest->maxlevel);
   }
 
   T8_ASSERT (forest->tree_offsets != NULL);
@@ -2502,8 +2500,7 @@ t8_forest_element_find_owner_old (t8_forest_t forest, t8_gloidx_t gtreeid, t8_el
   }
   /* Compute the first descendant of the element */
   scheme->element_new (eclass, 1, &element_first_desc);
-  std::vector<int> maxlevels = { forest->maxlevel };
-  scheme->element_get_first_descendant (eclass, element, element_first_desc, maxlevels);
+  scheme->element_get_first_descendant (eclass, element, element_first_desc, forest->maxlevel);
   /* Compute the linear of the first descendant */
   element_desc_lin_id = scheme->element_get_linear_id (eclass, element_first_desc, forest->maxlevel);
 
@@ -2711,10 +2708,9 @@ t8_forest_element_owners_bounds (t8_forest_t forest, t8_gloidx_t gtreeid, const 
 
   /* Compute the first and last descendant of element */
   scheme->element_new (eclass, 1, &first_desc);
-  std::vector<int> maxlevels = { forest->maxlevel };
-  scheme->element_get_first_descendant (eclass, element, first_desc, maxlevels);
+  scheme->element_get_first_descendant (eclass, element, first_desc, forest->maxlevel);
   scheme->element_new (eclass, 1, &last_desc);
-  scheme->element_get_last_descendant (eclass, element, last_desc, maxlevels);
+  scheme->element_get_last_descendant (eclass, element, last_desc, forest->maxlevel);
 
   /* Compute their owners as bounds for all of element's owners */
   *lower = t8_forest_element_find_owner_ext (forest, gtreeid, first_desc, eclass, *lower, *upper, *lower, 1);
@@ -2822,8 +2818,7 @@ t8_forest_element_has_leaf_desc (t8_forest_t forest, t8_gloidx_t gtreeid, const 
   /* TODO: element interface function t8_element_last_desc_id */
   scheme->element_new (tree_class, 1, &last_desc);
   /* TODO: set level in last_descendant */
-  std::vector<int> maxlevels = { forest->maxlevel };
-  scheme->element_get_last_descendant (tree_class, element, last_desc, maxlevels);
+  scheme->element_get_last_descendant (tree_class, element, last_desc, forest->maxlevel);
   last_desc_id = scheme->element_get_linear_id (tree_class, last_desc, forest->maxlevel);
   /* Get the level of the element */
   level = scheme->element_get_level (tree_class, element);

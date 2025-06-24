@@ -434,22 +434,21 @@ t8_default_scheme_tri::element_get_linear_id (const t8_element_t *elem, const in
 
 void
 t8_default_scheme_tri::element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                     std::vector<int> &levels) const
+                                                     const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
-  t8_dtri_first_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
+  t8_dtri_first_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, level);
 }
 
 void
-t8_default_scheme_tri::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                    std::vector<int> &levels) const
+t8_default_scheme_tri::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
-  t8_dtri_last_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
+  t8_dtri_last_descendant ((t8_dtri_t *) elem, (t8_dtri_t *) desc, level);
 }
 
 void

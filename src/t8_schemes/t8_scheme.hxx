@@ -846,9 +846,9 @@ class t8_scheme {
    */
   inline void
   element_get_first_descendant (const t8_eclass_t tree_class, const t8_element_t *elem, t8_element_t *desc,
-                                std::vector<int> levels) const
+                                const int level) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_first_descendant (elem, desc, levels); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_first_descendant (elem, desc, level); },
                        eclass_schemes[tree_class]);
   };
 
@@ -861,9 +861,9 @@ class t8_scheme {
    */
   inline void
   element_get_last_descendant (const t8_eclass_t tree_class, const t8_element_t *elem, t8_element_t *desc,
-                               std::vector<int> levels) const
+                               const int level) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_get_last_descendant (elem, desc, levels); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_get_last_descendant (elem, desc, level); },
                        eclass_schemes[tree_class]);
   };
 

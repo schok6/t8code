@@ -243,26 +243,26 @@ t8_default_scheme_vertex::element_get_linear_id ([[maybe_unused]] const t8_eleme
 
 void
 t8_default_scheme_vertex::element_get_first_descendant ([[maybe_unused]] const t8_element_t *elem, t8_element_t *desc,
-                                                        std::vector<int> &levels) const
+                                                        const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DVERTEX_MAXLEVEL);
-  T8_ASSERT (levels[0] >= ((const t8_dvertex_t *) elem)->level);
+  T8_ASSERT (0 <= level && level <= T8_DVERTEX_MAXLEVEL);
+  T8_ASSERT (level >= ((const t8_dvertex_t *) elem)->level);
 
-  ((t8_dvertex_t *) desc)->level = levels[0];
+  ((t8_dvertex_t *) desc)->level = level;
 }
 
 void
 t8_default_scheme_vertex::element_get_last_descendant ([[maybe_unused]] const t8_element_t *elem, t8_element_t *desc,
-                                                       std::vector<int> &levels) const
+                                                       const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DVERTEX_MAXLEVEL);
-  T8_ASSERT (levels[0] >= ((const t8_dvertex_t *) elem)->level);
+  T8_ASSERT (0 <= level && level <= T8_DVERTEX_MAXLEVEL);
+  T8_ASSERT (level >= ((const t8_dvertex_t *) elem)->level);
 
-  ((t8_dvertex_t *) desc)->level = levels[0];
+  ((t8_dvertex_t *) desc)->level = level;
 }
 
 void

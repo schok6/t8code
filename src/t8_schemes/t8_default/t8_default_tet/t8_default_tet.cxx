@@ -428,22 +428,21 @@ t8_default_scheme_tet::element_construct_successor (const t8_element_t *elem1, t
 
 void
 t8_default_scheme_tet::element_get_first_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                     std::vector<int> &levels) const
+                                                     const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
-  t8_dtet_first_descendant ((t8_dtet_t *) elem, (t8_dtet_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
+  t8_dtet_first_descendant ((t8_dtet_t *) elem, (t8_dtet_t *) desc, level);
 }
 
 void
-t8_default_scheme_tet::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc,
-                                                    std::vector<int> &levels) const
+t8_default_scheme_tet::element_get_last_descendant (const t8_element_t *elem, t8_element_t *desc, const int level) const
 {
   T8_ASSERT (element_is_valid (elem));
   T8_ASSERT (element_is_valid (desc));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
-  t8_dtet_last_descendant ((t8_dtet_t *) elem, (t8_dtet_t *) desc, levels[0]);
+  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
+  t8_dtet_last_descendant ((t8_dtet_t *) elem, (t8_dtet_t *) desc, level);
 }
 
 void

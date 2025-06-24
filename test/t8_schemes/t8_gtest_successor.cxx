@@ -145,8 +145,7 @@ TEST_P (class_successor, test_recursive_and_deep_successor)
   /* Test at lower level. */
   for (int ilevel = 1; ilevel <= maxlvl; ilevel++) {
     scheme->element_set_linear_id (tree_class, successor, ilevel, 0);
-    std::vector<int> level_vec = { ilevel };
-    scheme->element_get_last_descendant (tree_class, element, last, level_vec);
+    scheme->element_get_last_descendant (tree_class, element, last, ilevel);
     t8_recursive_successor (element, successor, child, last, scheme, tree_class, ilevel);
   }
   /* Test at Maxlevel. */
