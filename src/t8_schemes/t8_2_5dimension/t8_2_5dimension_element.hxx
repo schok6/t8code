@@ -34,7 +34,7 @@
 #include <t8_schemes/t8_2_5dimension/t8_2_5D.hxx>
 
 /** Provide an implementation for 2 schemes and
- * refinement in x,y and z (or x and y,z).
+ * refinement in x,y (horizontal direction) and z (vertical direction).
 */
 
 /** This function assumes an sc_mempool_t as context.
@@ -149,7 +149,24 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   inline t8_eclass_t
   get_eclass (void) const
   {
-    SC_ABORT ("This function is not implemented yet.\n");
+    /* horizontal eclass */
+    t8_eclass_t eclass1;
+    /* vertical eclass */
+    t8_eclass_t eclass2;
+    eclass1 = TUnderlyingEclassScheme1::get_eclass ();
+    eclass2 = TUnderlyingEclassScheme2::get_eclass ();
+    if (eclass1 == T8_ECLASS_LINE && eclass2 == T8_ECLASS_LINE) {
+      return T8_ECLASS_QUAD;
+    }
+    else if (eclass1 == T8_ECLASS_QUAD && eclass2 == T8_ECLASS_LINE) {
+      return T8_ECLASS_HEX;
+    }
+    else if (eclass1 == T8_ECLASS_TRIANGLE && eclass2 == T8_ECLASS_LINE) {
+      return T8_ECLASS_PRISM;
+    }
+    else {
+      SC_ABORT ("Invalid eclass for 2.5D.\n");
+    }
   }
 
   /** Return the size of a 2.5D element.
@@ -163,7 +180,8 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
   /** Returns true, if there is one element in the tree, that does not refine into 2^dim children.
    * Returns false otherwise.
-   * \return                    non-zero if there is one element in the tree that does not refine into 2^dim children.
+   * \return (in general)      non-zero if there is one element in the tree that does not refine into 2^dim children.
+   * \return (implemented)     until this point it is assumed, that the 2.5D scheme refines in both directions regular and hence the function just returns 0.
    */
   inline int
   refines_irregular (void) const
@@ -177,14 +195,15 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   inline int
   get_maxlevel (void) const
   {
-    /* For now just one common maximum level
+    /* For now just one common maximum level set to 21
+    * \see Section 5.3.1 of my master's thesis
     * TODO: Allow different maximum levels in vertical and horizontal direction
     */
     return 21;
   }
 
   /** Return the level of a particular element.
-   * \param [in] elem    The element whose level should be returned.
+   * \param [in] elem    The 2.5D element whose level should be returned.
    * \return             The level of \b elem.
    */
   inline int
@@ -194,7 +213,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Return the level of a particular element.
-   * \param [in] elem    The element whose level should be returned.
+   * \param [in] elem    The 2.5D element whose level should be returned.
    * \return             The level of \b elem.
    */
   inline int
@@ -210,13 +229,13 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       return TUnderlyingEclassScheme2::element_get_level ((t8_element_t *) &el->linear_element2);
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
   /** Copy all entries of \b source to \b dest. \b dest must be an existing
    *  element. No memory is allocated by this function.
-   * \param [in] source The element whose entries will be copied to \b dest.
+   * \param [in] source The 2.5D element whose entries will be copied to \b dest.
    * \param [in,out] dest This element's entries will be overwrite with the
    *                    entries of \b source.
    * \note \a source and \a dest may point to the same element.
@@ -240,7 +259,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \param [in] elem2  The second element.
    * \return       negative if elem1 < elem2, zero if elem1 equals elem2
    *               and positive if elem1 > elem2.
-   *  If elem2 is a copy of elem1 then the elements are equal.
+   *  If elem2 is a copy of elem1 then the 2.5D elements are equal.
    */
   inline int
   element_compare (const t8_element_t *elem1, const t8_element_t *elem2) const
@@ -269,7 +288,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   * \param [in] ts     Implementation of a class scheme.
   * \param [in] elem1  The first element.
   * \param [in] elem2  The second element.
-  * \return            1 if the elements are equal, 0 if they are not equal
+  * \return            1 if the 2.5D elements are equal, 0 if they are not equal
   */
   inline int
   element_is_equal (const t8_element_t *elem1, const t8_element_t *elem2) const
@@ -289,11 +308,11 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *  \b parent needs to be an existing element. No memory is allocated by this function.
    *  \b elem and \b parent can point to the same element, then the entries of
    *  \b elem are overwritten by the ones of its parent.
-   * \param [in] elem   The element whose parent will be computed.
+   * \param [in] elem   The 2.5D element whose parent will be computed.
    * \param [in,out] parent This element's entries will be overwritten by those
    *                    of \b elem's parent.
    *                    The storage for this element must exist
-   *                    and match the element class of the parent.
+   *                    and match the 2.5D element class of the parent.
    *                    For a pyramid, for example, it may be either a
    *                    tetrahedron or a pyramid depending on \b elem's childid.
    */
@@ -323,13 +342,23 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       T8_ASSERT (element_is_valid (parent));
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
-  // /**
-  //  * @TODO: Declaration
-  // */
+  /** Compute the horizontal column parent (according to Definition 4.14 in Katrin's master's thesis) 
+   *  of a given 2.5D element \b elem and store it in \b parent.
+   *  \b parent needs to be an existing element. No memory is allocated by this function.
+   *  \b elem and \b parent can point to the same element, then the entries of
+   *  \b elem are overwritten by the ones of its parent.
+   * \param [in] elem   The 2.5D element whose parent will be computed.
+   * \param [in,out] parent This element's entries will be overwritten by those
+   *                    of \b elem's parent.
+   *                    The storage for this element must exist
+   *                    and match the 2.5D element class of the parent.
+   *                    For a pyramid, for example, it may be either a
+   *                    tetrahedron or a pyramid depending on \b elem's childid.
+   */
   inline void
   element_get_parent_2_5D (const t8_element_t *elem, t8_element_t *p[]) const
   {
@@ -368,9 +397,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
   /** Compute the number of siblings of an element. That is the number of 
    * Children of its parent.
-   * \param [in] elem The element.
+   * \param [in] elem The 2.5D element.
    * \return          The number of siblings of \a element.
-   * Note that this number is >= 1, since we count the element itself as a sibling.
+   * Note that this number is >= 1, since we count the 2.5D element itself as a sibling.
    */
   inline int
   element_get_num_siblings (const t8_element_t *elem) const
@@ -401,7 +430,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       return TUnderlyingEclassScheme2::element_get_num_siblings ((t8_element_t *) &el->linear_element2);
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
@@ -409,12 +438,12 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *  \b sibling needs to be an existing element. No memory is allocated by this function.
    *  \b elem and \b sibling can point to the same element, then the entries of
    *  \b elem are overwritten by the ones of its sibid-th sibling.
-   * \param [in] elem   The element whose sibling will be computed.
+   * \param [in] elem   The 2.5D element whose sibling will be computed.
    * \param [in] sibid  The id of the sibling computed.
    * \param [in,out] sibling This element's entries will be overwritten by those
    *                    of \b elem's sibid-th sibling.
    *                    The storage for this element must exist
-   *                    and match the element class of the sibling.
+   *                    and match the 2.5D element class of the sibling.
    */
   inline void
   element_get_sibling (const t8_element_t *elem, int sibid, t8_element_t *sibling) const
@@ -423,7 +452,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Compute the number of corners of a given element.
-   * \param [in] elem The element.
+   * \param [in] elem The 2.5D element.
    * \return          The number of corners of \a elem.
    */
   inline int
@@ -437,7 +466,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Compute the number of faces of a given element.
-   * \param [in] elem The element.
+   * \param [in] elem The 2.5D element.
    * \return          The number of faces of \a elem.
    */
   inline int
@@ -449,7 +478,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
   /** Compute the maximum number of faces of a given element and all of its
    *  descendants.
-   * \param [in] elem The element.
+   * \param [in] elem The 2.5D element.
    * \return          The maximum number of faces of \a elem and its descendants.
    */
   inline int
@@ -460,7 +489,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Return the number of children of an element when it is refined.
-   * \param [in] elem   The element whose number of children is returned.
+   * \param [in] elem   The 2.5D element whose number of children is returned.
    * \return            The number of children of \a elem if it is to be refined.
    */
 
@@ -491,7 +520,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       return TUnderlyingEclassScheme2::element_get_num_children ((t8_element_t *) &el->linear_element2);
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
@@ -505,8 +534,8 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     return 0;
   }
 
-  /** Return the number of children of an element's face when the element is refined.
-   * \param [in] elem   The element whose face is considered.
+  /** Return the number of children of an element's face when the 2.5D element is refined.
+   * \param [in] elem   The 2.5D element whose face is considered.
    * \param [in] face   A face of \a elem.
    * \return            The number of children of \a face if \a elem is to be refined.
    */
@@ -524,7 +553,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *               0 x --- x 1
    *      Thus for face = 1 the output is: corner=0 : 1, corner=1: 3
    *
-   * \param [in] element  The element.
+   * \param [in] element  The 2.5D element.
    * \param [in] face     A face index for \a element.
    * \param [in] corner   A corner index for the face 0 <= \a corner < num_face_corners.
    * \return              The corner number of the \a corner-th vertex of \a face.
@@ -533,12 +562,12 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * LINE/QUAD/TRIANGLE:  No specific order.
    * HEX               :  In Z-order of the face starting with the lowest corner number.
    * TET               :  Starting with the lowest corner number counterclockwise as seen from
-   *                      'outside' of the element.
+   *                      'outside' of the 2.5D element.
    */
   inline int
   element_get_face_corner (const t8_element_t *element, int face, int corner) const
   {
-    SC_ABORT ("This function is not implemented yet.\n");
+    SC_ABORT (" [FACE] This function is not implemented yet.\n");
     return 0;
   }
 
@@ -549,7 +578,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *               0 x --- x 1
    *                  face 2
    *      Thus for corner = 1 the output is: face=0 : 2, face=1: 1
-   * \param [in] element  The element.
+   * \param [in] element  The 2.5D element.
    * \param [in] corner   A corner index for the face.
    * \param [in] face     A face index for \a corner.
    * \return              The face number of the \a face-th face at \a corner.
@@ -565,7 +594,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \param [in] elem     This must be a valid element, bigger than maxlevel.
    * \param [in] childid  The number of the child to construct.
    * \param [in,out] child        The storage for this element must exist
-   *                              and match the element class of the child.
+   *                              and match the 2.5D element class of the child.
    *                              For a pyramid, for example, it may be either a
    *                              tetrahedron or a pyramid depending on \a childid.
    *                              This can be checked by \a t8_element_child_eclass.
@@ -631,9 +660,6 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
         }
       }
       else {
-
-        // int num_elems_per_column = TUnderlyingEclassScheme2::count_leaves_from_root(level2);
-
         for (int i = 0; i < num_children1; i++) {
           TUnderlyingEclassScheme1::element_copy (
             c1[i], (t8_element_t *) &children[i * num_elems_per_column]->linear_element1);
@@ -668,7 +694,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       T8_FREE (c2);
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
@@ -693,7 +719,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       return TUnderlyingEclassScheme2::element_get_child_id ((t8_element_t *) &el->linear_element2);
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
@@ -715,7 +741,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     //   return TUnderlyingEclassScheme2::element_get_ancestor_id ((t8_element_t *) &el->linear_element2, level);
     // }
     // else {
-    //   SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+    //   SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     // }
   }
 
@@ -860,17 +886,17 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       }
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
   /** Compute the nearest common ancestor of two elements. That is,
-   * the element with highest level that still has both given elements as
+   * the 2.5D element with highest level that still has both given elements as
    * descendants.
    * \param [in] elem1    The first of the two input elements.
    * \param [in] elem2    The second of the two input elements.
    * \param [in,out] nca  The storage for this element must exist
-   *                      and match the element class of the child.
+   *                      and match the 2.5D element class of the child.
    *                      On output the unique nearest common ancestor of
    *                      \b elem1 and \b elem2.
    */
@@ -881,9 +907,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Compute the shape of the face of an element.
-   * \param [in] elem     The element.
+   * \param [in] elem     The 2.5D element.
    * \param [in] face     A face of \a elem.
-   * \return              The element shape of the face.
+   * \return              The 2.5D element shape of the face.
    * I.e. T8_ECLASS_LINE for quads, T8_ECLASS_TRIANGLE for tets
    *      and depending on the face number either T8_ECLASS_QUAD or
    *      T8_ECLASS_TRIANGLE for prisms.
@@ -895,9 +921,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     return T8_ECLASS_ZERO;
   }
 
-  /** Given an element and a face of the element, compute all children of
-   * the element that touch the face.
-   * \param [in] elem     The element.
+  /** Given an element and a face of the 2.5D element, compute all children of
+   * the 2.5D element that touch the face.
+   * \param [in] elem     The 2.5D element.
    * \param [in] face     A face of \a elem.
    * \param [in,out] children Allocated elements, in which the children of \a elem
    *                      that share a face with \a face are stored.
@@ -917,7 +943,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Given a face of an element and a child number of a child of that face, return the face number
-   * of the child of the element that matches the child face.
+   * of the child of the 2.5D element that matches the child face.
    * \verbatim
       x ---- x   x      x           x ---- x
       |      |   |      |           |   |  | <-- f
@@ -927,7 +953,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
        elem    face  face_child    Returns the face number f
      \endverbatim
 
-   * \param [in]  elem    The element.
+   * \param [in]  elem    The 2.5D element.
    * \param [in]  face    Then number of the face.
    * \param [in]  face_child A number 0 <= \a face_child < num_face_children,
    *                      specifying a child of \a elem that shares a face with \a face.
@@ -944,10 +970,10 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Given a face of an element return the face number
-     * of the parent of the element that matches the element's face. Or return -1 if
+     * of the parent of the 2.5D element that matches the 2.5D element's face. Or return -1 if
      * no face of the parent matches the face.
 
-     * \param [in]  elem    The element.
+     * \param [in]  elem    The 2.5D element.
      * \param [in]  face    Then number of the face.
      * \return              If \a face of \a elem is also a face of \a elem's parent,
      *                      the face number of this face. Otherwise -1.
@@ -965,13 +991,13 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *  If not the return value is arbitrary.
    *  You can call \ref t8_element_is_root_boundary to query whether the face is
    *  at the tree boundary.
-   * \param [in] elem     The element.
+   * \param [in] elem     The 2.5D element.
    * \param [in] face     The index of a face of \a elem.
    * \return The index of the tree face that \a face is a subface of, if
    *         \a face is on a tree boundary.
    *         Any arbitrary integer if \a is not at a tree boundary.
    * \warning The return value may look like a valid face of the tree even if 
-   *   the element does not lie on the root boundary.
+   *   the 2.5D element does not lie on the root boundary.
    */
   inline int
   element_get_tree_face (const t8_element_t *elem, int face) const
@@ -1009,12 +1035,12 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Given a boundary face inside a root tree's face construct
-   *  the element inside the root tree that has the given face as a
+   *  the 2.5D element inside the root tree that has the given face as a
    *  face.
    * \param [in] face     A face element.
    * \param [in] face_scheme The scheme for the face element.
    * \param [in,out] elem An allocated element. The entries will be filled with
-   *                      the data of the element that has \a face as a face and
+   *                      the data of the 2.5D element that has \a face as a face and
    *                      lies within the root tree.
    * \param [in] root_face The index of the face of the root tree in which \a face
    *                      lies.
@@ -1078,7 +1104,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   /** Compute whether a given element shares a given face with its root tree.
    * \param [in] elem     The input element.
    * \param [in] face     A face of \a elem.
-   * \return              True if \a face is a subface of the element's root element.
+   * \return              True if \a face is a subface of the 2.5D element's root element.
    * \note You can compute the corresponding face number of the tree via \ref t8_element_tree_face.
    */
   inline int
@@ -1090,7 +1116,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
   /** Construct the face neighbor of a given element if this face neighbor
    * is inside the root tree. Return 0 otherwise.
-   * \param [in] elem The element to be considered.
+   * \param [in] elem The 2.5D element to be considered.
    * \param [in,out] neigh If the face neighbor of \a elem along \a face is inside
    *                  the root tree, this element's data is filled with the
    *                  data of the face neighbor. Otherwise the data can be modified
@@ -1113,8 +1139,8 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   /** Return the shape of an allocated element according its type.
     *  For example, a child of an element can be an element of a different shape
     *  and has to be handled differently - according to its shape.
-    *  \param [in] elem     The element to be considered
-    *  \return              The shape of the element as an eclass
+    *  \param [in] elem     The 2.5D element to be considered
+    *  \return              The shape of the 2.5D element as an eclass
    */
   inline t8_element_shape_t
   element_get_shape (const t8_element_t *elem) const
@@ -1133,16 +1159,16 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       return T8_ECLASS_PRISM;
     }
     else {
-      t8_global_productionf ("Invalid combination of eclass_schemes: %i x %i",
-                             TUnderlyingEclassScheme1::element_get_shape ((t8_element_t *) &el->linear_element1),
-                             TUnderlyingEclassScheme2::element_get_shape ((t8_element_t *) &el->linear_element2));
+      t8_debugf ("Invalid combination of eclass_schemes: %i x %i",
+                 TUnderlyingEclassScheme1::element_get_shape ((t8_element_t *) &el->linear_element1),
+                 TUnderlyingEclassScheme2::element_get_shape ((t8_element_t *) &el->linear_element2));
       SC_ABORT ("Invalid combination of eclass_schemes.\n");
     }
   }
 
   /** Initialize the entries of an allocated element according to a
    *  given linear id in a uniform refinement.
-   * \param [in,out] elem The element whose entries will be set.
+   * \param [in,out] elem The 2.5D element whose entries will be set.
    * \param [in] level    The level of the uniform refinement to consider.
    * \param [in] id       The linear id.
    *                      id must fulfil 0 <= id < 'number of leafs in the uniform refinement'
@@ -1165,9 +1191,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
   /** Compute the linear id of a given element in a hypothetical uniform
    * refinement of a given level.
-   * \param [in] elem     The element whose id we compute.
+   * \param [in] elem     The 2.5D element whose id we compute.
    * \param [in] level    The level of the uniform refinement to consider.
-   * \return              The linear id of the element.
+   * \return              The linear id of the 2.5D element.
    */
   inline t8_linearidx_t
   element_get_linear_id (const t8_element_t *elem, const int levels) const
@@ -1195,7 +1221,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Compute the first descendant of a given element.
-   * \param [in] elem     The element whose descendant is computed.
+   * \param [in] elem     The 2.5D element whose descendant is computed.
    * \param [out] desc    The first element in a uniform refinement of \a elem
    *                      of the given level.
    * \param [in] level    The level, at which the descendant is computed.
@@ -1218,7 +1244,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Compute the last descendant of a given element.
-   * \param [in] elem     The element whose descendant is computed.
+   * \param [in] elem     The 2.5D element whose descendant is computed.
    * \param [out] desc    The last element in a uniform refinement of \a elem
    *                      of the given level.
    * \param [in] level    The level, at which the descendant is computed.
@@ -1253,9 +1279,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     T8_ASSERT (element_is_valid (desc));
   }
 
-  /** Construct the successor in a uniform refinement of a given element.
-  * \param [in] t    The element whose successor should be constructed.
-  * \param [in,out] s  The element whose entries will be set.
+  /** Construct the successor in a uniform 2.5D refinement of a given element.
+  * \param [in] t    The 2.5D element whose successor should be constructed.
+  * \param [in,out] s  The 2.5D element whose entries will be set.
   */
   inline void
   element_construct_successor (const t8_element_t *t, t8_element_t *s) const
@@ -1292,11 +1318,11 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     T8_ASSERT (element_is_valid ((t8_element_t *) sel));
   }
 
-  /** Compute the coordinates of a given element vertex inside a reference tree
+  /** Compute the coordinates of a given 2.5D element vertex inside a reference tree
    *  that is embedded into [0,1]^d (d = dimension).
-   *   \param [in] t      The element to be considered.
+   *   \param [in] t      The 2.5D element to be considered.
    *   \param [in] vertex The id of the vertex whose coordinates shall be computed.
-   *   \param [out] coords An array of at least as many doubles as the element's dimension
+   *   \param [out] coords An array of at least as many doubles as the 2.5D element's dimension
    *                      whose entries will be filled with the coordinates of \a vertex.
    */
   inline void
@@ -1308,8 +1334,8 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   /** Convert a point in the reference space of an element to a point in the
    *  reference space of the tree.
    * 
-   * \param [in] elem         The element.
-   * \param [in] coords_input The coordinates of the point in the reference space of the element.
+   * \param [in] elem         The 2.5D element.
+   * \param [in] coords_input The coordinates of the point in the reference space of the 2.5D element.
    * \param [in] user_data    User data.
    * \param [out] out_coords  The coordinates of the point in the reference space of the tree.
    */
@@ -1333,7 +1359,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Count how many leaf descendants of a given uniform level an element would produce.
-   * \param [in] t     The element to be checked.
+   * \param [in] t     The 2.5D element to be checked.
    * \param [in] level A refinement level.
    * \return Suppose \a t is uniformly refined up to level \a level. The return value
    * is the resulting number of elements (of the given level).
@@ -1381,7 +1407,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       return TUnderlyingEclassScheme2::count_leaves_from_root (level);
     }
     else {
-      SC_ABORT ("Direction parameter to declare t8_eclass_scheme is missing.\n");
+      SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
     }
   }
 
@@ -1404,9 +1430,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
   /**
    * Indicates if an element is refinable. Possible reasons for being not refinable could be
-   * that the element has reached its max level.
-   * \param [in] elem   The element to check.
-   * \return            True if the element is refinable.
+   * that the 2.5D element has reached its max level.
+   * \param [in] elem   The 2.5D element to check.
+   * \return            True if the 2.5D element is refinable.
    */
   inline bool
   element_is_refinable (const t8_element_t *elem) const
@@ -1424,7 +1450,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *  safe to perform any of the above algorithms on it.
    *  For example this could mean that all coordinates are in valid ranges
    *  and other membervariables do have meaningful values.
-   * \param [in]      elem  The element to be checked.
+   * \param [in]      elem  The 2.5D element to be checked.
    * \return          True if \a elem is safe to use. False otherwise.
    * \note            An element that is constructed with \ref t8_element_new
    *                  must pass this test.
@@ -1450,7 +1476,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
  * and the level of the triangle. This function is only available in the
  * debugging configuration. 
  * 
- * \param [in]        elem  The element to print
+ * \param [in]        elem  The 2.5D element to print
  */
   inline void
   element_debug_print (const t8_element_t *elem) const
@@ -1463,9 +1489,9 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /**
- * \brief Fill a string with readable information about the element
+ * \brief Fill a string with readable information about the 2.5D element
  * 
- * \param[in] elem The element to translate into human-readable information
+ * \param[in] elem The 2.5D element to translate into human-readable information
  * \param[in, out] debug_string The string to fill. 
  */
   inline void
@@ -1544,7 +1570,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \param [in,out] elems On input an array of \b length many allocated
    *                       and initialized elements, on output an array of
    *                       \b length many allocated, but not initialized elements.
-   * \note Call this function if you called t8_element_init on the element pointers.
+   * \note Call this function if you called t8_element_init on the 2.5D element pointers.
    * \see t8_element_init
    */
   inline void
@@ -1581,7 +1607,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** create the root element
-   * \param [in,out] elem The element that is filled with the root
+   * \param [in,out] elem The 2.5D element that is filled with the root
    */
   inline void
   set_to_root (t8_element_t *elem) const
@@ -1594,7 +1620,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   /** Pack multiple elements into contiguous memory, so they can be sent via MPI.
    * \param [in] elements Array of elements that are to be packed
    * \param [in] count Number of elements to pack
-   * \param [in,out] send_buffer Buffer in which to pack the elements
+   * \param [in,out] send_buffer Buffer in which to pack the 2.5D elements
    * \param [in] buffer_size size of the buffer (in order to check that we don't access out of range)
    * \param [in, out] position the position of the first byte that is not already packed
    * \param [in] comm MPI Communicator
@@ -1618,7 +1644,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 
   /** Unpack multiple elements from contiguous memory that was received via MPI.
-   * \param [in] recvbuf Buffer from which to unpack the elements
+   * \param [in] recvbuf Buffer from which to unpack the 2.5D elements
    * \param [in] buffer_size size of the buffer (in order to check that we don't access out of range)
    * \param [in, out] position the position of the first byte that is not already packed
    * \param [in] elements Array of initialised elements that is to be filled from the message
