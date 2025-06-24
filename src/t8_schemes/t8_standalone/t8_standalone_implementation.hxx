@@ -1121,7 +1121,7 @@ struct t8_standalone_scheme
   static constexpr void
 
   // previous: element_set_linear_id (t8_element_t *elem, const t8_element_level level, t8_linearidx_t id) noexcept
-  element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) noexcept
+  element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) noexcept
   {
 
     t8_standalone_element<TEclass> *el = (t8_standalone_element<TEclass> *) elem;
@@ -1129,19 +1129,20 @@ struct t8_standalone_scheme
     set_to_root ((t8_element_t *) el);
 
     /* There is only one element at level 0, so it must be root */
-    if (levels[0] == 0) {
+    if (level == 0) {
       T8_ASSERT (id == 0);
       return;
     }
 
-    T8_ASSERT (id < (size_t) element_count_leaves (elem, levels[0]));
-    T8_ASSERT (1 <= levels[0] && levels[0] <= T8_ELEMENT_MAXLEVEL[TEclass]);
+    T8_ASSERT (id < (size_t) element_count_leaves (elem, level));
+    T8_ASSERT (1 <= level && level <= T8_ELEMENT_MAXLEVEL[TEclass]);
     t8_standalone_element<TEclass> child;
 
-    while (el->level < levels[0]) {
+    while (el->level < level) {
       /* Shortcut if we need the first descendant of the subtree*/
       if (id == 0) {
-        element_get_first_descendant ((const t8_element_t *) el, (t8_element_t *) el, levels);
+        std::vector<int> level_vec = { level };
+        element_get_first_descendant ((const t8_element_t *) el, (t8_element_t *) el, level_vec);
         return;
       }
 
@@ -1159,7 +1160,7 @@ struct t8_standalone_scheme
         element_get_num_children ((const t8_element_t *) el);
 
         element_get_child ((const t8_element_t *) el, childindex, (t8_element_t *) &child);
-        const t8_linearidx_t num_descendants_of_child = element_count_leaves ((t8_element_t *) &child, levels[0]);
+        const t8_linearidx_t num_descendants_of_child = element_count_leaves ((t8_element_t *) &child, level);
 
         /* Add number of descendant of current child to cumulative sum */
         sum_descendants_of_children_until_current = sum_descendants_of_children_before + num_descendants_of_child;
@@ -1445,8 +1446,7 @@ struct t8_standalone_scheme
     /* Set all values to 0 */
     for (int ielem = 0; ielem < length; ielem++) {
       // std::vector<t8_element_level> null = {0};
-      std::vector<int> null = { 0 };
-      element_set_linear_id ((t8_element_t *) (el + ielem), null, 0);
+      element_set_linear_id ((t8_element_t *) (el + ielem), 0, 0);
       T8_ASSERT (element_is_valid ((t8_element_t *) (el + ielem)));
     }
 #endif

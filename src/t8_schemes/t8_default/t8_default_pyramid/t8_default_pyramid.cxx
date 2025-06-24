@@ -250,9 +250,9 @@ t8_default_scheme_pyramid::element_get_level (const t8_element_t *elem) const
 }
 
 void
-t8_default_scheme_pyramid::element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const
+t8_default_scheme_pyramid::element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) const
 {
-  t8_dpyramid_init_linear_id ((t8_dpyramid_t *) elem, levels[0], id);
+  t8_dpyramid_init_linear_id ((t8_dpyramid_t *) elem, level, id);
   T8_ASSERT (element_is_valid (elem));
 }
 

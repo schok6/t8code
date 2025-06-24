@@ -1174,19 +1174,23 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    *                      id must fulfil 0 <= id < 'number of leafs in the uniform refinement'
    */
   inline void
+  element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) const
+  {
+    SC_ABORT ("Not implemented for 2.5 dimensional scheme.\n");
+  }
+
+  inline void
   element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const
   {
     T8_ASSERT (element_is_valid (elem));
     element_2_5D *el = (element_2_5D *) elem;
     t8_linearidx_t id_scheme;
-    std::vector<int> level1 = { levels[0] };
-    std::vector<int> level2 = { levels[1] };
 
     int num_elems_per_column = TUnderlyingEclassScheme2::count_leaves_from_root (levels[1]);
     id_scheme = id / num_elems_per_column;
-    TUnderlyingEclassScheme1::element_set_linear_id ((t8_element_t *) &el->linear_element1, level1, id_scheme);
+    TUnderlyingEclassScheme1::element_set_linear_id ((t8_element_t *) &el->linear_element1, levels[0], id_scheme);
     id_scheme = id % num_elems_per_column;
-    TUnderlyingEclassScheme2::element_set_linear_id ((t8_element_t *) &el->linear_element2, level2, id_scheme);
+    TUnderlyingEclassScheme2::element_set_linear_id ((t8_element_t *) &el->linear_element2, levels[1], id_scheme);
   }
 
   /** Compute the linear id of a given element in a hypothetical uniform
@@ -1196,10 +1200,11 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
    * \return              The linear id of the 2.5D element.
    */
   inline t8_linearidx_t
-  element_get_linear_id (const t8_element_t *elem, const int levels) const
+  element_get_linear_id (const t8_element_t *elem, const int level) const
   {
     SC_ABORT ("Not implemented for 2.5 dimensional scheme.\n");
   }
+
   inline t8_linearidx_t
   element_get_linear_id (const t8_element_t *elem, std::vector<int> &levels) const
   {

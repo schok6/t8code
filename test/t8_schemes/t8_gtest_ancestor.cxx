@@ -42,8 +42,7 @@ class ancestor: public testing::TestWithParam<t8_eclass> {
     scheme->element_new (eclass, 1, &correct_ancestor);
     scheme->element_new (eclass, 1, &desc_a);
     scheme->element_new (eclass, 1, &check);
-    std::vector<int> null {0};
-    scheme->element_set_linear_id (eclass, correct_ancestor, null, 0);
+    scheme->element_set_linear_id (eclass, correct_ancestor, 0, 0);
   }
   void
   TearDown () override
@@ -110,8 +109,7 @@ TEST_P (ancestor, multi_level_recursive_check)
   t8_gloidx_t leaves_on_level;
   for (i = recursion_depth; i < max_lvl; i++) {
     leaves_on_level = scheme->element_count_leaves (eclass, correct_ancestor, i - recursion_depth);
-    std::vector<int> level_vec {i - recursion_depth};
-    scheme->element_set_linear_id (eclass, correct_ancestor_high_level, level_vec, leaves_on_level / 2);
+    scheme->element_set_linear_id (eclass, correct_ancestor_high_level, i - recursion_depth, leaves_on_level / 2);
     scheme->element_copy (eclass, correct_ancestor_high_level, parent);
     t8_recursive_ancestor (correct_ancestor, desc_a, parent, check, scheme, eclass, i);
   }

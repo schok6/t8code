@@ -195,8 +195,7 @@ t8_default_scheme_line::element_get_boundary_face (const t8_element_t *elem, [[m
 
   /* Since each vertex is the same, we just construct a vertex of the same level
    * as elem. */
-  std::vector<int> level = { element_get_level (elem) };
-  t8_default_scheme_vertex::element_set_linear_id (boundary, level, 0);
+  t8_default_scheme_vertex::element_set_linear_id (boundary, element_get_level (elem), 0);
 }
 
 /** Construct the first descendant of an element that touches a given face.   */
@@ -255,13 +254,13 @@ t8_default_scheme_line::element_get_face_neighbor_inside (const t8_element_t *el
 }
 
 void
-t8_default_scheme_line::element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const
+t8_default_scheme_line::element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) const
 {
   T8_ASSERT (element_is_valid (elem));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DLINE_MAXLEVEL);
-  T8_ASSERT (id < ((t8_linearidx_t) 1) << levels[0]);
+  T8_ASSERT (0 <= level && level <= T8_DLINE_MAXLEVEL);
+  T8_ASSERT (id < ((t8_linearidx_t) 1) << level);
 
-  t8_dline_init_linear_id ((t8_default_line_t *) elem, levels[0], id);
+  t8_dline_init_linear_id ((t8_default_line_t *) elem, level, id);
 }
 
 void

@@ -416,7 +416,7 @@ class t8_default_scheme_tri: public t8_default_scheme_common<t8_default_scheme_t
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   void
-  element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const;
+  element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) const;
 
   /** Compute the linear id of a given element in a hypothetical uniform refinement of a given level.
    * \param [in] elem     The element whose id we compute.

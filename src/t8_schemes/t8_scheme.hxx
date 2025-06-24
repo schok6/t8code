@@ -816,10 +816,10 @@ class t8_scheme {
    *                      id must fulfil 0 <= id < 'number of leaves in the uniform refinement'
    */
   inline void
-  element_set_linear_id (const t8_eclass_t tree_class, t8_element_t *elem, std::vector<int> &levels,
+  element_set_linear_id (const t8_eclass_t tree_class, t8_element_t *elem, const int level,
                          const t8_linearidx_t id) const
   {
-    return std::visit ([&] (auto &&scheme) { return scheme.element_set_linear_id (elem, levels, id); },
+    return std::visit ([&] (auto &&scheme) { return scheme.element_set_linear_id (elem, level, id); },
                        eclass_schemes[tree_class]);
   };
 

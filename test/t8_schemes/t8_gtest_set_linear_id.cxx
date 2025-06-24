@@ -40,8 +40,7 @@ class class_test_set_linear_id: public TestBFS {
       computed_level = current_level;
       id_counter = 0;
     }
-    std::vector<int> level_vec = {current_level};
-    scheme->element_set_linear_id (eclass, test_element, level_vec, id_counter);
+    scheme->element_set_linear_id (eclass, test_element, current_level, id_counter);
     id_counter++;
     EXPECT_ELEM_EQ (scheme, eclass, element, test_element);
   }

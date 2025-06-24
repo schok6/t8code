@@ -398,13 +398,13 @@ t8_default_scheme_tet::element_get_face_neighbor_inside (const t8_element_t *ele
 }
 
 void
-t8_default_scheme_tet::element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const
+t8_default_scheme_tet::element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) const
 {
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTET_MAXLEVEL);
-  T8_ASSERT (id < ((t8_linearidx_t) 1) << 3 * levels[0]);
+  T8_ASSERT (0 <= level && level <= T8_DTET_MAXLEVEL);
+  T8_ASSERT (id < ((t8_linearidx_t) 1) << 3 * level);
   T8_ASSERT (element_is_valid (elem));
 
-  t8_dtet_init_linear_id ((t8_default_tet_t *) elem, id, levels[0]);
+  t8_dtet_init_linear_id ((t8_default_tet_t *) elem, id, level);
 }
 
 t8_linearidx_t

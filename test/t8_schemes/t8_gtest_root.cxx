@@ -65,8 +65,7 @@ TEST_P (root, equals_linear_id_0_0)
 {
   t8_element_t *root_compare;
   scheme->element_new (eclass, 1, &root_compare);
-  std::vector<int> null {0};
-  scheme->element_set_linear_id (eclass, root_compare, null, 0);
+  scheme->element_set_linear_id (eclass, root_compare, 0, 0);
   EXPECT_ELEM_EQ (scheme, eclass, element, root_compare);
   scheme->element_destroy (eclass, 1, &root_compare);
 }

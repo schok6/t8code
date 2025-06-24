@@ -414,13 +414,13 @@ t8_default_scheme_tri::element_get_face_neighbor_inside (const t8_element_t *ele
 }
 
 void
-t8_default_scheme_tri::element_set_linear_id (t8_element_t *elem, std::vector<int> &levels, t8_linearidx_t id) const
+t8_default_scheme_tri::element_set_linear_id (t8_element_t *elem, const int level, t8_linearidx_t id) const
 {
   T8_ASSERT (element_is_valid (elem));
-  T8_ASSERT (0 <= levels[0] && levels[0] <= T8_DTRI_MAXLEVEL);
-  T8_ASSERT (id < ((t8_linearidx_t) 1) << (2 * levels[0]));
+  T8_ASSERT (0 <= level && level <= T8_DTRI_MAXLEVEL);
+  T8_ASSERT (id < ((t8_linearidx_t) 1) << (2 * level));
 
-  t8_dtri_init_linear_id ((t8_dtri_t *) elem, id, levels[0]);
+  t8_dtri_init_linear_id ((t8_dtri_t *) elem, id, level);
 }
 
 t8_linearidx_t

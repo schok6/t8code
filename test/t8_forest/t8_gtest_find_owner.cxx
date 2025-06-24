@@ -107,8 +107,7 @@ TEST_P (forest_find_owner, find_owner)
       for (t8_gloidx_t ielement = 0; ielement < elements_per_tree;
            ielement++, global_elem_num++) {
         /* Compute the ielement's elements in the tree */
-        std::vector<int> level_vec {level};
-        scheme->element_set_linear_id (tree_class, element, level_vec, (uint64_t) ielement);
+        scheme->element_set_linear_id (tree_class, element, level, (uint64_t) ielement);
         /* Find the owner of the element */
         int                 owner =
           t8_forest_element_find_owner (forest, itree, element, tree_class);
@@ -150,8 +149,7 @@ TEST_P (forest_find_owner, find_multiple_owners)
   const t8_scheme *scheme = t8_forest_get_scheme (forest);
   /* Construct the root element */
   scheme->element_new (tree_class, 1, &root_element);
-  std::vector<int> null {0};
-  scheme->element_set_linear_id (tree_class, root_element, null, 0);
+  scheme->element_set_linear_id (tree_class, root_element, 0, 0);
 
   for (int face = 0; face < t8_eclass_num_faces[tree_class]; face++) {
     t8_forest_element_owners_at_face (forest, 0, root_element, tree_class, face, &owners);

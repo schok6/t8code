@@ -134,9 +134,7 @@ TEST_P (get_linear_id, id_at_other_level)
     const t8_linearidx_t num_desc = scheme->count_leaves_from_root (eclass, level);
     for (t8_linearidx_t id = 0; id < num_desc; id++) {
       /* Set the child at the current level */
-      std::vector<int> level_vec = { level };
-      scheme->element_set_linear_id (eclass, child, level_vec, id);
-      std::vector<int> level_vec_plus = { level + add_lvl };
+      scheme->element_set_linear_id (eclass, child, level, id);
       /* Compute the id of child at a higher level. */
       const t8_linearidx_t id_at_lvl = scheme->element_get_linear_id (eclass, child, level + add_lvl);
       /* Compute how many leaves/descendants child has at level level+add_lvl */
@@ -145,7 +143,7 @@ TEST_P (get_linear_id, id_at_other_level)
       for (t8_linearidx_t leaf_id = 0; leaf_id < child_desc; leaf_id++) {
         /* Set the descendant (test) at level of the descendants and shift the 
          * leaf_id into the region of the descendants of child*/
-        scheme->element_set_linear_id (eclass, test, level_vec_plus, id_at_lvl + leaf_id);
+        scheme->element_set_linear_id (eclass, test, level + add_lvl, id_at_lvl + leaf_id);
         /* Compute the id of the descendant (test) at the current level */
         const t8_linearidx_t test_id = scheme->element_get_linear_id (eclass, test, level);
         /* test_id and id should be equal. */

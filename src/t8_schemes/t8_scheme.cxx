@@ -299,9 +299,7 @@ void
 t8_element_set_linear_id (const t8_scheme_c *scheme, const t8_eclass_t tree_class, t8_element_t *elem, int level,
                           t8_linearidx_t id)
 {
-  std::vector<int> levels = { level };
-
-  return scheme->element_set_linear_id (tree_class, elem, levels, id);
+  return scheme->element_set_linear_id (tree_class, elem, level, id);
 }
 
 t8_linearidx_t

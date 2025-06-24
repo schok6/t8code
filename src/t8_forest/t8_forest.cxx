@@ -1255,12 +1255,12 @@ t8_forest_populate (t8_forest_t forest)
       t8_element_array_init_size (telements, scheme, tree_class, num_tree_elements);
       element = t8_element_array_index_locidx_mutable (telements, 0);
       if (forest->set_type == 1) {
-        levels = { forest->set_level };
+        scheme->element_set_linear_id (tree_class, element, forest->set_level, start);
       }
       else if (forest->set_type == 2) {
         levels = { forest->set_level1, forest->set_level2 };
+        scheme_mixed->element_set_linear_id (tree_class, element, levels, start);
       }
-      scheme->element_set_linear_id (tree_class, element, levels, start);
       count_elements++;
       for (et = start + 1; et < end; et++, count_elements++) {
         element_succ = t8_element_array_index_locidx_mutable (telements, et - start);

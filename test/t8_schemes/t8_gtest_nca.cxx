@@ -43,8 +43,7 @@ class nca: public testing::TestWithParam<std::tuple<int, t8_eclass_t>> {
     scheme->element_new (tree_class, 1, &desc_a);
     scheme->element_new (tree_class, 1, &desc_b);
     scheme->element_new (tree_class, 1, &check);
-    std::vector<int> null { 0 };
-    scheme->element_set_linear_id (tree_class, correct_nca, null, 0);
+    scheme->element_set_linear_id (tree_class, correct_nca, 0, 0);
   }
   void
   TearDown () override
@@ -290,8 +289,7 @@ TEST_P (nca, recursive_check_higher_level)
   for (i = start_level; i < max_lvl; i++) {
     leaves_on_level = scheme->element_count_leaves (tree_class, correct_nca, i - start_level);
     /* middle = leaves/2 */
-    std::vector<int> level_vec { i - start_level };
-    scheme->element_set_linear_id (tree_class, correct_nca_high_level, level_vec, leaves_on_level / 2);
+    scheme->element_set_linear_id (tree_class, correct_nca_high_level, i - start_level, leaves_on_level / 2);
 
     /* Initialization for recursive_nca_check */
     num_children = scheme->element_get_num_children (tree_class, correct_nca_high_level);
