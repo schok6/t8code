@@ -724,6 +724,7 @@ t8_forest_adapt (t8_forest_t forest)
         }
         else if (refine == -1) {
           /* The elements form a family and are to be coarsened. */
+          /* horizontal 2.5D refinement */
           if (forest->set_adapt_direction == 1) {
             /* Make room for one new column of elements and insert the parent column. */
 
@@ -737,6 +738,7 @@ t8_forest_adapt (t8_forest_t forest)
 
             scheme_mixed->element_get_parent_2_5D (tree->eclass, elements_from[0], elements);
           }
+          /*isotropic or vertical 2.5D refinement*/
           else {
             /* Make room for one more new element. */
             elements[0] = t8_element_array_push (telements);

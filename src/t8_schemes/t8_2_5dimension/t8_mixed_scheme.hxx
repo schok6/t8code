@@ -73,7 +73,7 @@ class t8_mixed_scheme: public t8_scheme {
   scheme_mixed_container eclass_schemes_mixed; /**< The container holding the eclass schemes. */
 
   mutable t8_refcount_t
-    rc_mixed; /**< The reference count of the mixed scheme. Mutable so that the class can be const and the ref counter is still mutable. TODO: Replace by shared_ptr when forest becomes a class. */
+    rc_mixed; /**< The reference count of the mixed scheme. Mutable so that the class can be const and the ref counter is still mutable.*/
 
  public:
   /**
@@ -293,7 +293,7 @@ class t8_mixed_scheme: public t8_scheme {
 };
 
 /** The mixed scheme builder adds a combination of two eclass schemes to a scheme container and returns it.
- * TODO: Make return value a reference.
+ * It also relays the function calls to the specific 2.5D schemes.
  */
 class t8_mixed_scheme_builder {
  public:

@@ -3328,7 +3328,7 @@ t8_forest_commit (t8_forest_t forest)
       T8_ASSERT (t8_forest_scheme_is_valid (forest->scheme));
     }
     else if (forest->set_type == 2) {
-      /* @T0D0: t8_forest_scheme_is_valid for 2.5D scheme */
+      /* T0D0: t8_forest_scheme_is_valid for 2.5D scheme */
     }
 
     /* dup communicator if requested */
@@ -4402,6 +4402,12 @@ t8_forest_new_adapt (t8_forest_t forest_from, t8_forest_adapt_t adapt_fn, int re
 
   t8_forest_init (&forest);
   forest->set_adapt_direction = direction;
+  if (forest_from->set_type == 1) {
+    T8_ASSERT (direction == 0);
+  }
+  else if (forest_from->set_type == 2) {
+    T8_ASSERT (direction == 1 || direction == 2);
+  }
   t8_forest_set_adapt (forest, forest_from, adapt_fn, recursive);
   t8_forest_set_ghost (forest, do_face_ghost, T8_GHOST_FACES);
   if (user_data != NULL) {

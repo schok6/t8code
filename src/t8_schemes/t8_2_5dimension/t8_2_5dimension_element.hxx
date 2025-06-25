@@ -1513,25 +1513,23 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   }
 #endif
 
-  /** Allocate memory for an array of elements of a given class and initialize them.
-   * \param [in] length   The number of elements to be allocated.
+  /** Allocate memory for an array of hexaedra and initialize them.
+   * \param [in] length   The number of hex to be allocated.
    * \param [in,out] elems On input an array of \b length many unallocated
    *                      element pointers.
    *                      On output all these pointers will point to an allocated
    *                      and initialized element.
    * \note Not every element that is created in t8code will be created by a call
-   * to this function. However, if an element is not created using \ref t8_element_new,
-   * then it is guaranteed that \ref t8_element_init is called on it.
-   * \note In debugging mode, an element that was created with \ref t8_element_new
-   * must pass \ref t8_element_is_valid.
-   * \note If an element was created by \ref t8_element_new then \ref t8_element_init
-   * may not be called for it. Thus, \ref t8_element_new should initialize an element
-   * in the same way as a call to \ref t8_element_init would.
-   * \see t8_element_init
-   * \see t8_element_is_valid
+   * to this function. However, if an element is not created using \ref element_new,
+   * then it is guaranteed that \ref element_init is called on it.
+   * \note In debugging mode, an element that was created with \ref element_new
+   * must pass \ref element_is_valid.
+   * \note If an element was created by \ref element_new then \ref element_init
+   * may not be called for it. Thus, \ref element_new should initialize an element
+   * in the same way as a call to \ref element_init would.
+   * \see element_init
+   * \see element_is_valid
    */
-  /* TODO: would it be better to directly allocate an array of elements,
-   *       not element pointers? */
   inline void
   element_new (int length, t8_element_t **elem) const
   {

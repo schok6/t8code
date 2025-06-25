@@ -289,8 +289,7 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     * last_desc_id of last element of rank < first_desc_id of first element of rank+1 */
     /** TODO: This assertion might still be wrong, when our last element is the last element of the tree*/
     T8_ASSERT (itree < num_local_trees - 1 || last_desc_id < first_desc_id);
-    //[TODO] new assertion for 2.5D to guarantee, that columns aren't seperated
-    //@MASTERARBEIT -> column seperation is needed or another assertion!
+    /* TODO: new assertion for 2.5D to guarantee, that columns aren't -> column seperation is necessary  */
   }
 
   /* clean up */
