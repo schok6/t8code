@@ -386,12 +386,12 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
                                             (t8_element_t *) &parent[0]->linear_element2);
 
-    for (int i = 1; i < num_elems_per_column; i++) {
+    for (int iparent = 1; iparent < num_elems_per_column; iparent++) {
       TUnderlyingEclassScheme1::element_get_parent (
         (t8_element_t *) &el->linear_element1,
-        (t8_element_t *) &parent[i]->linear_element1);  //muss 4 mal berechnet werden
-      TUnderlyingEclassScheme2::element_construct_successor ((t8_element_t *) &parent[i - 1]->linear_element2,
-                                                             (t8_element_t *) &parent[i]->linear_element2);
+        (t8_element_t *) &parent[iparent]->linear_element1);  //muss 4 mal berechnet werden
+      TUnderlyingEclassScheme2::element_construct_successor ((t8_element_t *) &parent[iparent - 1]->linear_element2,
+                                                             (t8_element_t *) &parent[iparent]->linear_element2);
     }
   }
 
@@ -653,22 +653,22 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
 
       //only refined in dir1
       if (level2 == 0) {
-        for (int i = 0; i < num_children1; i++) {
-          TUnderlyingEclassScheme1::element_copy (c1[i], (t8_element_t *) &children[i]->linear_element1);
+        for (int ichild = 0; ichild < num_children1; ichild++) {
+          TUnderlyingEclassScheme1::element_copy (c1[ichild], (t8_element_t *) &children[ichild]->linear_element1);
           TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
-                                                  (t8_element_t *) &children[i]->linear_element2);
+                                                  (t8_element_t *) &children[ichild]->linear_element2);
         }
       }
       else {
-        for (int i = 0; i < num_children1; i++) {
+        for (int ichild = 0; ichild < num_children1; ichild++) {
           TUnderlyingEclassScheme1::element_copy (
-            c1[i], (t8_element_t *) &children[i * num_elems_per_column]->linear_element1);
+            c1[ichild], (t8_element_t *) &children[ichild * num_elems_per_column]->linear_element1);
           TUnderlyingEclassScheme2::element_copy (
             (t8_element_t *) &el->linear_element2,
-            (t8_element_t *) &children[i * num_elems_per_column]->linear_element2);
-          for (int j = 1; j < num_elems_per_column; j++) {
-            int pos = i * num_elems_per_column + j;
-            TUnderlyingEclassScheme1::element_copy (c1[i], (t8_element_t *) &children[pos]->linear_element1);
+            (t8_element_t *) &children[ichild * num_elems_per_column]->linear_element2);
+          for (int ielemvert = 1; ielemvert < num_elems_per_column; ielemvert++) {
+            int pos = ichild * num_elems_per_column + ielemvert;
+            TUnderlyingEclassScheme1::element_copy (c1[ichild], (t8_element_t *) &children[pos]->linear_element1);
             TUnderlyingEclassScheme2::element_construct_successor ((t8_element_t *) &children[pos - 1]->linear_element2,
                                                                    (t8_element_t *) &children[pos]->linear_element2);
           }
@@ -684,10 +684,10 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       t8_element_t **c2 = T8_ALLOC (t8_element_t *, length);
       TUnderlyingEclassScheme2::element_new (length, c2);
       TUnderlyingEclassScheme2::element_get_children ((t8_element_t *) &el->linear_element2, length, c2);
-      for (int i = 0; i < length; i++) {
+      for (int ichild = 0; ichild < length; ichild++) {
         TUnderlyingEclassScheme1::element_copy ((t8_element_t *) &el->linear_element1,
-                                                (t8_element_t *) &children[i]->linear_element1);
-        TUnderlyingEclassScheme2::element_copy (c2[i], (t8_element_t *) &children[i]->linear_element2);
+                                                (t8_element_t *) &children[ichild]->linear_element1);
+        TUnderlyingEclassScheme2::element_copy (c2[ichild], (t8_element_t *) &children[ichild]->linear_element2);
       }
 
       TUnderlyingEclassScheme2::element_destroy (length, c2);
@@ -787,7 +787,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       int level2_elem0 = TUnderlyingEclassScheme2::element_get_level ((t8_element_t *) &f0->linear_element2);
       int num_elems_dir2 = TUnderlyingEclassScheme2::count_leaves_from_root (level2_elem0);
 
-      //holds due to assumption that in direction 2 uniform refined
+      // holds due to assumption that in direction 2 uniform refined
       int elems_in_family = num_siblings1 * num_elems_dir2;
 
       int level1_elem0 = TUnderlyingEclassScheme1::element_get_level ((t8_element_t *) &f0->linear_element1);
@@ -802,22 +802,26 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       std::vector<int> levels_elem1 = { level1_elem1, level2_elem1 };
       int lin_id_elem2 = element_get_linear_id (fam[num_elems_dir2], levels_elem1);
 
-      if (lin_id_elem1 + num_elems_dir2 == lin_id_elem2 && level2_elem0 != 0
-          && level2_elem1 != 0) {  //braucht man letzte && Bedingung? oder level2_elem0 == level2_elem1??
+      /* The first and the second element must lie on the same vertical position and must
+      *  successive elements in horizontal direction
+      *  TODO: level2_elem0 == level2_elem1 instead of level2_elem1 != 0?
+
+      */
+      if (lin_id_elem1 + num_elems_dir2 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0) {
         t8_element_t **fam1;
         fam1 = T8_ALLOC (t8_element_t *, num_siblings1);
         int is_equal = 0;
         int is_equal_dir1 = 0;
-        for (int i = 0; i < elems_in_family; i += num_elems_dir2) {
-          const element_2_5D *elem = (const element_2_5D *) fam[i];
-          int pos = i / num_elems_dir2;
+        for (int ifam = 0; ifam < elems_in_family; ifam += num_elems_dir2) {
+          const element_2_5D *elem = (const element_2_5D *) fam[ifam];
+          int pos = ifam / num_elems_dir2;
           fam1[pos] = (t8_element_t *) &elem->linear_element1;
         }
-        for (int i = 0; i < num_elems_dir2; i++) {
+        for (int ielemvert = 0; ielemvert < num_elems_dir2; ielemvert++) {
           is_equal_dir1 = 0;
-          for (int j = 0; j < num_siblings1 - 1; j++) {
-            const element_2_5D *elem = (const element_2_5D *) fam[i + j * num_elems_dir2];
-            const element_2_5D *elem_comp = (const element_2_5D *) fam[i + (j + 1) * num_elems_dir2];
+          for (int isibling = 0; isibling < num_siblings1 - 1; isibling++) {
+            const element_2_5D *elem = (const element_2_5D *) fam[ielemvert + isibling * num_elems_dir2];
+            const element_2_5D *elem_comp = (const element_2_5D *) fam[ielemvert + (isibling + 1) * num_elems_dir2];
             if (TUnderlyingEclassScheme2::element_is_equal ((t8_element_t *) &elem->linear_element2,
                                                             (t8_element_t *) &elem_comp->linear_element2)) {
               is_equal_dir1 += 1;
@@ -860,16 +864,16 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       int level2_elem1 = TUnderlyingEclassScheme2::element_get_level ((t8_element_t *) &f1->linear_element2);
       std::vector<int> levels_elem1 = { level1_elem1, level2_elem1 };
       int lin_id_elem2 = element_get_linear_id (fam[1], levels_elem1);
-      //+1 as this is dependent direction and thus elements need to have a consecutive linear id
+      // +1 as this is dependent direction and thus elements need to have a consecutive linear id
       if (lin_id_elem1 + 1 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0) {
         t8_element **fam2;
         fam2 = T8_ALLOC (t8_element_t *, num_siblings2);
         int is_equal = 0;
-        for (int i = 0; i < num_siblings2; i++) {
-          const element_2_5D *elem = (const element_2_5D *) fam[i];
-          fam2[i] = (t8_element_t *) &elem->linear_element2;
-          if (i < num_siblings2 - 1) {
-            const element_2_5D *elem_comp = (const element_2_5D *) fam[i + 1];
+        for (int isibling = 0; isibling < num_siblings2; isibling++) {
+          const element_2_5D *elem = (const element_2_5D *) fam[isibling];
+          fam2[isibling] = (t8_element_t *) &elem->linear_element2;
+          if (isibling < num_siblings2 - 1) {
+            const element_2_5D *elem_comp = (const element_2_5D *) fam[isibling + 1];
             if (TUnderlyingEclassScheme1::element_is_equal ((t8_element_t *) &elem->linear_element1,
                                                             (t8_element_t *) &elem_comp->linear_element1)) {
               is_equal += 1;
@@ -1319,7 +1323,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     else {
       TUnderlyingEclassScheme2::set_to_root ((t8_element_t *) &sel->linear_element2);
       int level_t = TUnderlyingEclassScheme2::element_get_level ((t8_element_t *) &tel->linear_element2);
-      for (int i = 0; i < level_t; i++) {
+      for (int ilevel = 0; ilevel < level_t; ilevel++) {
         TUnderlyingEclassScheme2::element_get_child ((const t8_element_t *) &sel->linear_element2, 0,
                                                      (t8_element_t *) &sel->linear_element2);
       }

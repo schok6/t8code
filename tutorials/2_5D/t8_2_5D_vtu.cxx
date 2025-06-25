@@ -28,7 +28,7 @@
 #include <t8_forest/t8_forest_types.h>
 #include <tutorials/2_5D/t8_2_5D_vtu.hxx>
 
-/* Write the forest as vtu and also write the highlighted element in the file.
+/* Write the biforest as vtu and also write the highlighted element in the file.
  * 
  * t8code supports writing element based data to vtu as long as its stored
  * as doubles. Each of the data fields to write has to be provided in its own

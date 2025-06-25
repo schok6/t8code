@@ -237,7 +237,7 @@ t8_2_5D_adapt_forest_vertical (t8_forest_t forest)
    *   do_face_ghost - If non-zero additionally a layer of ghost elements is created for the forest.
    *                   We will discuss ghost in later steps of the tutorial.
    *   direction     - If two a biforest is adapted in vertical direction, zero for a isotropic forest and one if
-   *                   a biforest is adapted in horizonatal directions.
+   *                   a biforest is adapted in horizontal directions.
    */
   forest_adapt = t8_forest_new_adapt (forest, t8_2_5D_adapt_callback_vertical, 0, 0, 2, &adapt_data);
 
@@ -380,7 +380,7 @@ t8_2_5D_adapt_main (int argc, char **argv)
   T8_FREE (highlight_adapt_horizontal);
 
   /*
-   *  Adapt the forest verical.
+   *  Adapt the forest vertical.
    */
 
   /* Adapt the biforest vertically. We can reuse the forest variable, since the new adapted

@@ -31,7 +31,7 @@
 class line_class1: public t8_default_scheme_line {};
 class line_class2: public t8_default_scheme_line {};
 
-/* The invalid scheme is used in the mixed scheme builder for the eclasses, which aren't implented in 2.5D 
+/* The invalid scheme is used in the mixed scheme builder for the eclasses, which aren't implemented in 2.5D 
 * \see t8_scheme_new_2_5dimension
 */
 class invalid_scheme: public t8_2_5dimension_scheme<line_class1, t8_dline_t, line_class2, t8_dline_t> {};

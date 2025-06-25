@@ -758,7 +758,7 @@ t8_cmesh_uniform_bounds (t8_cmesh_t cmesh, const int level, const t8_scheme_c *s
  *                                  the calling processor anymore. Not computed if NULL.
  * \param [out]   first_tree_shared If not NULL, 1 or 0 is stored here depending on whether \a first_local_tree is the
  *                                 same as \a last_local_tree on the next process.
- * \a cmesh must be comitted before calling this function. *
+ * \a cmesh must be committed before calling this function. *
  */
 void
 t8_cmesh_uniform_bounds_2_5D (t8_cmesh_t cmesh, const int level1, const int level2, const t8_mixed_scheme_c *scheme,

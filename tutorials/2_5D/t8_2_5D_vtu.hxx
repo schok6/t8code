@@ -34,13 +34,20 @@
 #include <t8.h>                          /* General t8code header, always include this. */
 #include <t8_forest/t8_forest_general.h> /* forest definition and basic interface. */
 
-/* Write the forest as vtu and also write the highlighted element in the file.
+/* Write the biforest as vtu and also write the highlighted element in the file.
  * 
  * t8code supports writing element based data to vtu as long as its stored
  * as doubles. Each of the data fields to write has to be provided in its own
  * array of length num_local_elements.
  * We support two types: T8_VTK_SCALAR - One double per element
  *                  and  T8_VTK_VECTOR - 3 doubles per element
+ * 
+ * \param [in] forest     The biforest to write to a vtu/pvtu file.
+ * \param [in] level1     The horizonzal refinement level.
+ * \param [in] level2     The vertical refinement level.
+ * \param [in] array      The array of the considered data.
+ * \param [in] prefix     The name of the returned vtu/pvtu file.
+ * \return  A vtu/pvtu file including the data contained in array and the SFC indices with the given name of the considered biforest.
  */
 void
 t8_2_5D_output_data_to_vtu (t8_forest_t forest, int level1, int level2, double *array, const char *prefix);

@@ -20,7 +20,7 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-/*MESSy Application als t8code-example*/
+/*MESSy Application as t8code-example*/
 
 #include <t8.h>
 #include <t8_cmesh.h>
@@ -242,7 +242,7 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
                         [[maybe_unused]] const int num_elements, t8_element_t *elements[])
 {
   /* The adaptation criterion for the MESSy application is to look at temperature data given for several positions and
-  * differnt levels throughout the world. 
+  * different levels throughout the world. 
   * The temperature change inside the columns shall be considered. To do so, the temperature gradients are analysed.
   * gradients larger than average are refined and gradients smaller are coarsened. */
 
