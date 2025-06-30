@@ -4381,7 +4381,6 @@ t8_forest_new_uniform_2_5D (t8_cmesh_t cmesh, const t8_scheme *scheme, const int
   t8_forest_set_cmesh (forest, cmesh, comm);
   t8_forest_set_scheme (forest, scheme);
   t8_forest_set_level_2_5D (forest, level1, level2);
-  // t8_forest_set_profiling (forest, 1);
   if (do_face_ghost) {
     t8_forest_set_ghost (forest, 1, T8_GHOST_FACES);
   }

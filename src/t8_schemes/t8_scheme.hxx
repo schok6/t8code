@@ -107,7 +107,7 @@ class t8_scheme {
                                 t8_standalone_scheme<T8_ECLASS_LINE>,
                                 t8_standalone_scheme<T8_ECLASS_QUAD>,
                                 t8_standalone_scheme<T8_ECLASS_HEX>,
-                                // /* 2.5 dimensional/anisotropic schemes */ //-> introduce T8_CODE_BUILD_WITH_2_5D and otherwise remove this from here
+                                // /* 2.5 dimensional/anisotropic schemes */ // TODO: introduce T8_CODE_BUILD_WITH_2_5D and otherwise remove this from here
                                 invalid_scheme,
                                 t8_2_5dimension_scheme <line_class1, t8_dline_t, line_class2, t8_dline_t>,
                                 t8_2_5dimension_scheme<t8_default_scheme_quad, t8_pquad_t, t8_default_scheme_line, t8_dline_t>,

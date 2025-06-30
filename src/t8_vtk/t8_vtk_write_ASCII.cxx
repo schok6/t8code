@@ -262,17 +262,9 @@ t8_forest_vtk_cells_level_kernel (t8_forest_t forest, [[maybe_unused]] const t8_
                                   int *columns, [[maybe_unused]] void **data, T8_VTK_KERNEL_MODUS modus)
 {
   if (modus == T8_VTK_KERNEL_EXECUTE) {
-    // if (forest->set_type == 1) {
     const t8_scheme *scheme = t8_forest_get_scheme (forest);
     fprintf (vtufile, "%i ", scheme->element_get_level (tree_class, element));
     *columns += 1;
-    // }
-    // else if (forest->set_type == 2) {
-    //   // t8_global_productionf ("ts->t8_element_level (element, 1): %i", ts->t8_element_level (element, 1));
-    //   // t8_global_productionf ("ts->t8_element_level (element, 2): %i", ts->t8_element_level (element, 2));
-    //   fprintf (vtufile, "%i, %i ", ts->t8_element_level (element, 1), ts->t8_element_level (element, 2));
-    //   *columns += 2;
-    // }
   }
   return 1;
 }

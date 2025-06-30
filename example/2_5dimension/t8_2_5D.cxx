@@ -42,7 +42,7 @@ T8_EXTERN_C_BEGIN ();
 /*
 int main()
 {
-    //t8code intialisiert
+    t8code intialisiert
 
     0) Dimensionlängen aus netCDF File auslesen musst: Lon: 128; Lat: 64, Lev:90 (netCDF seitig) (nc_open(); nc_get_dimension();)
 
@@ -85,22 +85,17 @@ get_values_for_column_k (int k, int levlength, int latlength, int lonlength, flo
   for (int i = 1; i < levlength; i++) {
     k += num_datapoints;
     outputvalues[i] = inputvalues[k];
-    // t8_productionf ("outputvalues[%i]: %f \n", i, outputvalues[i]);
   }
   return outputvalues;
 }
 
-//double*
 float *
 get_values_for_column_xy (int x, int y, int level, int corr_levlength, int levlength, int latlength, int lonlength,
                           float inputvalues[], float outputvalues[])
 {
   int num_datapoints;
   num_datapoints = latlength * lonlength;
-  //Temperature values for column one at x = 0, y = 0
-  //int k = x*y; //# of column
-  int k = y * lonlength + x;  //#of column  //= morton_index!!
-  // t8_global_productionf ("column: %i\n", k);
+  int k = y * lonlength + x;
   outputvalues[0] = inputvalues[k];
   for (int i = 1; i < levlength; i++) {
     k += num_datapoints;
@@ -216,25 +211,6 @@ t8_2_5D_calculate_gradient (double *gradient, t8_locidx_t length, float percenta
   return value;
 }
 
-/* The adaptation callback function. This function will be called once for each element
- * and the return value decides whether this element should be refined or not.
- *   return > 0 -> This element should get refined.
- *   return = 0 -> This element should not get refined.
- * If the current element is the first element of a family (= all level l elements that arise from refining
- * the same level l-1 element) then this function is called with the whole family of elements
- * as input and the return value additionally decides whether the whole family should get coarsened.
- *   return > 0 -> The first element should get refined.
- *   return = 0 -> The first element should not get refined.
- *   return < 0 -> The whole family should get coarsened.
- *  
- * \param [in] forest       The current forest that is in construction.
- * \param [in] forest_from  The forest from which we adapt the current forest (in our case, the uniform forest)
- * \param [in] which_tree   The process local id of the current tree.
- * \param [in] lelement_id  The tree local index of the current element (or the first of the family).
- * \param [in] is_family    if 1, the first entries in \a elements form a family. If 0, they do not.
- * \param [in] num_elements The number of entries in \a elements elements that are defined.
- * \param [in] elements     The element or family of elements to consider for refinement/coarsening.
- */
 int
 t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t which_tree,
                         [[maybe_unused]] t8_eclass_t tree_class, [[maybe_unused]] t8_locidx_t lelement_id,
@@ -301,12 +277,6 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
       lin_id3 = pow (2, level2_fixed) * (column - 1) + adapt_data->elems_per_column[column];
     }
   }
-
-  /* You can use T8_ASSERT for assertions that are active in debug mode (when configured with --enable-debug).
-   * If the condition is not true, then the code will abort.
-   * In this case, we want to make sure that we actually did set a user pointer to forest and thus
-   * did not get the NULL pointer from t8_forest_get_user_data.
-   */
 
   T8_FREE (successor1);
   T8_FREE (successor2);
@@ -378,8 +348,8 @@ t8_2_5D_adapt_callback (t8_forest_t forest, t8_forest_t forest_from, t8_locidx_t
   return 0;
 }
 
-/* Adapt a forest according to our t8_2_5D_adapt_callback function.
- * This will create a new forest and return it. */
+/* Adapt a biforest according to our t8_2_5D_adapt_callback function.
+ * This will create a new biforest and return it. */
 t8_forest_t
 t8_2_5D_adapt_forest (t8_forest_t forest, MESSy_data adapt_data)
 {
@@ -390,17 +360,6 @@ t8_2_5D_adapt_forest (t8_forest_t forest, MESSy_data adapt_data)
 
   t8_forest_set_user_data (forest, &adapt_data);
 
-  /* Create a new forest that is adapted from \a forest with our adaptation callback.
-   * We provide the adapt_data as user data that is stored as the used_data pointer of the
-   * new forest (see also t8_forest_set_user_data).
-   * The 0, 0 arguments are flags that control
-   *   recursive  -    If non-zero adaptation is recursive, thus if an element is adapted the children
-   *                   or parents are plugged into the callback again recursively until the forest does not
-   *                   change any more. If you use this you should ensure that refinement will stop eventually.
-   *                   One way is to check the element's level against a given maximum level.
-   *   do_face_ghost - If non-zero additionally a layer of ghost elements is created for the forest.
-   *                   We will discuss ghost in later steps of the tutorial.
-   */
   forest_adapt = t8_forest_new_adapt (forest, t8_2_5D_adapt_callback, 0, 0, 2, &adapt_data);
 
   return forest_adapt;
@@ -416,13 +375,7 @@ struct MESSy_data_per_element
   int *elems_per_column;
 };
 
-/* Write the forest as vtu and also write the element's volumes in the file.
- * 
- * t8code supports writing element based data to vtu as long as its stored
- * as doubles. Each of the data fields to write has to be provided in its own
- * array of length num_local_elements.
- * We support two types: T8_VTK_SCALAR - One double per element
- *                  and  T8_VTK_VECTOR - 3 doubles per element
+/* Write the biforest as vtu and also write the element's data (temperature, height, gradient) in the file.
  */
 static void
 t8_2_5D_output_data_to_vtu_example (t8_forest_t forest, struct MESSy_data_per_element *data, const char *prefix,

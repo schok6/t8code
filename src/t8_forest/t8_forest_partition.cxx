@@ -254,7 +254,7 @@ t8_forest_partition_test_boundary_element ([[maybe_unused]] const t8_forest_t fo
     scheme->element_get_last_descendant (tree_class, element_last, element_last_desc, forest->maxlevel);
   }
   else if (forest->set_type == 2) {
-    // possibility for different maxlevels
+    /* possibility for different maxlevels in horizontal and vertical direction */
     std::vector<int> maxlevels = { forest->maxlevel, forest->maxlevel };
     scheme_mixed->element_get_last_descendant (tree_class, element_last, element_last_desc, maxlevels);
   }

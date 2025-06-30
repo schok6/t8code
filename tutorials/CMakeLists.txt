@@ -71,7 +71,6 @@ copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_quad.geo)
 copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_tet.geo)
 copy_tutorial_file (features/t8_features_curved_meshes_generate_cmesh_tri.geo)
 
-add_t8_tutorial( NAME t8_2_5D_uniform_forest            SOURCES 2_5D/t8_2_5D_vtu.cxx 2_5D/t8_2_5D_uniform_forest.cxx )
 add_t8_tutorial( NAME t8_2_5D_adapt_forest              SOURCES 2_5D/t8_2_5D_adapt_main.cxx 2_5D/t8_2_5D_vtu.cxx 2_5D/t8_2_5D_adapt_forest.cxx )
 add_t8_tutorial( NAME t8_2_5D_adapt_forest_recursive    SOURCES 2_5D/t8_2_5D_adapt_main.cxx 2_5D/t8_2_5D_vtu.cxx 2_5D/t8_2_5D_adapt_forest_recursive.cxx )
 

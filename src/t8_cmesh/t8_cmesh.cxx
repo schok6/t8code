@@ -112,7 +112,7 @@ t8_cmesh_is_committed (const t8_cmesh_t cmesh)
 #if T8_ENABLE_DEBUG
     /* TODO: check more conditions that must always hold after commit */
 
-    // TODO FOR 2.5D: TREES FOR 2_5D SCHEME AREN'T FACE CONSISTENT
+    /* TODO for 2.5D: Trees for 2.5D scheme aren't face consistent */
 
     // if ((!t8_cmesh_trees_is_face_consistent (cmesh, cmesh->trees)) || (!t8_cmesh_check_trees_per_eclass (cmesh))) {
     //   is_checking = 0;

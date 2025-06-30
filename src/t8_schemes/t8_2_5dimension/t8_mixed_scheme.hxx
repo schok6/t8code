@@ -316,7 +316,6 @@ class t8_mixed_scheme_builder {
     t8_debugf ("Registering scheme of type %s with position %li.\n", t8_debug_print_type<TEclassScheme> ().c_str (),
                scheme_mixed->eclass_schemes_mixed.size ());
 #endif  // T8_ENABLE_DEBUG
-    // scheme->eclass_schemes_mixed.emplace_back (eclass);
     scheme_mixed->eclass_schemes_mixed.emplace_back (std::in_place_type<TEclassScheme>, std::forward<_Args> (args)...);
     scheme_mixed->eclass_schemes.emplace_back (std::in_place_type<TEclassScheme>, std::forward<_Args> (args)...);
     return scheme_mixed->eclass_schemes_mixed.size ();

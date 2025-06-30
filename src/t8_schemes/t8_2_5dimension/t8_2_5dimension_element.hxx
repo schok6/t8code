@@ -386,12 +386,12 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
     TUnderlyingEclassScheme2::element_copy ((t8_element_t *) &el->linear_element2,
                                             (t8_element_t *) &parent[0]->linear_element2);
 
-    for (int iparent = 1; iparent < num_elems_per_column; iparent++) {
+    for (int ielemvert = 1; ielemvert < num_elems_per_column; ielemvert++) {
       TUnderlyingEclassScheme1::element_get_parent (
         (t8_element_t *) &el->linear_element1,
-        (t8_element_t *) &parent[iparent]->linear_element1);  //muss 4 mal berechnet werden
-      TUnderlyingEclassScheme2::element_construct_successor ((t8_element_t *) &parent[iparent - 1]->linear_element2,
-                                                             (t8_element_t *) &parent[iparent]->linear_element2);
+        (t8_element_t *) &parent[ielemvert]->linear_element1);  //has to be calculated num_elems_per_column times
+      TUnderlyingEclassScheme2::element_construct_successor ((t8_element_t *) &parent[ielemvert - 1]->linear_element2,
+                                                             (t8_element_t *) &parent[ielemvert]->linear_element2);
     }
   }
 
@@ -651,7 +651,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       TUnderlyingEclassScheme1::element_new (num_children1, c1);
       TUnderlyingEclassScheme1::element_get_children ((t8_element_t *) &el->linear_element1, num_children1, c1);
 
-      //only refined in dir1
+      /* biforest is refined in horizontal direction only */
       if (level2 == 0) {
         for (int ichild = 0; ichild < num_children1; ichild++) {
           TUnderlyingEclassScheme1::element_copy (c1[ichild], (t8_element_t *) &children[ichild]->linear_element1);
@@ -733,16 +733,6 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
   element_get_ancestor_id (const t8_element_t *elem, int level) const
   {
     SC_ABORT ("This function is not implemented yet.\n");
-    // const element_2_5D *el = (const element_2_5D *) elem;
-    // if (dir == 1) {
-    //   return TUnderlyingEclassScheme1::element_get_ancestor_id ((t8_element_t *) &el->linear_element1, level);
-    // }
-    // else if (dir == 2) {
-    //   return TUnderlyingEclassScheme2::element_get_ancestor_id ((t8_element_t *) &el->linear_element2, level);
-    // }
-    // else {
-    //   SC_ABORT ("Direction parameter to declare considered direction is missing.\n");
-    // }
   }
 
   /** Query whether a given set of elements is a family or not.
@@ -787,7 +777,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       int level2_elem0 = TUnderlyingEclassScheme2::element_get_level ((t8_element_t *) &f0->linear_element2);
       int num_elems_dir2 = TUnderlyingEclassScheme2::count_leaves_from_root (level2_elem0);
 
-      // holds due to assumption that in direction 2 uniform refined
+      /* Assumption that the biforest is in verticla direction uniformly refined */
       int elems_in_family = num_siblings1 * num_elems_dir2;
 
       int level1_elem0 = TUnderlyingEclassScheme1::element_get_level ((t8_element_t *) &f0->linear_element1);
@@ -864,7 +854,7 @@ class t8_2_5dimension_scheme: private TUnderlyingEclassScheme1, TUnderlyingEclas
       int level2_elem1 = TUnderlyingEclassScheme2::element_get_level ((t8_element_t *) &f1->linear_element2);
       std::vector<int> levels_elem1 = { level1_elem1, level2_elem1 };
       int lin_id_elem2 = element_get_linear_id (fam[1], levels_elem1);
-      // +1 as this is dependent direction and thus elements need to have a consecutive linear id
+      /* +1 as this is dependent direction and thus elements need to have a consecutive linear id */
       if (lin_id_elem1 + 1 == lin_id_elem2 && level2_elem0 != 0 && level2_elem1 != 0) {
         t8_element **fam2;
         fam2 = T8_ALLOC (t8_element_t *, num_siblings2);

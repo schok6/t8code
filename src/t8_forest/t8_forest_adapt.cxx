@@ -476,9 +476,8 @@ t8_forest_adapt (t8_forest_t forest)
       el_coarsen = 0;
       if (forest->set_adapt_direction == 1) {
         level2 = scheme_mixed->element_get_level (tree->eclass, first_element_from, 2);
-
-        num_siblings2 = scheme_mixed->element_get_num_children (
-          tree->eclass, first_element_from, 2);  //needed for break criterion to find the elements for refinement
+        /* the number of siblings in vertical direction is needed for break criterion to find the elements for refinement */
+        num_siblings2 = scheme_mixed->element_get_num_children (tree->eclass, first_element_from, 2);
         num_children = scheme_mixed->element_get_num_children (tree->eclass, first_element_from, 1);
         curr_size_elements_from = scheme_mixed->element_get_num_siblings (tree->eclass, first_element_from, 1);
       }
@@ -554,9 +553,8 @@ t8_forest_adapt (t8_forest_t forest)
             break;
           }
 
-          int test1 = pow (num_siblings2, level2) - 1;  //calculate pow(num_siblings2. level2) with root
+          int test1 = pow (num_siblings2, level2) - 1;
           int test2 = test1 + 1;
-          // if (!forest_from->incomplete_trees && (zz == (pow(num_siblings2, level2) - 1) && (zz / (pow(num_siblings2, level2))) != child_id) && forest->set_adapt_direction == 1) {
           if (!forest_from->incomplete_trees && (zz == test1 && (zz / test2) != child_id)
               && forest->set_adapt_direction == 1) {
             break;
@@ -567,7 +565,8 @@ t8_forest_adapt (t8_forest_t forest)
          * So we will only pass the first element to the adapt callback. */
         is_family = 0;
         num_elements_to_adapt_callback = 1;
-        if (forest_from->incomplete_trees) {  //not considered yet
+        /* TODO: implement case forest_from->incomplete_trees in t8_forest_adapt for 2.5D */
+        if (forest_from->incomplete_trees) {
           is_family = t8_forest_is_incomplete_family (forest_from, ltree_id, el_considered, elements_from, zz);
           if (is_family > 0) {
             /* We will pass a (in)complete family to the adapt callback */
@@ -625,19 +624,6 @@ t8_forest_adapt (t8_forest_t forest)
          */
         refine = forest->set_adapt_fn (forest, forest->set_from, ltree_id, tree->eclass, el_considered, scheme,
                                        is_family, num_elements_to_adapt_callback, elements_from);
-        // refine = 1;
-
-        /* Testing */
-        // #if T8_ENABLE_DEBUG
-        //       t8_debugf ("----------------------- \n");
-        //       t8_debugf ("refine: %i \n", refine);
-        //       t8_debugf ("tree->eclass: %i \n", tree->eclass);
-        //       for (int i=0; i < num_elements_to_adapt_callback; i++){
-        //         t8_debugf ("Information for element %i \n", i);
-        //         scheme->element_debug_print (tree->eclass, elements_from[i]);
-        //       }
-        // #endif
-        /* Testing */
 
         T8_ASSERT (is_family || refine != -1);
         int level;
@@ -655,7 +641,6 @@ t8_forest_adapt (t8_forest_t forest)
           is_refinable = scheme->element_is_refinable (tree->eclass, elements_from[0]);
         }
         if (refine > 0 && level >= forest->maxlevel || !is_refinable) {
-          // if (refine > 0 && level >= forest->maxlevel || !scheme->element_is_refinable (tree->eclass, elements_from[0])) {
           /* Only refine an element if it does not exceed the maximum level and if it is refinable */
           refine = 0;
         }
